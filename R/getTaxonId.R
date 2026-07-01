@@ -14,6 +14,7 @@ found <- function(x) !not_found(x)
 #' @param total A data.frame containing identification information with columns "scientificName", "scientificNameAuthorship", "genus"
 #' @param complete Run all possible strategies? If false, will run a default formatTax. Defaults to TRUE
 #' @param rm.miss Remove data with no identification info? Defaults to FALSE
+#' @importFrom plantR formatTax
 #' @export
 getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("Indeterminado", "INDETERMINADA", "ndeterminado", "Indet", "INDET.", "sp.", "Plantae"), ...) {
     # Fix some issues with taxonomy:
@@ -37,13 +38,17 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
     }
     table(noName)
     # else, use genus
-    total$scientificName[noName] <- total$genus[noName]
-    noName <- is.na(total$scientificName)
-    table(noName)
+    if("genus" %in% names(total)) {
+        total$scientificName[noName] <- total$genus[noName]
+        noName <- is.na(total$scientificName)
+        table(noName)
+    }
     # last resort, use family
-    total$scientificName[noName] <- total$family[noName]
-    noName <- is.na(total$scientificName)
-    table(noName)
+    if("family" %in% names(total)) {
+        total$scientificName[noName] <- total$family[noName]
+        noName <- is.na(total$scientificName)
+        table(noName)
+    }
     # Remove indeterminate markers
     invalid <- total$scientificName %in% na.values
     total$scientificName[invalid] <- NA
@@ -65,7 +70,9 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
 
     if (complete) {
     # Try again with verbatim
-    total <- tryAgain(total, function(x) not_found(x) & x$scientificName != x$verbatimScientificName, formatTax, tax.name = "verbatimScientificName", label = "Verbatim", ...)
+    if("verbatimScientificName" %in% names(total)) {
+        total <- tryAgain(total, function(x) not_found(x) & x$scientificName != x$verbatimScientificName, formatTax, tax.name = "verbatimScientificName", label = "Verbatim", ...)
+    }
 
     # we're gonna try again without author (see issue #170 in plantR)
     # total <- tryAgain(total, not_found, formatTax, use.authors = F)
