@@ -20,6 +20,8 @@ source("analyses/joinData.R")
 # Remove duplicates
 source("analyses/deduplicate.R")
 
+# Clean old files
+# source("analyses/cleanResults.R")
 # Filter occs for each UC
 source("analyses/getOccs.R")
 # Generate checklists
