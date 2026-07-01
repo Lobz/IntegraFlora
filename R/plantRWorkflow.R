@@ -45,8 +45,12 @@ plantRWorkflow_part2 <- function(x) {
 
     # We'll try getting extra taxons with wfo
     # loading the WFO and WCVP backbones into a temporary environment
-    data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
+    data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
+    # using the Bryophyta and Algae
+    x <- tryAgain(x, not_found, getTaxonId, db = bfoNamesBryophyta)
+    x <- tryAgain(x, not_found, getTaxonId, db = bfoNamesAlgae)
     # using the World Flora Online
+    # data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
     # x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
     # using the World Checklist of Vascular Plants
     # x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
@@ -68,11 +72,11 @@ plantRWorkflow_part2 <- function(x) {
 
 
     print("Validating geolocation info...")
-    map <- latamMap$brazil
+    map <- plantR::latamMap$brazil
     map <- subset(map, NAME_1 == "sao paulo")
     x <- plantR::validateCoord(x, high.map = map) # WORKING
-    x <- tryAgain(x, function(x) is.na(x$decimalLatitude.new), formatCoord)
-    x <- tryAgain(x, function(x) is.na(x$geo.check), validateCoord, high.map=map)
+    x <- tryAgain(x, function(x) is.na(x$decimalLatitude.new), plantR::formatCoord)
+    x <- tryAgain(x, function(x) is.na(x$geo.check), plantR::validateCoord, high.map=map)
     tab(is.na(x$geo.check))
     table(x$geo.check, x$origin.coord)
 
