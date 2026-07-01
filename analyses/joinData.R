@@ -52,16 +52,19 @@ if(any(sizes < chunk_size/2)) {
 
 print(paste("Organized", sum(sapply(all_data, nrow)), "records in", length(all_data), "chunks of", as.integer(chunk_size), "records"))
 save(all_data, file="data-tmp/all_data.RData")
+load("data-tmp/all_data.RData")
 
 # Apply workflow
 print("Treating data...")
 if(PARALLEL) {
-    cl <- makeCluster(CORES)
+    cl <- parallel::makeCluster(CORES)
     parallel::clusterEvalQ(cl, if(!require(integraFlora)) devtools::load_all())
-    treated_data <- parLapply(cl, all_data, plantRWorkflow_part1, subsetToProvince = T)
+    treated_data <- parallel::parLapply(cl, all_data, plantRWorkflow_part1, subsetToProvince = T)
 } else {
     treated_data <- lapply(all_data, plantRWorkflow_part1, subsetToProvince = T)
 }
+save(treated_data, file="data-tmp/treated_data.RData")
+load("data-tmp/treated_data.RData")
 treated_data <- lapply(treated_data, plantRWorkflow_part2)
 save(treated_data, file="data-tmp/treated_data.RData")
 
