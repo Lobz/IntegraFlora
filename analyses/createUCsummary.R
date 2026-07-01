@@ -33,12 +33,6 @@ info_data_list <- lapply(1:nrow(info_files), function(i) {
         )
         dt$type <- shorten_uc_name(stringr::str_extract(dt$name, paste(uc_abbrevs$long, collapse = "|")))
         dt$slug <- slug(dt$name)
-        # Remove unwanted types
-        dt <- subset(dt, !type %in% c("APAM", "APA", "ESEX"))
-        if(anyDuplicated(dt$name)) {
-            warning(paste(c("Found UCs with duplicated names:", shorten_uc_name(dt$name[duplicated(dt$name)])), collapse="\n"))
-            dt <- dt[!duplicated(dt$name) & !is.na(dt$name),]
-        }
         return(dt)
     },
     error = function(e) {
@@ -49,6 +43,27 @@ info_data_list <- lapply(1:nrow(info_files), function(i) {
 })
 
 lapply(info_data_list, head)
+
+subset_uc_summary <- function(dt) {
+    # Remove unwanted types
+    dt <- subset(dt, !type %in% c("APAM", "APA", "ESEX"))
+    # FormatLoc
+    dtl <- dt
+    dtl$locality <- dt$name
+    dtl <- addAdmin(formatLoc(dtl))
+    dt$country <- ifelse(is.na(dtl$country.correct), dt$country, dtl$country.correct)
+    dt$stateProvince <- ifelse(is.na(dtl$stateProvince.correct), dt$stateProvince, dtl$stateProvince.correct)
+    dt$municipality <- ifelse(is.na(dtl$municipality.correct), dt$municipality, dtl$municipality.correct)
+    # Subset to stateProvince
+    dt <- dt[grep(STATEPROVINCE, dt$stateProvince),]
+    if(anyDuplicated(dt$name)) {
+        warning(paste(c("Found UCs with duplicated names:", shorten_uc_name(dt$name[duplicated(dt$name)])), collapse="\n"))
+        dt <- dt[!duplicated(dt$name) & !is.na(dt$name),]
+    }
+    return(dt)
+}
+
+info_data_list <- lapply(info_data_list, subset_uc_summary)
 
 # Figure out which names are the same
 merge_info <- function(A, B) {
@@ -90,23 +105,22 @@ merge_info <- function(A, B) {
     return(r)
 }
 
-print("Merging info...")
-dt <- info_data_list[[1]]
-for(i in 2:length(info_data_list)) {
-    print(paste("Merging", filenames[i], "..."))
-    dt <- merge_info(dt, info_data_list[[i]])
+merge_many <- function(data_list, filenames = names(data_list), merge.function = merge_info) {
+    dt <- data_list[[1]]
+    for(i in 2:length(data_list)) {
+        print(paste("Merging", filenames[i], "..."))
+        dt <- merge_info(dt, data_list[[i]])
+    }
+    dt
 }
+
+print("Merging info...")
+dt <- merge_many(info_data_list, filenames)
 nrow(dt)
 tab(dt$source)
 
 dt <- dt[order(dt$name),]
 
-dtl <- dt
-dtl$locality <- dt$name
-dtl <- addAdmin(formatLoc(dtl))
-dt$country <- ifelse(is.na(dtl$country.correct), dt$country, dtl$country.correct)
-dt$stateProvince <- ifelse(is.na(dtl$stateProvince.correct), dt$stateProvince, dtl$stateProvince.correct)
-dt$municipality <- ifelse(is.na(dtl$municipality.correct), dt$municipality, dtl$municipality.correct)
 
 head(dt)
 write.csv(dt, "data-input/Locations/info/Summary.csv", row.names=F)
