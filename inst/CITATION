@@ -1,0 +1,12 @@
+citHeader("To cite plantR in publications, please use:")
+
+citEntry(entry = "Article",
+	author = personList(person("Mali Oz Cenamo Salles"),
+			person("Renato A. F. de Lima"),
+			person("Natália Ivanauskas"),
+          	person("Guilherme Grittz),
+			person("Thuane Bochorny"),
+			person("Marisa Domingos")),
+	title = "integraFlora: a tool for creating species checklists from floristic and herbarium data",
+	year = "2026""
+)
