@@ -150,8 +150,8 @@ dt.full <- formatLoc(dt)
 table(dt.full$resolution.gazetteer)
 head(dt.full)
 
-write.csv(dt.full, "results/locations/UC_gazetteer.csv", row.names=F)
-dt.full <- read.csv("results/locations/UC_gazetteer.csv", colClasses="character")
+write.csv(dt.full, "data-input/Locations/extraTables/UC_gazetteer.csv", row.names=F)
+dt.full <- read.csv("data-input/Locations/extraTables/UC_gazetteer.csv", colClasses="character")
 head(dt.full)
 
 dt <- dt.full
@@ -202,9 +202,9 @@ dt.new$source <- "cnuc_ibge"
 
 dt.ready <- dt.new[order(dt.new$country, dt.new$stateProvince, dt.new$municipality, dt.new$locality), ]
 head(dt.ready)
-write.csv(dt.ready, "results/locations/ucs_locs_cnuc_shapes.csv")
+write.csv(dt.ready, "data-input/Locations/extraTables/ucs_locs_cnuc_shapes.csv")
 
-write.csv(dt[correct.long | correct.short,c("uc_name", "stateProvince", "municipality", "loc.correct", "loc.extra")], "results/locations/uc_locstrings.csv")
+write.csv(dt[correct.long | correct.short,c("uc_name", "stateProvince", "municipality", "loc.correct", "loc.extra")], "data-input/Locations/extraTables/uc_locstrings.csv")
 
 # Check legality of gazetteer locs
 gazetteer <- read.csv("data-tmp/gazetteer - gazetteer_new.csv")
@@ -239,4 +239,4 @@ checklocs$warning <- ifelse(checklocs$loc.best != checklocs$loc.gazet, "check_lo
 
 table(res_orig!=ret$resolution.gazetteer & gazetteer$status=="ok", checklocs$loc.best != checklocs$loc.gazet & gazetteer$status=="ok")
 
-write.csv(checklocs, "results/locations/checkloc.csv")
+write.csv(checklocs, "data-input/Locations/extraTables/checkloc.csv")

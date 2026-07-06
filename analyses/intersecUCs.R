@@ -80,4 +80,4 @@ coverage[coverage$status=="covered_buffer",]
 summary(coverage[coverage$status=="covered_buffer",])
 summary(coverage[coverage$status=="intersect",])
 
-write.csv(coverage, "results/locations/intersecUCs.csv")
+write.csv(coverage, "data-input/Locations/extraTables/intersecUCs.csv")

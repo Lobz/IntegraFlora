@@ -114,11 +114,11 @@ head(x)
 for(x in dt) LT <- locTable(x)
 tabs <- lapply(dt, locTable)
 TABS <- dplyr::bind_rows(tabs)
-# write.csv(TABS, "results/locationsTable.csv", row.names = F)
-TABS2 <- read.csv("results/locations/locationsTable.csv")
+# write.csv(TABS, "data-input/Locations/extraTablesTable.csv", row.names = F)
+TABS2 <- read.csv("data-input/Locations/extraTables/locationsTable.csv")
 
 TABS3 <- subset(TABS, Localidade %in% TABS2$Localidade)
-write.csv(TABS3, "results/locations/locationsTable.csv", row.names = F)
+write.csv(TABS3, "data-input/Locations/extraTables/locationsTable.csv", row.names = F)
 
 locTable3 <- function(df, filter=""){
 
@@ -235,7 +235,7 @@ upl$add <- ifelse(upl$alreadyInGazet..status=="No: add", "Yes", "")
 # upl$status <- pairwiseMap(upl$Freq,upl$statusInGazet, max, na.rm=T)
 upl <- upl[order(upl$Freq),]
 
-write.csv(upl[upl$Freq>100,],"results/locations/locationsTable_getLoc.csv", row.names = F)
+write.csv(upl[upl$Freq>100,],"data-input/Locations/extraTables/locationsTable_getLoc.csv", row.names = F)
 
 head(tabs_locs)
 x <- subset(total, )
@@ -266,7 +266,7 @@ df <- validateDup(df)
 LT_unused <- locTable3(df)
 
 head(LT_unused)
-write.csv(LT_unused, "results/locations/potential_locs_full.csv")
+write.csv(LT_unused, "data-input/Locations/extraTables/potential_locs_full.csv")
 tail(LT_unused)
 LT_final <- subset(LT_unused, Freq>10 & !alreadyInGazet)
 head(LT_final)
@@ -279,4 +279,4 @@ LT_final <- subset(LT_final, !loc %in% removed)
 
 LT <- dplyr::bind_rows(old[1,],LT_final)[-1,]
 
-write.csv(LT, "results/locations/unused_locs.csv", na="", row.names = F)
+write.csv(LT, "data-input/Locations/extraTables/unused_locs.csv", na="", row.names = F)

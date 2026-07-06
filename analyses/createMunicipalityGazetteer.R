@@ -22,7 +22,7 @@ table(locs.correct$resolution.gazetteer)
 # Extract problem cases
 not.found <- (locs.correct$resolution.gazetteer != "county")
 locs.not.found <- locs.correct[not.found, ]
-write.csv(locs.not.found, "results/locations/municipalitites_not_found.csv", row.names = F)
+write.csv(locs.not.found, "data-input/Locations/extraTables/municipalitites_not_found.csv", row.names = F)
 locs.correct <- locs.correct[!not.found, ]
 
 # Df with state info missing
@@ -37,7 +37,7 @@ head(locs.incomplete)
 locs.correct$loc <- locs.incomplete$loc.string1
 
 head(locs.correct)
-write.csv(locs.correct, "results/locations/uniqueMunicipalities.csv", row.names = F)
+write.csv(locs.correct, "data-input/Locations/extraTables/uniqueMunicipalities.csv", row.names = F)
 
 # Remove unneded cols and rename
 locs.correct$source <- tolower(munis_info$source)
@@ -51,7 +51,7 @@ locs.out <- subset(locs.out, !loc %in% dups)
 
 head(locs.out)
 
-write.csv(locs.out, "results/locations/municipalityGazetteer.csv", row.names = F)
+write.csv(locs.out, "data-input/Locations/extraTables/municipalityGazetteer.csv", row.names = F)
 
 # Combine with plantR gazetteer to add infos
 gazet = rbind(plantR:::gazetteer, locs.out)

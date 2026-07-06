@@ -18,7 +18,7 @@ ucs$NumPrata <- NA
 ucs$NumBronze <- NA
 
 # Lookup what are the names of UCs in plantR
-LT <- read.csv("results/locations/uc_locstrings.csv")
+LT <- read.csv("data-input/Locations/extraTables/uc_locstrings.csv")
 LT <- LT[LT$uc_name %in% ucs$name, ]
 if (nrow(LT) > 0) {
     LT[LT==""] <- NA
@@ -32,7 +32,7 @@ if (nrow(LT) > 0) {
 } else {loc3 <- list(slug="")}
 
 # Read table of alternative names and locality names
-checkedLocations <- read.csv("results/locations/checkedLocations.csv")
+checkedLocations <- read.csv("data-input/Locations/extraTables/checkedLocations.csv")
 checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_UC)))
 checkedLocations <- subset(checkedLocations, slug %in% ucs$slug)
 
@@ -125,7 +125,7 @@ if(nrow(coords_gazet) > 0) {
 
 # Get intersection table
 print("Reading intersection table...")
-intersecUCs <- read.csv("results/locations/intersecUCs.csv")
+intersecUCs <- read.csv("data-input/Locations/extraTables/intersecUCs.csv")
 # Attribute confidence based on intersections
 intersecUCs$confidence <- ifelse(intersecUCs$prop > 98, "High",
                              ifelse(intersecUCs$status == "covered_buffer" | intersecUCs$prop > 80, "Medium", "Low"))

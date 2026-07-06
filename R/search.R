@@ -16,7 +16,7 @@ searchLoc <- function(pattern, corpus, fieldA = "locality", fieldB = "municipali
 #'
 #' @param checkedLocations A table containing alternative names information
 #' @export
-consolidateNamesTable <- function(checkedLocations = utils::read.csv("results/locations/checkedLocations.csv"), extraNames = c()) {
+consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c()) {
 
     if(!"slug" %in% names(checkedLocations))
         checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_UC)))
