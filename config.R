@@ -9,4 +9,4 @@ CORES = max(2, parallel::detectCores()-2)
 
 # This tool is optimized to treat a single province at a time
 COUNTRY = "Brazil"
-STATEPROVINCE = "Rio de Janeiro"
+STATEPROVINCE = "São Paulo"
