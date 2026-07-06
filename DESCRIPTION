@@ -19,6 +19,7 @@ Roxygen: list(markdown = TRUE)
 Imports:
 	rlang,
 	plantR,
+    plantRdata,
     utils,
     stringr,
     florabr,
@@ -33,7 +34,8 @@ Suggests:
     testthat (>= 3.0.0),
     knitr
 Remotes:
-	LimaRAF/plantR
+	LimaRAF/plantR,
+	LimaRAF/plantRdata
 VignetteBuilder:
     knitr
 Config/testthat/edition: 3
