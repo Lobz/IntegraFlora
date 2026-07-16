@@ -65,7 +65,7 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
     if("tax.notes" %in% names(total)) {
         total <- tryAgain(total, not_found, formatTax, label = "Default formatTax", ...)
     } else {
-        total <- formatTax(total, ...)
+        total <- formatTax(total, split.letters = TRUE, ...)
     }
 
     if (complete) {
