@@ -1,6 +1,7 @@
 if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 require(parallel)
+source("config.R")
 
 load("data-tmp/gbif.RData")
 load("data-tmp/reflora.RData")
@@ -59,21 +60,8 @@ print("Treating data...")
 if(PARALLEL) {
     cl <- parallel::makeCluster(CORES)
     parallel::clusterEvalQ(cl, if(!require(integraFlora)) devtools::load_all())
-    treated_data <- parallel::parLapply(cl, all_data, plantRWorkflow_part1, subsetToProvince = T)
+    treated_data <- parallel::parLapply(cl, all_data, plantRWorkflow_part1)
 } else {
-    treated_data <- lapply(all_data, plantRWorkflow_part1, subsetToProvince = T)
+    treated_data <- lapply(all_data, plantRWorkflow_part1)
 }
-save(treated_data, file="data-tmp/treated_data.RData")
-load("data-tmp/treated_data.RData")
-treated_data <- lapply(treated_data, plantRWorkflow_part2)
-save(treated_data, file="data-tmp/treated_data.RData")
-
-# Join
-print("Joining in a single data.frame...")
-corpus <- treated_data[[1]]
-for(x in treated_data[2:length(treated_data)]) {
-    corpus <- dplyr::bind_rows(corpus, x)
-}
-
-print("Saving...")
-save(corpus, file="data-tmp/corpus-full.rda")
+save(treated_data, file="data-tmp/treated_data_all.RData")

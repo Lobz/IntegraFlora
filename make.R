@@ -17,6 +17,7 @@ source("analyses/formatData/other.R")
 
 # Join data and treat with plantR
 source("analyses/joinData.R")
+source("analyses/treatData.R")
 # Remove duplicates
 source("analyses/deduplicate.R")
 

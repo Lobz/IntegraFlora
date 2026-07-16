@@ -1,6 +1,6 @@
 
 
-plantRWorkflow_part1 <- function(x, subsetToProvince = FALSE) {
+plantRWorkflow_part1 <- function(x) {
     # Standardize missing information
     x[x==""] <- NA
 
@@ -17,24 +17,24 @@ plantRWorkflow_part1 <- function(x, subsetToProvince = FALSE) {
     if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
     x <- fixLocation(x)
 
-    if(subsetToProvince) {
-        print("Subsetting to country...")
-
-        tab(x$country.correct)
-        tab(x$country.new[is.na(x$country.correct)])
-        x <- subset(x, country.correct == COUNTRY)
-
-        # noCountry <- subset(dt, is.na(country.correct))
-        tab(x$stateProvince.correct)
-        tab(x$municipality.new[is.na(x$stateProvince.correct)])
-        print("Subsetting to state...")
-        x <- subset(x, stateProvince.correct == STATEPROVINCE | is.na(stateProvince.correct))
-    }
-
     # Treat gps data
     print("Formatting coords...")
     x <- plantR::formatCoord(x)
     x
+}
+
+subsetToProvince <- function(x) {
+    print("Subsetting to country...")
+
+    tab(x$country.correct)
+    tab(x$country.new[is.na(x$country.correct)])
+    x <- subset(x, country.correct == COUNTRY)
+
+    # noCountry <- subset(dt, is.na(country.correct))
+    tab(x$stateProvince.correct)
+    tab(x$municipality.new[is.na(x$stateProvince.correct)])
+    print("Subsetting to state...")
+    x <- subset(x, stateProvince.correct == STATEPROVINCE | is.na(stateProvince.correct))
 }
 
 plantRWorkflow_part2 <- function(x) {
