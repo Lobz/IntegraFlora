@@ -10,7 +10,7 @@ readGBIF <- function(file, ...) {
     if(endsWith(file, ".zip")) {
         readData(file, quote = "", na.strings = c("", "NA"), output = c("occurrence", "verbatim"), ...)
     } else {
-        readOccurrence(file = file, sep = "\t", quote = NULL, ...)
+        readOccurrence(file = file, sep = "\t", quote = "", ...)
     }
 }
 
