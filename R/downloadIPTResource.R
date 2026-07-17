@@ -14,7 +14,8 @@
 #' @export
 downloadIPTResource <- function(resource,
                                   baseUrl = "https://ipt.jbrj.gov.br/jabot/resource?r=",
-                                  directory = here::here("data-tmp", "JABOT"),
+                                  directory = here::here("data-input", "Occurrences", "OtherSources",
+                                  "JABOT"),
                                   filename = paste0(resource, ".zip")) {
     if(!dir.exists(directory))
         dir.create(directory)
@@ -36,27 +37,22 @@ downloadIPTResource <- function(resource,
     # Download and save
     fullname <- file.path(directory, filename)
     utils::download.file(url = link, destfile = fullname, mode = "wb")
+
+    openZip(fullname)
 }
 
-openIPTresource <- function(file) {
-    f <- utils::unzip(file, exdir = "data-tmp", files = "occurrence.txt", overwrite = T)
-    dt <- data.table::fread(f, colClasses = "character")
-    dt
+
+openZip <- function(file, ...) {
+    utils::unzip(file, exdir = gsub(".zip", "", file), overwrite = T, ...)
 }
 
 downloadJabot <- function() {
-    # Load the list of herbaria available in JABOT
-    file_path <- here::here("data")
-    file_name <- "herbaria_reflora.csv"
-    herbaria <- data.table::fread(file.path(file_path, file_name))
-    herbaria <- as.data.frame(herbaria)
-    herbaria <- herbaria[order(herbaria$herbarium), ]
-
-    lapply(herbaria, downloadIPTResource)
+    lapply(herbariaJabot, downloadIPTResource)
 }
 
 downloadReflora <- function() {
     lapply(herbariaReflora, downloadIPTResource,
         baseUrl = "https://ipt.jbrj.gov.br/reflora/resource?r=",
-        directory = here::here("data-tmp", "Reflora"))
+        directory = here::here("data-input", "Occurrences", "OtherSources",
+        "Reflora"))
 }
