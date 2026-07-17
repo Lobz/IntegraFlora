@@ -97,13 +97,7 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
     )
 
     # Isolate authorship
-    total[not_found(total),] <- isolateAuthorship(total[not_found(total),], overwrite.authorship = FALSE)
-
-    # we're gonna try again without author (see issue #170 in plantR)
-    total <- tryAgain(total, not_found, formatTax, label = "Isolated", ...)
-
-    # Isolate authorship
-    total <- tryAgain(total, not_found, function(x, ...) {formatTax(isolateAuthorship(x), ...)}, label = "Isolate 2", ...)
+    total <- tryAgain(total, not_found, function(x, ...) {formatTax(isolateAuthorship(x), ...)}, label = "Isolate", ...)
 
     # What's still unmatched? Genus rank
     total <- tryAgain(total, condition = function(x) not_found(x) & x$taxonRank=="genus", FUN = formatTax, tax.name = "genus", label = "Genus", ...)
