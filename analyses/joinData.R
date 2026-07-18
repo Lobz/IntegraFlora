@@ -41,7 +41,7 @@ if(any(sizes < chunk_size/2)) {
     while((l <- length(small))>1) {
         sum <- nrow(small[[1]]) + nrow(small[[l]])
         if(sum <= chunk_size) {
-            small[[l]] <- dplyr::full_join(small[[1]], small[[l]])
+            small[[l]] <- join(small[[1]], small[[l]])
             small <- small[2:l]
         } else {
             large <- c(large, small[l])
