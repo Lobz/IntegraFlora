@@ -29,6 +29,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
 
     print("Formatting loc...")
     if(!"locality" %in% names(dt)) dt$locality <- NA
+    if(!"municipality" %in% names(dt)) dt$municipality <- dt$county
     dt$municipality <- sub("([ ,\\.^])sta\\.","\\1santa", dt$municipality, ignore.case = T)
     dt$locality <- sub("([ ,\\.^])sta\\.","\\1santa", dt$locality, ignore.case = T)
 

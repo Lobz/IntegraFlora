@@ -66,6 +66,13 @@ formatGBIF <- function(gbif) {
     gbif$verbatimBasisOfRecord <- gbif$basisOfRecord
     gbif$basisOfRecord <- as.basisOfRecord(gbif$basisOfRecord)
 
+    if(!"county" %in% names(x)) {
+        x$county <- NA
+    }
+    if(!"municipality" %in% names(x)) {
+        x$municipality <- x$county
+    }
+
     gbif$downloadedFrom <- "GBIF"
 
     gbif <- plantR::formatDwc(gbif_data = gbif)
@@ -170,6 +177,9 @@ formatOccurrence <- function(x) {
     }
     if(!"county" %in% names(x)) {
         x$county <- NA
+    }
+    if(!"municipality" %in% names(x)) {
+        x$municipality <- x$county
     }
 
     if(any(!minimumNames %in% names(x))) {
