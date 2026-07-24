@@ -1,8 +1,8 @@
 #' Full join
 #'
 #' Join two data.frames, avoiding errors
-#' importFrom dplyr full_join
-join <- function(x, y) {
+#' importFrom dplyr full_join bind_rows
+join <- function(x, y, merge = T) {
     # Check that columns of the same name have the same type
     colsX <- names(x)
     colsY <- names(y)
@@ -16,5 +16,10 @@ join <- function(x, y) {
         y[,same[!ok]] <- lapply(y[,same[!ok]], as.character)
     }
     # Join
-    res <- dplyr::full_join(x, y)
+    if(merge) {
+        res <- dplyr::full_join(x, y)
+    } else {
+        res <- dplyr::bind_rows(x, y)
+    }
+    res
 }
