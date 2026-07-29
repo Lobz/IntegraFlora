@@ -5,7 +5,8 @@
 \title{Consolidate names table}
 \usage{
 consolidateNamesTable(
-  checkedLocations = utils::read.csv("results/locations/checkedLocations.csv"),
+  checkedLocations =
+    utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"),
   extraNames = c()
 )
 }

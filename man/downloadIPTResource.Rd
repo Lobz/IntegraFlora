@@ -7,7 +7,7 @@
 downloadIPTResource(
   resource,
   baseUrl = "https://ipt.jbrj.gov.br/jabot/resource?r=",
-  directory = here::here("data-tmp", "JABOT"),
+  directory = here::here("data-input", "Occurrences", "OtherSources", "JABOT"),
   filename = paste0(resource, ".zip")
 )
 }
