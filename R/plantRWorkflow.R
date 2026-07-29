@@ -24,7 +24,7 @@ plantRWorkflow_part1 <- function(x) {
 }
 
 subsetToProvince <- function(x) {
-    print("Subsetting to country...")
+    print("Subsetting to state...")
 
     tab(x$country.correct)
     tab(x$country.new[is.na(x$country.correct)])
@@ -33,33 +33,38 @@ subsetToProvince <- function(x) {
     # noCountry <- subset(dt, is.na(country.correct))
     tab(x$stateProvince.correct)
     tab(x$municipality.new[is.na(x$stateProvince.correct)])
-    print("Subsetting to state...")
     x <- subset(x, stateProvince.correct == STATEPROVINCE | is.na(stateProvince.correct))
+
+    # Select only records that have SOME location info
+    noloc <- is.na(x$municipality) & is.na(x$locality) & (x$origin.coord == "coord_gazet")
+    x <- x[!noloc,]
+    x
 }
 
 plantRWorkflow_part2 <- function(x) {
 
     # formatTax and validateTax
     print("Formatting taxonomy...")
+    data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
+    tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
     x <- getTaxonId(x)
+    # using the Bryophyta and Algae
+    x <- tryAgain(x, not_found, getTaxonId, db = tax)
+
+    x <- tryAgain(x, not_found, function(x) {
+        x <- isolateAuthorship(x)
+        x <- getTaxonId(x)
+        # using the Bryophyta and Algae
+        x <- tryAgain(x, not_found, getTaxonId, db = tax)
+    })
 
     # We'll try getting extra taxons with wfo
     # loading the WFO and WCVP backbones into a temporary environment
-    data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
-    # using the Bryophyta and Algae
-    x <- tryAgain(x, not_found, getTaxonId, db = bfoNamesBryophyta)
-    x <- tryAgain(x, not_found, getTaxonId, db = bfoNamesAlgae)
     # using the World Flora Online
     # data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
     # x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
     # using the World Checklist of Vascular Plants
     # x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
-
-    # Save unmatched taxons
-    nf <- x[x$tax.notes == "not found" | !startsWith(x$id, "bfo"), ]
-    nf <- aggregate(nf$catalogNumber, list(family=nf$family, scientificName=nf$scientificName, scientificNameAuthorship=nf$scientificNameAuthorship, id=nf$id), function(x) length(unique(x)))
-    nf <- nf[order(nf$family, nf$scientificName),]
-    write.csv(nf[nf$x>=10,], "results/taxons_not_found.csv", row.names=F)
 
     # validate
     print("Validating location info...")
