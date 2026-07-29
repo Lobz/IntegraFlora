@@ -60,11 +60,11 @@ readOccurrence <- function(file, ...) {
 
 #' Specific formatting for GBIF data
 #'
-#' @param gbif A data.frame (output from readGBIF)
-formatGBIF <- function(gbif) {
-    gbif$taxonRank <- normalizeTaxonRank(tolower(gbif$taxonRank))
-    gbif$verbatimBasisOfRecord <- gbif$basisOfRecord
-    gbif$basisOfRecord <- as.basisOfRecord(gbif$basisOfRecord)
+#' @param x A data.frame (output from readx)
+formatGBIF <- function(x) {
+    x$taxonRank <- normalizeTaxonRank(tolower(x$taxonRank))
+    x$verbatimBasisOfRecord <- x$basisOfRecord
+    x$basisOfRecord <- as.basisOfRecord(x$basisOfRecord)
 
     if(!"county" %in% names(x)) {
         x$county <- NA
@@ -73,12 +73,12 @@ formatGBIF <- function(gbif) {
         x$municipality <- x$county
     }
 
-    gbif$downloadedFrom <- "GBIF"
+    x$downloadedFrom <- "x"
 
-    gbif <- plantR::formatDwc(gbif_data = gbif)
+    x <- plantR::formatDwc(gbif_data = x)
 
-    gbif <- selectDesiredFields(gbif)
-    gbif
+    x <- selectDesiredFields(x)
+    x
 }
 
 #' Specific formatting for Jabot data
