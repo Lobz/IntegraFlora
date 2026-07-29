@@ -9,10 +9,13 @@ load("data-tmp/jabot.RData")
 load("data-tmp/splink.RData")
 load("data-tmp/other.RData")
 
+memory_usage()
 # Join in a single list
 all_data <- c(gbif, reflora, jabot, splink, other)
+rm(gbif, reflora, jabot, splink, other)
 print(paste("Found", sum(vapply(all_data, nrow, 0)), "records in", length(all_data), "files"))
 
+memory_usage()
 # Organize into bite-sized chunks (size from config? ~500k?)
 if(!exists("chunk_size")) chunk_size<- 4e5
 
@@ -23,16 +26,18 @@ if(any(sizes == 0)) {
     all_data <- all_data[sizes > 0]
     sizes <- sizes[sizes > 0]
 }
+memory_usage()
 if(any(sizes > chunk_size)) {
     print("Splitting large files into chunks...")
     small <- all_data[sizes <= chunk_size]
     large <- all_data[sizes > chunk_size]
-    spl <- lapply(large, function(x) {
+    large <- lapply(large, function(x) {
         split(x, rep(1:ceiling(nrow(x)/chunk_size), each=chunk_size))
     })
-    all_data <- c(small,do.call(c, spl))
+    all_data <- c(small,do.call(c, large))
     sizes <- sapply(all_data, nrow)
 }
+memory_usage()
 if(any(sizes < chunk_size/2)) {
     print("Joining small files...")
     small <- all_data[sizes < chunk_size]
@@ -47,6 +52,7 @@ if(any(sizes < chunk_size/2)) {
             large <- c(large, small[l])
             small <- small[1:(l-1)]
         }
+        memory_usage()
     }
     all_data <- c(small, large)
 }
