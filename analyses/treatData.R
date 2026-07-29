@@ -9,9 +9,12 @@ if(SUBSETTOPROVINCE) {
     treated_data <- lapply(treated_data, subsetToProvince)
 }
 
+print("Chunking...")
 treated_data <- chunk(treated_data, chunk_size)
 
+print("Treating data...")
 treated_data <- lapply(treated_data, plantRWorkflow_part2)
+print("Part 2 complete. Saving...")
 save(treated_data, file="data-tmp/treated_data_part2.RData")
 
 

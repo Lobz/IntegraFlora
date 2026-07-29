@@ -74,5 +74,6 @@ if(PARALLEL) {
         treated_data[[i]] <- plantRWorkflow_part1(all_data[[i]])
     }
 }
-save(treated_data, file="data-tmp/treated_data_82-end.RData")
-# save(treated_data, file="data-tmp/treated_data_all.RData")
+
+print("Part 1 complete. Saving...")
+save(treated_data, file="data-tmp/treated_data_all.RData")
