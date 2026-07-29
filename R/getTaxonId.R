@@ -97,7 +97,7 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
     )
 
     # Isolate authorship
-    total <- tryAgain(total, not_found, function(x, ...) {formatTax(isolateAuthorship(x), ...)}, label = "Isolate", ...)
+    # total <- tryAgain(total, not_found, function(x, ...) {formatTax(isolateAuthorship(x), ...)}, label = "Isolate", ...)
 
     # What's still unmatched? Genus rank
     total <- tryAgain(total, condition = function(x) not_found(x) & x$taxonRank=="genus", FUN = formatTax, tax.name = "genus", label = "Genus", ...)
