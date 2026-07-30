@@ -1,9 +1,11 @@
 SHELL := /bin/bash
 R ?= Rscript
 
-all:
+all: treat-occs
 
-create-uc-summary: config
+create-uc-summary: data-input/Locations/info/Summary.csv
+
+data-input/Locations/info/Summary.csv: config.R
 	$(R) "analyses/createUCsummary.R"
 
 data-tmp/gbif.RData: data-input/Occurrences/GBIF/*
@@ -30,14 +32,14 @@ data-tmp/corpus-full.rda: data-tmp/treated_data_all.RData config.R
 detect-duplicates: data-tmp/corpus-full.rda
 	$(R) "analyses/detectDuplicates.R"
 
-results/summary_getOccs.csv: data-tmp/corpus-full.rda
+results/summary_getOccs.csv: data-tmp/corpus-full.rda data-input/Locations/extraTables/checkedLocations.csv data-input/Locations/info/Summary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
 	$(R) "analyses/getOccs.R"
 
-treat-occs: results/summary_getOccs.csv
+treat-occs: results/summary_getOccs.csv analyses/treatOccs.R
 	$(R) "analyses/treatOccs.R"
 
 clean:
-	rm -f results/**/*.csv results/**/*.rda
+	$(R) "analyses/cleanResults.R"
 
 purge: clean
 	rm -f data-tmp/*
