@@ -2,7 +2,9 @@ if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 source("config.R")
 
+print("Loading all data...")
 load("data-tmp/treated_data_all.RData")
+rm(all_data)
 
 print("Subsetting...")
 if(SUBSETTOPROVINCE) {
@@ -12,18 +14,12 @@ if(SUBSETTOPROVINCE) {
 print("Chunking...")
 treated_data <- chunk(treated_data, chunk_size)
 
-print("Treating data...")
-treated_data <- lapply(treated_data, plantRWorkflow_part2)
-print("Part 2 complete. Saving...")
-save(treated_data, file="data-tmp/treated_data_part2.RData")
-
-
-# Join
-print("Joining in a single data.frame...")
-corpus <- treated_data[[1]]
-for(i in length(treated_data):2) {
+print("Treating data and joining in a single data.frame...")
+corpus <- plantRWorkflow_part2(treated_data[[1]])
+max <- length(treated_data)
+for(i in max:2) {
     print(i)
-    corpus <- join(corpus, treated_data[[i]], merge = F)
+    corpus <- join(corpus, plantRWorkflow_part2(treated_data[[i]]), merge = F)
     treated_data[[i]] <- NULL
 }
 
