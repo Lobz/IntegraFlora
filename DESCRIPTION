@@ -34,7 +34,7 @@ Suggests:
     testthat (>= 3.0.0),
     knitr
 Remotes:
-	LimaRAF/plantR,
+	Lobz/plantR,
 	LimaRAF/plantRdata
 VignetteBuilder:
     knitr
