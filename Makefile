@@ -1,13 +1,16 @@
 SHELL := /bin/bash
 R ?= Rscript
 
+GBIF_URL ?= https://api.gbif.org/v1/occurrence/download/request/0000452-260623161305970.zip
+GBIF_FILE ?= data-input/Occurrences/GBIF/GBIF_Brazil.zip
+
 all: treat-occs
 
 install-deps: install_deps_linux.sh
 	$(SHELL) install_deps_linux.sh
 
 install: install-deps DESCRIPTION
-	$(R) -e "devtools::install_deps()"
+	$(R) -e "devtools::load_all()"
 
 create-uc-summary: data-input/Locations/info/Summary.csv
 
@@ -49,3 +52,13 @@ clean:
 
 purge: clean
 	rm -rf data-tmp/*.rda data-tmp/*.RData plantR_input/*
+
+downloadIPTs:
+	$(R) -e devtools::load_all(); downloadReflora(); downloadJabot()
+
+downloadGBIF:
+	wget -v $(GBIF_URL) -O $(GBIF_FILE)
+
+downloadSPLINK:
+
+download-all: downloadIPTS downloadGBIF downloadSPLINK
