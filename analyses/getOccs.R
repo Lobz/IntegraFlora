@@ -5,6 +5,8 @@ library(florabr)
 library(parallel)
 library(sf)
 
+source("config.R")
+
 # Data about UCs from CNUC
 print("Loading conservation units data...")
 ucs <- read.csv("data-input/Locations/info/Summary.csv")

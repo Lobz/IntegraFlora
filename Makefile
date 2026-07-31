@@ -48,4 +48,4 @@ clean:
 	$(R) "analyses/cleanResults.R"
 
 purge: clean
-	rm -rf data-tmp/* plantR_input/*
+	rm -rf data-tmp/*.rda data-tmp/*.RData plantR_input/*
