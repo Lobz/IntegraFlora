@@ -36,7 +36,7 @@ data-tmp/corpus-full.rda: data-tmp/treated_data_all.RData config.R
 	$(R) "analyses/treatData.R"
 
 data-tmp/corpus.rda: data-tmp/corpus-full.rda
-	$(R) "analyses/detectDuplicates.R"
+	$(R) "analyses/deduplicate.R"
 
 results/summary_getOccs.csv: data-tmp/corpus.rda data-input/Locations/extraTables/checkedLocations.csv data-input/Locations/info/Summary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
 	$(R) "analyses/getOccs.R"
