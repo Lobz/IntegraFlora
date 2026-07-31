@@ -1,7 +1,7 @@
 if(!require(integraFlora)) devtools::load_all()
 library(plantR)
 
-# load("data-tmp/corpus-full.rda")
+load("data-tmp/corpus-full.rda")
 
 print("Removing duplicates...")
 loc.names <- c(loc.cols, paste0(loc.cols, ".new"), "longitude.gazetteer", "latitude.gazetteer")
