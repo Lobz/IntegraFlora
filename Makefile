@@ -54,11 +54,7 @@ purge: clean
 	rm -rf data-tmp/*.rda data-tmp/*.RData plantR_input/*
 
 downloadIPTs:
-	$(R) -e devtools::load_all(); downloadReflora(); downloadJabot()
+	$(R) -e "devtools::load_all(); downloadReflora(); downloadJabot()"
 
 downloadGBIF:
 	wget -v $(GBIF_URL) -O $(GBIF_FILE)
-
-downloadSPLINK:
-
-download-all: downloadIPTS downloadGBIF downloadSPLINK
