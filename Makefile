@@ -3,6 +3,12 @@ R ?= Rscript
 
 all: treat-occs
 
+install-deps: install_deps_linux.sh
+	$(SHELL) install_deps_linux.sh
+
+install: install-deps DESCRIPTION
+	$(R) -e "devtools::install_deps()"
+
 create-uc-summary: data-input/Locations/info/Summary.csv
 
 data-input/Locations/info/Summary.csv: config.R
@@ -42,4 +48,4 @@ clean:
 	$(R) "analyses/cleanResults.R"
 
 purge: clean
-	rm -f data-tmp/*
+	rm -rf data-tmp/* plantR_input/*
