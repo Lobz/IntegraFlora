@@ -3,14 +3,17 @@ require(plantR)
 require(parallel)
 source("config.R")
 
-load("data-tmp/gbif.RData")
-load("data-tmp/reflora.RData")
-load("data-tmp/jabot.RData")
-load("data-tmp/splink.RData")
-load("data-tmp/other.RData")
+print("Loading data...")
+
+lapply(c("data-tmp/gbif.RData",
+"data-tmp/reflora.RData",
+"data-tmp/jabot.RData",
+"data-tmp/splink.RData",
+"data-tmp/other.RData"), load)
 
 memory_usage()
 # Join in a single list
+print("Joining...")
 all_data <- c(gbif, reflora, jabot, splink, other)
 rm(gbif, reflora, jabot, splink, other)
 print(paste("Found", sum(vapply(all_data, nrow, 0)), "records in", length(all_data), "files"))
