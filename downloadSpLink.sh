@@ -14,5 +14,6 @@ do
 done
 cd ..
 cat parts/*.txt > large-file.txt
+rm parts/*
 
 cd ../../../
