@@ -2,7 +2,8 @@ SHELL := /bin/bash
 R ?= Rscript
 
 GBIF_URL ?= https://api.gbif.org/v1/occurrence/download/request/0000452-260623161305970.zip
-GBIF_FILE ?= data-input/Occurrences/GBIF/GBIF_Brazil.zip
+GBIF_FILE ?= "data-input/Occurrences/GBIF/GBIF_Brazil.zip"
+
 
 all: treat-occs
 
@@ -58,3 +59,7 @@ downloadIPTs:
 
 downloadGBIF:
 	wget -v $(GBIF_URL) -O $(GBIF_FILE)
+
+openGBIF: $(GBIF_FILE)
+	$(R) -e "devtools::load_all(); openZip($(GBIF_FILE))"
+	rm $(GBIF_FILE)
