@@ -1,6 +1,5 @@
 if(!require(integraFlora)) devtools::load_all()
 require(plantR)
-require(parallel)
 source("config.R")
 
 print("Loading data...")
