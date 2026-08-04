@@ -38,7 +38,7 @@ downloadIPTResource <- function(resource,
     fullname <- file.path(directory, filename)
     utils::download.file(url = link, destfile = fullname, mode = "wb")
 
-    openZip(fullname)
+    openZip(fullname, files = "occurrence.txt")
 }
 
 
