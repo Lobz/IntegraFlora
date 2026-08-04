@@ -33,8 +33,11 @@ data-tmp/splink.RData: data-input/Occurrences/splink/*
 data-tmp/other.RData: data-input/Occurrences/OtherSources/*
 	$(R) "analyses/formatData/other.R"
 
-data-tmp/treated_data_all.RData: data-tmp/gbif.RData data-tmp/jabot.RData data-tmp/reflora.RData data-tmp/splink.RData data-tmp/other.RData
+data-tmp/all_data.RData: data-tmp/gbif.RData data-tmp/jabot.RData data-tmp/reflora.RData data-tmp/splink.RData data-tmp/other.RData
 	$(R) "analyses/joinData.R"
+
+data-tmp/treated_data_all.RData: data-tmp/all_data.RData
+	$(R) "analyses/treatData_part1.R"
 
 data-tmp/corpus-full.rda: data-tmp/treated_data_all.RData config.R
 	$(R) "analyses/treatData.R"

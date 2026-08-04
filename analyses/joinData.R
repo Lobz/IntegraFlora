@@ -1,5 +1,4 @@
 if(!require(integraFlora)) devtools::load_all()
-require(plantR)
 source("config.R")
 
 print("Loading data...")
@@ -34,44 +33,26 @@ if(any(sizes > chunk_size)) {
         split(x, rep(1:ceiling(nrow(x)/chunk_size), each=chunk_size))
     })
     all_data <- c(small,do.call(c, all_data))
+    small <- NULL
     sizes <- sapply(all_data, nrow)
 }
 if(any(sizes < chunk_size/2)) {
     print("Joining small files...")
-    small <- all_data[sizes < chunk_size]
-    all_data <- all_data[sizes >= chunk_size]
-    small <- small[order(sapply(small, nrow))]
-    while((l <- length(small))>1) {
-        print(length(small))
-        sum <- nrow(small[[1]]) + nrow(small[[l]])
+    all_data <- all_data[order(sizes, decreasing = TRUE)]
+    large <- 1
+    small <- length(all_data)
+    while(large != small) {
+        print(paste("Large: ", large, " / Small: ", small))
+        sum <- nrow(all_data[[small]]) + nrow(all_data[[large]])
         if(sum <= chunk_size) {
-            small[[l]] <- join(small[[1]], small[[l]])
-            small <- small[2:l]
+            all_data[[large]] <- join(all_data[[large]], all_data[[small]])
+            all_data[small] <- NULL
+            small <- small - 1
         } else {
-            all_data <- c(all_data, small[l])
-            small <- small[1:(l-1)]
+            large <- large + 1
         }
     }
-    all_data <- c(small, all_data)
 }
 
 print(paste("Organized", sum(sapply(all_data, nrow)), "records in", length(all_data), "chunks of", as.integer(chunk_size), "records"))
 save(all_data, file="data-tmp/all_data.RData")
-
-load("data-tmp/all_data.RData")
-
-# Apply workflow
-print("Treating data...")
-if(PARALLEL) {
-    cl <- parallel::makeCluster(CORES)
-    parallel::clusterEvalQ(cl, if(!require(integraFlora)) devtools::load_all())
-    treated_data <- parallel::parLapply(cl, all_data, plantRWorkflow_part1)
-} else {
-    treated_data <- list()
-    for(i in 1:length(all_data)) {
-        treated_data[[i]] <- plantRWorkflow_part1(all_data[[i]])
-    }
-}
-
-print("Part 1 complete. Saving...")
-save(treated_data, file="data-tmp/treated_data_all.RData")
