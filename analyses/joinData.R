@@ -4,11 +4,11 @@ source("config.R")
 
 print("Loading data...")
 
-lapply(c("data-tmp/gbif.RData",
-"data-tmp/reflora.RData",
-"data-tmp/jabot.RData",
-"data-tmp/splink.RData",
-"data-tmp/other.RData"), load)
+load("data-tmp/gbif.RData")
+load("data-tmp/reflora.RData")
+load("data-tmp/jabot.RData")
+load("data-tmp/splink.RData")
+load("data-tmp/other.RData")
 
 memory_usage()
 # Join in a single list
