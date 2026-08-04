@@ -56,7 +56,7 @@ readSpLink <- function(file, ...) {
 #' x <- readOccurrence("data-input/Occurrences/OtherSources/example.csv")
 readOccurrence <- function(file, ...) {
     x <- as.data.frame(data.table::fread(file, na.strings = c("", "NA"), ...))
-    x$originFile <- file
+    if(nrow(x > 0)) x$originFile <- file
     return(x)
 }
 
