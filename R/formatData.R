@@ -75,6 +75,10 @@ formatGBIF <- function(x) {
         x$municipality <- x$county
     }
 
+    if(!"country" %in% names(x) & "countryCode" %in% names(x)) {
+        x$country <- x$countryCode
+    }
+
     x$downloadedFrom <- "x"
 
     x <- plantR::formatDwc(gbif_data = x)
