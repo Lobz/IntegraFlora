@@ -44,8 +44,9 @@ if(any(sizes < chunk_size/2)) {
     while(large != small) {
         print(paste("Large: ", large, " / Small: ", small))
         sum <- nrow(all_data[[small]]) + nrow(all_data[[large]])
+        print(sum)
         if(sum <= chunk_size) {
-            all_data[[large]] <- join(all_data[[large]], all_data[[small]])
+            all_data[[large]] <- join(all_data[[large]], all_data[[small]], merge = FALSE)
             all_data[small] <- NULL
             small <- small - 1
         } else {
