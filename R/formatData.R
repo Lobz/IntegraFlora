@@ -55,7 +55,9 @@ readSpLink <- function(file, ...) {
 #'
 #' x <- readOccurrence("data-input/Occurrences/OtherSources/example.csv")
 readOccurrence <- function(file, ...) {
-    as.data.frame(data.table::fread(file, na.strings = c("", "NA"), ...))
+    x <- as.data.frame(data.table::fread(file, na.strings = c("", "NA"), ...))
+    x$originFile <- file
+    return(x)
 }
 
 #' Specific formatting for GBIF data

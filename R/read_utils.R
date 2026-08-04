@@ -14,8 +14,8 @@ remove_fields <- function(x, to_remove) {
 
 # Select fields
 f <-  plantR:::fieldNames
-plantR_fields <- f[!is.na(f$type),c("plantr")]
-extra_mine <- c("taxonRank", "verbatimScientificName", "acceptedScientificName", "species", "taxonID", "typeStatus", "recordID", "eventDate", "verbatimEventDate", "geodeticDatum", "associatedMedia",  "virtualDuplicates", "duplicates", "barcode", "downloadedFrom")
+plantR_fields <- subset(f, type=="required")[,"plantr"]
+extra_mine <- c("taxonRank", "verbatimScientificName", "acceptedScientificName", "species", "taxonID", "typeStatus", "recordID", "eventDate", "verbatimEventDate", "geodeticDatum", "associatedMedia",  "virtualDuplicates", "duplicates", "barcode", "downloadedFrom", "basisOfRecord", "genus", "taxonRank", "yearIdentified", "originFile")
 desired_fields <- union(plantR_fields, extra_mine)
 
 #' Select fields
