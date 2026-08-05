@@ -48,26 +48,32 @@ plantRWorkflow_part2 <- function(x) {
     x <- completeScientificName(x, rm.miss = T)
     x <- removeRepeatedAuthorship(x)
 
-    data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
+    if(!exists("bfoNamesBryophyta")){
+        print("Loading bryophyta and algae...")
+        data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
+    }
     tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
+    tax <- dplyr::full_join(tax, plantR::bfoNames)
     x <- getTaxonId(x)
-    # using the Bryophyta and Algae
-    x <- tryAgain(x, not_found, getTaxonId, db = tax)
 
     x <- tryAgain(x, not_found, function(x) {
         x <- isolateAuthorship(x)
         x <- getTaxonId(x)
-        # using the Bryophyta and Algae
-        x <- tryAgain(x, not_found, getTaxonId, db = tax)
     })
 
     # We'll try getting extra taxons with wfo
-    # loading the WFO and WCVP backbones into a temporary environment
+    # loading the WFO and WCVP backbones
+    if(!exists("wfoNames")) {
+        print("Loadind world flora databases...")
+        data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
+    }
     # using the World Flora Online
-    # data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
-    # x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
+    x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
     # using the World Checklist of Vascular Plants
-    # x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
+    x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
+
+    x <- getTaxonRank(x)
+    x <- get_species_and_genus(x)
 
     # validate
     print("Validating location info...")
