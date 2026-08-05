@@ -168,7 +168,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
             x
         },
         success_condition = found,
-        label = "F.", ...)
+        label = "Form", ...)
 
     # What's still unmatched? Try again with less rigor?
     # total <- tryAgain(total, function(x) x$tax.notes == "not found", formatTax, sug.dist=0.8 )
