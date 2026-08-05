@@ -45,4 +45,19 @@ tab(x$tax.notes)
 
 x <- x[not_found(x),]
 head(x)
-write.csv(x[,1:4], "results/taxons_not_found.csv", row.names=F)
+
+nf <- x[not_found(x), ]
+write.csv(nf[,1:4], "results/taxons_not_found.csv", row.names=F)
+
+x <- x[found(x), ]
+world <- startsWith(x$id, "wfo") | startsWith(x$id, "wcvp")
+head(x[world,])
+
+matched_back <- x[!world,]
+head(matched_back)
+
+not_bfo <- x[world,]
+
+x <- matched_back
+write.csv(not_bfo, "results/taxons_not_bfo.csv")
+write.csv(x, "results/taxons_matched_back.csv")
