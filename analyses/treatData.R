@@ -13,6 +13,12 @@ if(SUBSETTOPROVINCE) {
 print("Chunking...")
 treated_data <- chunk(treated_data, chunk_size)
 
+# loading the WFO and WCVP backbones, plus Algae and Bryophyta
+print("Loading bryophyta and algae...")
+data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
+print("Loadind world flora databases...")
+data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
+
 print("Treating data and joining in a single data.frame...")
 corpus <- plantRWorkflow_part2(treated_data[[1]])
 max <- length(treated_data)
