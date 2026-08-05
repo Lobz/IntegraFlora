@@ -45,6 +45,9 @@ plantRWorkflow_part2 <- function(x) {
 
     # formatTax and validateTax
     print("Formatting taxonomy...")
+    x <- completeScientificName(x, rm.miss = T)
+    x <- removeRepeatedAuthorship(x)
+
     data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
     tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
     x <- getTaxonId(x)
