@@ -1,7 +1,7 @@
 if(!require(integraFlora)) devtools::load_all()
 library(plantR)
 
-# load("data-tmp/corpus-full.rda")
+load("data-tmp/corpus-full.rda")
 
 print("Removing duplicates...")
 loc.names <- c(loc.cols, paste0(loc.cols, ".new"), "longitude.gazetteer", "latitude.gazetteer")
@@ -25,6 +25,11 @@ my_valDup <- function(x) validateDup(x, noNumb = NA, noYear = NA, noName = NA, p
     "origin.coord", prec.coord = "precision.coord", geo.check = "geo.check", datum = "geodeticDatum"),
   loc.names = loc.names, ignore.miss = T)
 
+badnames <- names(corpus)[endsWith(names(corpus), "1")]
+if(length(badnames) > 0) {
+  warning(paste("Removing problematic columns:", paste(badnames, collapse=", ")))
+  corpus[,badnames] <- NULL
+}
 corpus <- my_valDup(corpus)
 
 print("Saving...")

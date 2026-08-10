@@ -1,6 +1,6 @@
 # Please read the README before running this
+if(!require(integraFlora)) devtools::load_all()
 library(plantR)
-devtools::load_all()
 
 # Load user options
 source("config.R")
@@ -17,9 +17,12 @@ source("analyses/formatData/other.R")
 
 # Join data and treat with plantR
 source("analyses/joinData.R")
-# Remnove duplicates
+source("analyses/treatData.R")
+# Remove duplicates
 source("analyses/deduplicate.R")
 
+# Clean old files
+# source("analyses/cleanResults.R")
 # Filter occs for each UC
 source("analyses/getOccs.R")
 # Generate checklists

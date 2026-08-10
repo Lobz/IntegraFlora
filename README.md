@@ -15,6 +15,20 @@ Com os dados tratados e checados, o script [analyses/deduplicate.R](analyses/ded
 
 A partir daqui, temos uma tabela de ocorrências, que filtramos para conter apenas ocorrências do estado de São Paulo. No script [analyses/getOccs.R](analyses/getOccs.R), essas ocorrências serão filtradas por seus campos de município, localidade e coordenadas geográficas para gerar arquivos separados para cada UC, contendo todas as ocorrências associadas àquela UC, com diferentes graus de confiança de acordo com a origem da associação (mais detalhes abaixo). Por fim, no script [analyses/treatOccs.R](analyses/treatOccs.R), são selecionadas as ocorrências com maior grau de confiança para cada táxon, e essas são organizadas em listas de espécie ordenadas por família e nome científico.
 
+## Instalação
+
+Esta ferramenta foi desenvolvida inteiramente em linguagem [R](https://www.r-project.org/).
+Para utilizá-la, é preciso ter instalado o R com versão pelo menos 4.3, e baixar este repositório.
+O repositório pode ser baixado por git (pela ferramenta de terminal do git, `git clone https://github.com/Lobz/IntegraFlora.git`) ou em formato zip (https://github.com/Lobz/IntegraFlora/archive/refs/heads/main.zip) e depois extraído.
+
+Para instalar o pacote, recomendo usar o pacote `devtools`. Num terminal de R, execute:
+
+```r
+install.packages('devtools')
+devtools::install()
+```
+
+O devtools pedirá permissão para instalar todas as dependências do pacote.
 
 ## Estrutura de diretorios e conteúdo do repositório
 

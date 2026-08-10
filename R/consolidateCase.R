@@ -12,7 +12,7 @@ consolidateCase <- function(x, ns = goodNames) {
     names(x) <- s <- correct
     if(anyDuplicated(tolower(s))) {
         # TODO
-        warn("there are duplicated names")
+        warning("There are duplicated names")
     }
     x
 }

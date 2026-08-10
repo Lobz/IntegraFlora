@@ -10,7 +10,7 @@ readGBIF <- function(file, ...) {
     if(endsWith(file, ".zip")) {
         readData(file, quote = "", na.strings = c("", "NA"), output = c("occurrence", "verbatim"), ...)
     } else {
-        readOccurrence(file = file, sep = "\t", quote = NULL, ...)
+        readOccurrence(file = file, sep = "\t", quote = "", ...)
     }
 }
 
@@ -55,29 +55,42 @@ readSpLink <- function(file, ...) {
 #'
 #' x <- readOccurrence("data-input/Occurrences/OtherSources/example.csv")
 readOccurrence <- function(file, ...) {
-    as.data.frame(data.table::fread(file, na.strings = c("", "NA"), ...))
+    x <- as.data.frame(data.table::fread(file, na.strings = c("", "NA"), ...))
+    if(nrow(x > 0)) x$originFile <- file
+    return(x)
 }
 
 #' Specific formatting for GBIF data
 #'
-#' @param gbif A data.frame (output from readGBIF)
-formatGBIF <- function(gbif) {
-    gbif$taxonRank <- normalizeTaxonRank(tolower(gbif$taxonRank))
-    gbif$verbatimBasisOfRecord <- gbif$basisOfRecord
-    gbif$basisOfRecord <- as.basisOfRecord(gbif$basisOfRecord)
+#' @param x A data.frame (output from readx)
+formatGBIF <- function(x) {
+    x$taxonRank <- normalizeTaxonRank(tolower(x$taxonRank))
+    x$verbatimBasisOfRecord <- x$basisOfRecord
+    x$basisOfRecord <- as.basisOfRecord(x$basisOfRecord)
 
-    gbif$downloadedFrom <- "GBIF"
+    if(!"county" %in% names(x)) {
+        x$county <- NA
+    }
+    if(!"municipality" %in% names(x)) {
+        x$municipality <- x$county
+    }
 
-    gbif <- plantR::formatDwc(gbif_data = gbif)
+    if(!"country" %in% names(x) & "countryCode" %in% names(x)) {
+        x$country <- x$countryCode
+    }
 
-    gbif <- selectDesiredFields(gbif)
-    gbif
+    x$downloadedFrom <- "x"
+
+    x <- plantR::formatDwc(gbif_data = x)
+
+    x <- selectDesiredFields(x)
+    x
 }
 
 #' Specific formatting for Jabot data
 #'
 #' @param x A data.frame (output from readJabot)
-#' @output A data.frame formatted with formatDwc
+#' @return A data.frame formatted with formatDwc
 formatJabot <- function(x) {
     # Fix names
     x <- consolidateCase(x)
@@ -108,7 +121,7 @@ formatJabot <- function(x) {
 #' Specific formatting for Reflora data
 #'
 #' @param x A data.frame (output from readReflora)
-#' @output A data.frame formatted with formatDwc
+#' @return A data.frame formatted with formatDwc
 formatReflora <- function(x) {
     x <- parseReflora(x)
 
@@ -129,7 +142,7 @@ formatReflora <- function(x) {
 #' Specific formatting for SpLink data
 #'
 #' @param x A data.frame (output from readSpLink)
-#' @output A data.frame formatted with formatDwc
+#' @return A data.frame formatted with formatDwc
 formatSpLink <- function(x) {
     # Normalize basisOfRecord
     table(x$basisofrecord, useNA="always")
@@ -155,7 +168,7 @@ formatSpLink <- function(x) {
 #' Generic formatting for darwinCore data
 #'
 #' @param x A data.frame (output from readOccurrence)
-#' @output A data.frame formatted with formatDwc
+#' @return A data.frame formatted with formatDwc
 formatOccurrence <- function(x) {
     # Fix names
     x <- consolidateCase(x)
@@ -171,10 +184,18 @@ formatOccurrence <- function(x) {
     if(!"county" %in% names(x)) {
         x$county <- NA
     }
+    if(!"municipality" %in% names(x)) {
+        x$municipality <- x$county
+    }
 
-    if(any(!plantRMinimumNames %in% names(x))) {
-        warning(paste0("Missing required fields: ", paste(setdiff(plantRMinimumNames, names(x)), collapse=", "), ". This data will be removed"))
+    if(any(!minimumNames %in% names(x))) {
+        warning(paste0("Missing required fields: ", paste(setdiff(minimumNames, names(x)), collapse=", "), ". This data will be removed"))
         return(data.frame())
+    }
+    if(any(!minimumNamesForWorkflow %in% names(x))) {
+        warning(paste0("Missing required fields: ", paste(setdiff(minimumNamesForWorkflow, names(x)), collapse=", "), ". Filling with NA"))
+        miss <- setdiff(minimumNamesForWorkflow, names(x))
+        x[,miss] <- NA
     }
     x <- plantR::formatDwc(user_data = x)
     x <- selectDesiredFields(x)
@@ -182,11 +203,11 @@ formatOccurrence <- function(x) {
     x
 }
 
-
-plantRMinimumNames <- c("institutionCode", "collectionCode",
+minimumNames <- c("scientificName", "locality")
+minimumNamesForWorkflow <- c("institutionCode", "collectionCode",
     "catalogNumber", "recordNumber", "recordedBy", "year",
     "country", "stateProvince", "county", "municipality",
     "locality", "decimalLatitude", "decimalLongitude",
     "identifiedBy", "dateIdentified", "typeStatus", "family",
-    "scientificName", "scientificNameAuthorship")
-names(plantRMinimumNames) <- plantRMinimumNames
+    "scientificName", "scientificNameAuthorship", "taxonRank", "geodeticDatum")
+names(minimumNamesForWorkflow) <- minimumNamesForWorkflow

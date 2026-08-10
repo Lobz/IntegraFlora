@@ -34,3 +34,6 @@ cheatsheet.pdf
 ^cran-comments.md$
 ^csheet.pdf$
 ^\.secrets$
+^data-input/
+^data-tmp/
+^results/

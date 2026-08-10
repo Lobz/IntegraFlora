@@ -1,15 +1,25 @@
 Package: integraFlora
 Title: Build species list for any conservation unit in Brazil
-Version: 1.1.0
+Version: 1.1.2
 Authors@R: c(person("Mali Oz", "Salles", email = "malicsalles@gmail.com", role = c("aut", "cre")))
+Maintainer: Mali Oz Salles <malicsalles@gmail.com>
+Author:
+  Mali Oz Salles [aut, cre]
+  Renato A. F. de Lima [ctb]
+  Guilherme Salgado Grittz [ctb]
 Description: Tool to create species lists for conservation units in Brazil, from data found in GBIF, SpeciesLink, Reflora and Jabot
-Depends: R (>= 4.10)
+Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+License: GPL (>= 3) + file LICENSE
+URL: https://github.com/Lobz/IntegraFlora
+BugReports: https://github.com/Lobz/IntegraFlora/issues
+LazyDataCompression: xz
+Roxygen: list(markdown = TRUE)
 Imports:
 	rlang,
 	plantR,
+    plantRdata,
     utils,
     stringr,
     florabr,
@@ -17,13 +27,16 @@ Imports:
     parallel,
     bit64,
     rvest,
-    measurements
+    dplyr,
+    sf
 Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     knitr
 Remotes:
-	LimaRAF/plantR
+	Lobz/plantR,
+	LimaRAF/plantRdata
 VignetteBuilder:
     knitr
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0

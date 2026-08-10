@@ -1,5 +1,6 @@
 
-plantRWorkflow <- function(x, subsetToProvince = FALSE) {
+
+plantRWorkflow_part1 <- function(x) {
     # Standardize missing information
     x[x==""] <- NA
 
@@ -9,65 +10,87 @@ plantRWorkflow <- function(x, subsetToProvince = FALSE) {
 
     # Lets format this
     print("Formatting occs")
-    x <- formatOcc(x, noNumb = NA, noYear = NA, noName = NA)
+    x <- plantR::formatOcc(x, noNumb = NA, noYear = NA, noName = NA)
 
     print("Formatting locs")
     if(!exists("COUNTRY")) COUNTRY <- "Brazil"
     if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
     x <- fixLocation(x)
 
-    if(subsetToProvince) {
-        print("Subsetting to country...")
-
-        tab(x$country.correct)
-        tab(x$country.new[is.na(x$country.correct)])
-        x <- subset(x, country.correct == COUNTRY)
-
-        # noCountry <- subset(dt, is.na(country.correct))
-        tab(x$stateProvince.correct)
-        tab(x$municipality.new[is.na(x$stateProvince.correct)])
-        print("Subsetting to state...")
-        x <- subset(x, stateProvince.correct == STATEPROVINCE | is.na(stateProvince.correct))
-    }
-
     # Treat gps data
     print("Formatting coords...")
-    x <- formatCoord(x)
+    x <- plantR::formatCoord(x)
+    x
+}
+
+subsetToProvince <- function(x) {
+    print("Subsetting to state...")
+
+    tab(x$country.correct)
+    tab(x$country.new[is.na(x$country.correct)])
+    x <- subset(x, country.correct == COUNTRY)
+
+    # noCountry <- subset(dt, is.na(country.correct))
+    tab(x$stateProvince.correct)
+    tab(x$municipality.new[is.na(x$stateProvince.correct)])
+    x <- subset(x, stateProvince.correct == STATEPROVINCE | is.na(stateProvince.correct))
+
+    # Select only records that have SOME location info
+    noloc <- is.na(x$municipality) & is.na(x$locality) & (x$origin.coord == "coord_gazet")
+    x <- x[!noloc,]
+    x
+}
+
+plantRWorkflow_part2 <- function(x) {
 
     # formatTax and validateTax
     print("Formatting taxonomy...")
+    x <- completeScientificName(x, rm.miss = T)
+    x <- removeRepeatedAuthorship(x)
+
+    if(!exists("bfoNamesBryophyta")){
+        print("Loading bryophyta and algae...")
+        data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
+    }
+    tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
+    tax <- dplyr::full_join(tax, plantR::bfoNames)
     x <- getTaxonId(x)
 
-    # We'll try getting extra taxons with wfo
-    # loading the WFO and WCVP backbones into a temporary environment
-    data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
-    # using the World Flora Online
-    # x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
-    # using the World Checklist of Vascular Plants
-    # x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
+    x <- tryAgain(x, not_found, function(x) {
+        x <- isolateAuthorship(x)
+        x <- getTaxonId(x)
+    })
 
-    # Save unmatched taxons
-    nf <- x[x$tax.notes == "not found" | !startsWith(x$id, "bfo"), ]
-    nf <- aggregate(nf$catalogNumber, list(family=nf$family, scientificName=nf$scientificName, scientificNameAuthorship=nf$scientificNameAuthorship, id=nf$id), function(x) length(unique(x)))
-    nf <- nf[order(nf$family, nf$scientificName),]
-    write.csv(nf[nf$x>=10,], "results/taxons_not_found.csv", row.names=F)
+    # We'll try getting extra taxons with wfo
+    # loading the WFO and WCVP backbones
+    if(!exists("wfoNames")) {
+        print("Loadind world flora databases...")
+        data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
+    }
+    # using the World Flora Online
+    x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
+    # using the World Checklist of Vascular Plants
+    x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
+
+    x <- getTaxonRank(x)
+    x <- get_species_and_genus(x)
 
     # validate
     print("Validating location info...")
-    x <- validateLoc(x)
+    x <- plantR::validateLoc(x)
 
     print("Validating identification info...")
     # validate taxonomist
-    x <- validateTax(x, generalist = T)
+    x <- plantR::validateTax(x, generalist = T)
     x$tax.check <- factor(x$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
 
 
     print("Validating geolocation info...")
-    map <- latamMap$brazil
+    map <- plantR::latamMap$brazil
     map <- subset(map, NAME_1 == "sao paulo")
-    x <- validateCoord(x, high.map = map) # WORKING
-    x <- tryAgain(x, function(x) is.na(x$decimalLatitude.new), formatCoord)
-    x <- tryAgain(x, function(x) is.na(x$geo.check), validateCoord, high.map=map)
+    x <- plantR::validateCoord(x, high.map = map) # WORKING
+    x <- tryAgain(x, function(x) is.na(x$decimalLatitude.new), plantR::formatCoord)
+    x <- tryAgain(x, function(x) is.na(x$geo.check), plantR::validateCoord, high.map=map)
     tab(is.na(x$geo.check))
     table(x$geo.check, x$origin.coord)
 

@@ -1,18 +1,20 @@
 
-# Which records have not been matched?
+#' Which records have not been matched?
+#' @export
 not_found <- function(x) {
-    x$tax.notes == "not found" | grepl("not resolved|+1",x$tax.notes)
+    (x$tax.notes == "not found" | grepl("not resolved|+1",x$tax.notes)) & (!is.na(x$scientificName))
 }
+#' @export
 found <- function(x) !not_found(x)
 
-#' getTaxonId
+#' completeScientificName
 #'
-#' Try to get taxon ID using many different strategies
-#'
-#' @param total A data.frame containing identification information with columns "scientificName", "scientificNameAuthorship", "genus"
-#' @param complete Run all possible strategies? If false, will run a default formatTax. Defaults to TRUE
+#' @param total A data.frame containing identification information with columns "scientificName" and other columns
 #' @param rm.miss Remove data with no identification info? Defaults to FALSE
-getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("Indeterminado", "INDETERMINADA", "ndeterminado", "Indet", "INDET.", "sp.", "Plantae"), ...) {
+#' @param na.values Values that if present in scientificName will make that name into NA
+#' @export
+completeScientificName <- function(total, rm.miss = FALSE, na.values = c("Indeterminado", "INDETERMINADA", "ndeterminado", "Indet", "INDET.", "sp.", "Plantae", "indet", "indeterminada")) {
+
     # Fix some issues with taxonomy:
 
     # Remove indeterminate markers
@@ -34,69 +36,92 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
     }
     table(noName)
     # else, use genus
-    total$scientificName[noName] <- total$genus[noName]
-    noName <- is.na(total$scientificName)
-    table(noName)
+    if("genus" %in% names(total)) {
+        total$scientificName[noName] <- total$genus[noName]
+        noName <- is.na(total$scientificName)
+        table(noName)
+    }
     # last resort, use family
-    total$scientificName[noName] <- total$family[noName]
-    noName <- is.na(total$scientificName)
-    table(noName)
+    if("family" %in% names(total)) {
+        total$scientificName[noName] <- total$family[noName]
+        noName <- is.na(total$scientificName)
+        table(noName)
+    }
+
     # Remove indeterminate markers
     invalid <- total$scientificName %in% na.values
     total$scientificName[invalid] <- NA
     noName <- is.na(total$scientificName)
     table(noName)
 
+    cat("Found ")
+    cat(sum(noName))
+    cat(" records with null or invalid names.\n")
 
     # Remove records with no identification?
     if(rm.miss) {
+        print("Records with null or invalid names have been removed.")
         total <- subset(total, !is.na(scientificName))
     }
+
+    return(total)
+}
+
+#' Remove repeated authorship inside scientific name
+#'
+#' @param x A data.frame with columns scientificName and scientificNameAuthorship
+#' @export
+removeRepeatedAuthorship <- function(x) {
+    # remove date/numbers from the ends of names
+    x$scientificName <- sub(", \\d+", "", x$scientificName)
+    x$scientificNameAuthorship <- sub(", \\d+", "", x$scientificNameAuthorship)
+
+    repeated <- endsWith(x$scientificName, x$scientificNameAuthorship)
+    cat("Found ")
+    cat(sum(repeated))
+    cat(" records with authorship repeated inside the scientificName.\n")
+
+    x$scientificName <- plantR:::squish(pairwiseMap(x$scientificNameAuthorship, x$scientificName, function(x,y) sub(x, "", y, fixed = T)))
+    x$scientificName <- sub(", \\d+","",x$scientificName)
+
+    x
+}
+
+#' getTaxonId
+#'
+#' Try to get taxon ID using many different strategies
+#'
+#' @param total A data.frame containing identification information with columns "scientificName", "scientificNameAuthorship", "genus"
+#' @param complete Run all possible strategies? If false, will run a default formatTax. Defaults to TRUE
+#' @importFrom plantR formatTax
+#' @export
+getTaxonId <- function(total, complete = TRUE, ...) {
 
     # Match scientificName to oficial F&FBR backbone
     if("tax.notes" %in% names(total)) {
         total <- tryAgain(total, not_found, formatTax, label = "Default formatTax", ...)
     } else {
-        total <- formatTax(total, ...)
+        total <- formatTax(total, split.letters = TRUE, ...)
     }
+
+    # we're gonna try again without author (see issue #170 in plantR)
+    total <- tryAgain(total, function(x) x$tax.notes == "not found", formatTax, use.authors = F, ...)
 
     if (complete) {
     # Try again with verbatim
-    total <- tryAgain(total, function(x) not_found(x) & x$scientificName != x$verbatimScientificName, formatTax, tax.name = "verbatimScientificName", label = "Verbatim", ...)
-
-    # we're gonna try again without author (see issue #170 in plantR)
-    # total <- tryAgain(total, not_found, formatTax, use.authors = F)
-
-    # And again with author
-    # total <- tryAgain(total, not_found, formatTax, tax.name = "verbatimScientificName", use.author = F)
-
-    # For records that have authorship inside scientific name, we want to remove that
-    try(
-    total <- tryAgain(total,
-        condition = function(x) {
-            not_found(x) & pairwiseMap(x$scientificNameAuthorship, x$scientificName, grepl, fixed = T)
-            },
-        FUN = function(x, ...) {
-            x$scientificName <- plantR:::squish(pairwiseMap(x$scientificNameAuthorship, x$scientificName, function(x,y) sub(x, "", y, fixed = T)))
-            x$scientificName <- sub(", \\d+","",x$scientificName)
-            x <- formatTax(x, ...)
-            x
-        },
-        success_condition = found,
-        label = "Removed auth", ...)
-    )
+    if("verbatimScientificName" %in% names(total)) {
+        total <- tryAgain(total, function(x) not_found(x) & x$scientificName != x$verbatimScientificName, formatTax, tax.name = "verbatimScientificName", label = "Verbatim", ...)
+        # And again without author
+        total <- tryAgain(total,  function(x) x$tax.notes == "not found", formatTax, tax.name = "verbatimScientificName", use.author = F, ...)
+    }
 
     # Isolate authorship
-    total[not_found(total),] <- isolateAuthorship(total[not_found(total),], overwrite.authorship = FALSE)
-
-    # we're gonna try again without author (see issue #170 in plantR)
-    total <- tryAgain(total, not_found, formatTax, label = "Isolated", ...)
-
-    # Isolate authorship
-    total <- tryAgain(total, not_found, function(x, ...) {formatTax(isolateAuthorship(x), ...)}, label = "Isolate 2", ...)
+    # total <- tryAgain(total, not_found, function(x, ...) {formatTax(isolateAuthorship(x), ...)}, label = "Isolate", ...)
 
     # What's still unmatched? Genus rank
-    total <- tryAgain(total, condition = function(x) not_found(x) & x$taxonRank=="genus", FUN = formatTax, tax.name = "genus", label = "Genus", ...)
+    if("genus" %in% names(total) & "taxonRank" %in% names(total)) {
+        total <- tryAgain(total, condition = function(x) not_found(x) & x$taxonRank=="genus", FUN = formatTax, tax.name = "genus", label = "Genus", ...)
+    }
 
     # What's still unmatched? Vars and subspecies
     total <- tryAgain(total,
@@ -143,7 +168,7 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
             x
         },
         success_condition = found,
-        label = "F.", ...)
+        label = "Form", ...)
 
     # What's still unmatched? Try again with less rigor?
     # total <- tryAgain(total, function(x) x$tax.notes == "not found", formatTax, sug.dist=0.8 )
@@ -178,7 +203,10 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
         success_condition = function(x) {found(x) & startsWith(x$id, "bfo")},
         label = "Match back to BFO")
 
+    total
+}
 
+getTaxonRank <- function(total) {
     # fix missing taxon rank
     total$taxon.rank <- as.taxon.rank(total$taxon.rank)
     table((total$taxon.rank), useNA = "always")
@@ -203,9 +231,6 @@ getTaxonId <- function(total, complete = TRUE, rm.miss = FALSE, na.values = c("I
     rank[x == total$family.new[fix_these]] <- "family"
     rank[is.na(rank)] <- "genus" # single word and not family? genus.
     total$taxon.rank[fix_these] <- rank
-
-    # get species and genus?
-    total <- get_species_and_genus(total)
 
     total
 }
