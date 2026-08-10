@@ -3,7 +3,7 @@
 ## Como usar as listas de espécie
 
 As listas de espécies já geradas podem ser baixadas aqui: <incluir zip>
-Você pode ler ou baioxar listas individuais aqui:
+Você pode ler ou baixar listas individuais aqui:
 
 ## Resumo do workflow da ferramenta
 
