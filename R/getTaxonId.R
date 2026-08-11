@@ -13,46 +13,53 @@ found <- function(x) !not_found(x)
 #' @param rm.miss Remove data with no identification info? Defaults to FALSE
 #' @param na.values Values that if present in scientificName will make that name into NA
 #' @export
-completeScientificName <- function(total, rm.miss = FALSE, na.values = c("Indeterminado", "INDETERMINADA", "ndeterminado", "Indet", "INDET.", "sp.", "Plantae", "indet", "indeterminada")) {
+completeScientificName <- function(total, rm.miss = FALSE, na.values = c("indeterminado", "indeterminada", "ndeterminado", "indet", "indet.", "sp.", "plantae")) {
 
     # Fix some issues with taxonomy:
 
     # Remove indeterminate markers
-    invalid <- total$scientificName %in% na.values
+    invalid <- tolower(total$scientificName) %in% na.values
     total$scientificName[invalid] <- NA
 
     # Some records don't have scientificName for some reason
     noName <- is.na(total$scientificName)
-    table(noName)
+
     # if verbatim is present, use that
     if("verbatimScientificName" %in% names(total)) {
         total$scientificName[noName] <- total$verbatimScientificName[noName]
+        invalid <- tolower(total$scientificName[noName]) %in% na.values
+        total$scientificName[noName][invalid] <- NA
         noName <- is.na(total$scientificName)
     }
+
     # if species is present, use that
     if("species" %in% names(total)) {
         total$scientificName[noName] <- total$species[noName]
+        invalid <- tolower(total$scientificName[noName]) %in% na.values
+        total$scientificName[noName][invalid] <- NA
         noName <- is.na(total$scientificName)
     }
-    table(noName)
+
     # else, use genus
     if("genus" %in% names(total)) {
         total$scientificName[noName] <- total$genus[noName]
+        invalid <- tolower(total$scientificName[noName]) %in% na.values
+        total$scientificName[noName][invalid] <- NA
         noName <- is.na(total$scientificName)
-        table(noName)
     }
+
     # last resort, use family
     if("family" %in% names(total)) {
         total$scientificName[noName] <- total$family[noName]
+        invalid <- tolower(total$scientificName[noName]) %in% na.values
+        total$scientificName[noName][invalid] <- NA
         noName <- is.na(total$scientificName)
-        table(noName)
     }
 
     # Remove indeterminate markers
-    invalid <- total$scientificName %in% na.values
+    invalid <- tolower(total$scientificName) %in% na.values
     total$scientificName[invalid] <- NA
     noName <- is.na(total$scientificName)
-    table(noName)
 
     cat("Found ")
     cat(sum(noName))
