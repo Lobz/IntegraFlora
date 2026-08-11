@@ -54,11 +54,11 @@ plantRWorkflow_part2 <- function(x) {
     }
     tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
     tax <- dplyr::full_join(tax, plantR::bfoNames)
-    x <- getTaxonId(x)
+    x <- getTaxonId(x, db = tax)
 
     x <- tryAgain(x, not_found, function(x) {
         x <- isolateAuthorship(x)
-        x <- getTaxonId(x)
+        x <- getTaxonId(x, db = tax)
     })
 
     # We'll try getting extra taxons with wfo
