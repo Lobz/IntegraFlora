@@ -81,15 +81,20 @@ completeScientificName <- function(total, rm.miss = FALSE, na.values = c("indete
 removeRepeatedAuthorship <- function(x) {
     # remove date/numbers from the ends of names
     x$scientificName <- sub(", \\d+", "", x$scientificName)
+    x$scientificName[x$scientificName == ""] <- NA
     x$scientificNameAuthorship <- sub(", \\d+", "", x$scientificNameAuthorship)
+    x$scientificNameAuthorship[x$scientificNameAuthorship == ""] <- NA
 
-    repeated <- endsWith(x$scientificName, x$scientificNameAuthorship)
+    repeated <- which(endsWith(x$scientificName, x$scientificNameAuthorship))
     cat("Found ")
-    cat(sum(repeated))
+    cat(length(repeated))
     cat(" records with authorship repeated inside the scientificName.\n")
 
-    x$scientificName <- plantR:::squish(pairwiseMap(x$scientificNameAuthorship, x$scientificName, function(x,y) sub(x, "", y, fixed = T)))
-    x$scientificName <- sub(", \\d+","",x$scientificName)
+    x$scientificName[repeated] <- plantR:::squish(pairwiseMap(
+        x$scientificNameAuthorship[repeated],
+        x$scientificName[repeated],
+        function(x,y) sub(x, "", y, fixed = T)
+    ))
 
     x
 }
