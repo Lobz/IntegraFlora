@@ -45,6 +45,40 @@ format_list <- function(x, UC) {
     finalList[order(finalList$Táxon_completo),]
 }
 
+#' Return a checklist file to a DWC format
+#'
+#' @param x A data.frame
+#' @return A data.frame formatted with formatDwc
+reverseListFormatting <- function(x) {
+    x <- data.frame(
+        family = x$Família,
+        genus = x$Gênero,
+        species = paste(x$Gênero, x$Espécie),
+        scientificName = sub("^[A-Z]+ ", "", x$Táxon_completo),
+        scientificNameAuthorship = x$Autor,
+        barcode = x$Barcode,
+        collectionCode = x$Herbário,
+        recordedBy = x$Coletor,
+        recordNumber = x$Número_da_Coleta,
+        year = x$AnoColeta,
+        origin = x$Origem_FFBr,
+        identifiedBy = x$Identificador,
+        yearIdentified = x$AnoID,
+        associatedMedia = x$Imagens,
+        downloadedFrom = x$BD_Origem,
+        municipality = x$Município,
+        locality = x$Localidade
+    )
+
+    x <- removeRepeatedAuthorship(x)
+    x <- getTaxonRank(x)
+
+    x <- plantR::formatDwc(user_data = x)
+    x$taxonRank <- normalizeTaxonRank(x$taxonRank)
+    x
+}
+
+
 getBarcode <- function(x) {
     ifelse(!is.na(x$barcode), x$barcode,
     ifelse(grepl("[A-Z]+", x$catalogNumber), x$catalogNumber,
