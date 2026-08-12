@@ -3,7 +3,8 @@
 ## Como usar as listas de espécie
 
 As listas de espécies já geradas podem ser baixadas aqui: <incluir zip>
-Você pode ler ou baixar listas individuais aqui:
+
+Você pode ler ou baixar listas individuais aqui: [ChecklistsBrazil](github.com/Lobz/ChecklistsBrazil)
 
 ## Resumo do workflow da ferramenta
 
@@ -25,10 +26,10 @@ Para instalar o pacote, recomendo usar o pacote `devtools`. Num terminal de R, e
 
 ```r
 install.packages('devtools')
-devtools::install()
+devtools::load_all()
 ```
 
-O devtools pedirá permissão para instalar todas as dependências do pacote.
+O devtools pedirá permissão para instalar todas as dependências do pacote. Algumas dependências requerem bibliotecas espécíficasn que precisam ser instalados à parte. Para instalar essas dependências num sistema Debian/Ubuntu, execute o script de bash [install_deps_linux.sh](install_deps_linux.sh) ou execute num
 
 ## Estrutura de diretorios e conteúdo do repositório
 
