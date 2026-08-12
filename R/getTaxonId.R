@@ -90,11 +90,13 @@ removeRepeatedAuthorship <- function(x) {
     cat(length(repeated))
     cat(" records with authorship repeated inside the scientificName.\n")
 
-    x$scientificName[repeated] <- plantR:::squish(pairwiseMap(
-        x$scientificNameAuthorship[repeated],
-        x$scientificName[repeated],
-        function(x,y) sub(x, "", y, fixed = T)
-    ))
+    if(length(repeated) > 0) {
+        x$scientificName[repeated] <- plantR:::squish(pairwiseMap(
+            x$scientificNameAuthorship[repeated],
+            x$scientificName[repeated],
+            function(x,y) sub(x, "", y, fixed = T)
+        ))
+    }
 
     x
 }
