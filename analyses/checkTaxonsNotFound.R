@@ -61,3 +61,14 @@ not_bfo <- x[world,]
 x <- matched_back
 write.csv(not_bfo, "results/taxons_not_bfo.csv")
 write.csv(x, "results/taxons_matched_back.csv")
+
+# Check what's in the results
+
+nf_lists <- list.files("results/checklist/", ".*_nomesInvalidos.csv", full.names = T)
+ni <- lapply(nf_lists, read.csv)
+ni <- do.call(rbind, ni)
+
+y <- reverseListFormatting(ni)
+
+setdiff(x$scientificName, y$scientificName)
+setdiff(y$scientificName, x$scientificName)

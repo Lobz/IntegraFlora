@@ -71,10 +71,7 @@ reverseListFormatting <- function(x) {
     )
 
     x <- removeRepeatedAuthorship(x)
-    x <- getTaxonRank(x)
 
-    x <- plantR::formatDwc(user_data = x)
-    x$taxonRank <- normalizeTaxonRank(x$taxonRank)
     x
 }
 
