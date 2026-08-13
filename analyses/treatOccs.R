@@ -39,8 +39,6 @@ if (length(list.files("data-tmp/florabr","*.rds", recursive = T))>0) {
 }
 
 for(i in 1:sample_size){
-try({
-
     uc_data <- ucs[i,]
     Nome_UC <- uc_data$name
     print("Getting data for UC:")
@@ -69,10 +67,19 @@ try({
 
     # Separate unmatched taxons
     nf <- not_found(total)
-    matched <- total[!nf,]
-    unmatched <- total[nf,]
-    unmatched$origin <- NA
-    unmatched$group <- NA
+    if(any(nf)) {
+        matched <- total[!nf,]
+        unmatched <- total[nf,]
+        unmatched$origin <- NA
+        unmatched$group <- NA
+        unmatched <- format_list(unmatched, Nome_UC)
+        write.csv(unmatched, paste0("results/checklist/",nome_file,"_nomesInvalidos.csv"), na="", row.names=FALSE)
+        if(all(nf)) {
+            continue
+        }
+    } else {
+       matched <- total
+    }
 
     # Avoid taxons that are already represented by more detailed taxons
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
@@ -97,10 +104,9 @@ try({
 
     # Generate output file
     finalList <- format_list(matched, Nome_UC)
-    unmatched <- format_list(unmatched, Nome_UC)
 
     # Get best records for each taxon
-    tops <- top_records(matched)
+    tops <- top_records(finalList)
     top <- tops$top
     bottom <- tops$extra
 
@@ -117,8 +123,6 @@ try({
 
     write.csv(top, paste0("results/checklist/",nome_file,"_modeloCatalogo.csv"), na="", row.names=FALSE)
     write.csv(bottom, paste0("results/checklist/",nome_file,"_extra.csv"), na="", row.names=FALSE)
-    write.csv(unmatched, paste0("results/checklist/",nome_file,"_nomesInvalidos.csv"), na="", row.names=FALSE)
-})
 }
 ucs$nome_file <- NULL
 
