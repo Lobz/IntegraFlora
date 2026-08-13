@@ -66,6 +66,14 @@ try({
     # total$confidenceLocality[gps_orig & unsure_coords] <- "Low" #todo: evaluate quality of gps polygon
     # total$confidenceLocality <- factor(total$confidenceLocality, levels = c("None", "Low", "Medium", "High"), ordered = T)
 
+
+    # Separate unmatched taxons
+    nf <- not_found(total)
+    matched <- total[!nf,]
+    unmatched <- total[nf,]
+    unmatched$origin <- NA
+    unmatched$group <- NA
+
     # Avoid taxons that are already represented by more detailed taxons
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
     subspecies <- subset(total, taxon.rank < "species")
@@ -79,19 +87,17 @@ try({
     final <- dplyr::bind_rows(subspecies, species, genus, family)
 
     # Get info from  F&FBR
-    ids <- substr(final$id, 5, nchar(final$id))
+    matched$fromBFO <- startsWith(matched$id, "bfo")
+    ids <- ifelse(matched$fromBFO, substr(final$id, 5, nchar(final$id)), NA)
     matches <- match(ids, bf$id)
 
     # Extract origin and group information
-    final$origin <-bf$origin[matches]
-    final$group <-bf$group[matches]
+    matched$origin <-bf$origin[matches]
+    matched$group <-bf$group[matches]
 
     # Generate output file
-    finalList <- format_list(final, Nome_UC)
-
-    # Separate unmatched taxons
-    unmatched <- subset(finalList, is.na(Origem_FFBr))
-    matched <- subset(finalList, !is.na(Origem_FFBr))
+    finalList <- format_list(matched, Nome_UC)
+    unmatched <- format_list(unmatched, Nome_UC)
 
     # Get best records for each taxon
     tops <- top_records(matched)
