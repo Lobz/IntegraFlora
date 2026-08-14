@@ -3,6 +3,11 @@ library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 library(florabr)
 
+# Clean results folders
+tt <- list.files("results/total-treated", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
+checklist <- list.files("results/checklist", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
+sapply(c(tt,checklist), file.remove)
+
 # Data from previous runs
 done <- read.csv("results/summary_getOccs.csv")
 
