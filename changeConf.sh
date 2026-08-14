@@ -6,5 +6,9 @@ if [ -z "$1" ]; then
     echo "no parameter"
 else
     echo "$1"
-    cat config.R | sed 's/STATEPROVINCE = \".*\"/STATEPROVINCE = \"$1\"/' | cat
+
+    # edit config.R
+    cat config.R | sed "s/STATEPROVINCE = \".*\"/STATEPROVINCE = \"$1\"/" > test.R
+    cat test.R > config.R
+    rm test.R
 fi

@@ -32,6 +32,13 @@ sapply(states, function(x) {
         system(paste0("rm -rf ", st_dir, "/*"))
     }
 
-    system(paste("bash makeAndMove.sh", x))
+    # change conf
+    system(paste("bash changeConf.sh", x))
+
+    # make
+    system("make")
+
+    # move files to new dir
+    system(paste("mv results/checklist results/*.csv", st_dir))
 
 })
