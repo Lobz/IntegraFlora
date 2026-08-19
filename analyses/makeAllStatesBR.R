@@ -37,6 +37,6 @@ sapply(states, function(x) {
     system("make")
 
     # move files to new dir
-    system(paste("mv results/checklist results/*.csv", st_dir))
+    system(paste("mv results/* data-tmp/corpus.rda", st_dir))
 
 })
