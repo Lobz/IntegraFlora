@@ -4,6 +4,9 @@ library(stringr)
 library(florabr)
 
 # Clean results folders
+if(!dir.exists("results/total")) stop('Results dir not found')
+if(!dir.exists("results/checklist")) dir.create("results/checklist")
+if(!dir.exists("results/total-treated")) dir.create("results/total-treated")
 tt <- list.files("results/total-treated", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
 checklist <- list.files("results/checklist", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
 sapply(c(tt,checklist), file.remove)

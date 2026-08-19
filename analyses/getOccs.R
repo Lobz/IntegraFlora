@@ -7,6 +7,9 @@ library(sf)
 
 source("config.R")
 
+if(!dir.exists("results")) dir.create("results")
+if(!dir.exists("results/total")) dir.create("results/total")
+
 # Data about UCs from CNUC
 print("Loading conservation units data...")
 ucs <- read.csv("data-input/Locations/info/Summary.csv")
