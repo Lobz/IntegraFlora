@@ -11,8 +11,6 @@ st_info <- datasets[datasets[,1]=="read_state",]
 st_latest_year <- sub(".* ","",st_info$year)
 states <- geobr::read_state(year = st_latest_year)$name_state
 
-write.csv(states, "states.txt",row.names=F, col.names=F)
-
 head(states)
 
 
