@@ -35,3 +35,5 @@ plots/*
 *.png
 
 results/*
+data-input/Occurrences/*
+data-tmp/*

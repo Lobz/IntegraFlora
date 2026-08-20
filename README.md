@@ -3,7 +3,8 @@
 ## Como usar as listas de espécie
 
 As listas de espécies já geradas podem ser baixadas aqui: <incluir zip>
-Você pode ler ou baioxar listas individuais aqui:
+
+Você pode ler ou baixar listas individuais aqui: [ChecklistsBrazil](github.com/Lobz/ChecklistsBrazil)
 
 ## Resumo do workflow da ferramenta
 
@@ -15,18 +16,36 @@ Com os dados tratados e checados, o script [analyses/deduplicate.R](analyses/ded
 
 A partir daqui, temos uma tabela de ocorrências, que filtramos para conter apenas ocorrências do estado de São Paulo. No script [analyses/getOccs.R](analyses/getOccs.R), essas ocorrências serão filtradas por seus campos de município, localidade e coordenadas geográficas para gerar arquivos separados para cada UC, contendo todas as ocorrências associadas àquela UC, com diferentes graus de confiança de acordo com a origem da associação (mais detalhes abaixo). Por fim, no script [analyses/treatOccs.R](analyses/treatOccs.R), são selecionadas as ocorrências com maior grau de confiança para cada táxon, e essas são organizadas em listas de espécie ordenadas por família e nome científico.
 
+## Instalação
+
+Esta ferramenta foi desenvolvida inteiramente em linguagem [R](https://www.r-project.org/).
+Para utilizá-la, é preciso ter instalado o R com versão pelo menos 4.3, e baixar este repositório.
+O repositório pode ser baixado por git (pela ferramenta de terminal do git, `git clone https://github.com/Lobz/IntegraFlora.git`) ou em formato zip (https://github.com/Lobz/IntegraFlora/archive/refs/heads/main.zip) e depois extraído.
+
+Para instalar o pacote, recomendo usar o pacote `devtools`. Num terminal de R, execute:
+
+```r
+install.packages('devtools')
+devtools::load_all()
+```
+
+O devtools pedirá permissão para instalar todas as dependências do pacote. Algumas dependências requerem bibliotecas espécíficasn que precisam ser instalados à parte. Para instalar essas dependências num sistema Debian/Ubuntu, execute o script de bash [install_deps_linux.sh](install_deps_linux.sh) ou execute num
 
 ## Estrutura de diretorios e conteúdo do repositório
 
 - [analyses/](analyses/) - scripts para tratamento dos dados
     - [formatData](analyses/formatData/) - scripts de padronização dos dados de cada fonte
-- [data](data) - dados usados pela ferramenta, informações sobre bases de dados e localidades
-- [data-input](data-input) - dados brutos baixados dos Herbários Virtuais
-    - [GBIF](data-input/Occurrences/GBIF) - arquivos baixados do [GBIF](https://www.gbif.org/occurrence/search?taxon_key=6&occurrence_status=present)
-    - [JABOT](data-input/Occurrences/JABOT) - arquivos baixados do [JABOT](https://jabot.jbrj.gov.br/v3/consulta.php)
-    - [Reflora](data-input/Occurrences/Reflora) - arquivos baixados do [Reflora](https://reflora.jbrj.gov.br/reflora/herbarioVirtual/ConsultaPublicoHVUC/BemVindoConsultaPublicaHVConsultar.do?modoConsulta=LISTAGEM&quantidadeResultado=20)
-    - [splink](data-input/Occurrences/splink) - arquivos baixados do [splink](https://specieslink.net/search/)
-    - [OtherSources](data-input/Occurrences/OtherSources) - outros arquivos, no padrão darwinCore.
+- [data](data) - dados usados pela ferramenta
+- [data-input](data-input) - dados de ocorrência e localidade fornecidos pelo usuário
+    -[Occurrences](data-input/Occurrences/) - dados brutos de ocorrência
+        - [GBIF](data-input/Occurrences/GBIF) - arquivos baixados do [GBIF](https://www.gbif.org/occurrence/search?taxon_key=6&occurrence_status=present)
+        - [JABOT](data-input/Occurrences/JABOT) - arquivos baixados do [JABOT](https://jabot.jbrj.gov.br/v3/consulta.php)
+        - [Reflora](data-input/Occurrences/Reflora) - arquivos baixados do [Reflora](https://reflora.jbrj.gov.br/reflora/herbarioVirtual/ConsultaPublicoHVUC/BemVindoConsultaPublicaHVConsultar.do?modoConsulta=LISTAGEM&quantidadeResultado=20)
+        - [splink](data-input/Occurrences/splink) - arquivos baixados do [splink](https://specieslink.net/search/)
+        - [OtherSources](data-input/Occurrences/OtherSources) - outros arquivos, no padrão darwinCore.
+    -[Locations](data-input/Locations) - dados sobre as UCs
+        - [info](data-input/Locations/info/) - listas com nomes e locais das UCs
+        - [shapes](data-input/Locations/shapes/) - arquivos .shp com mapas das UCs
 - [data-tmp](data-tmp) - arquivos intermediários criados por esta ferramenta
 - [plots](plots) - figuras
 - [R](R) - funções usadas pelos scripts
@@ -38,27 +57,34 @@ A partir daqui, temos uma tabela de ocorrências, que filtramos para conter apen
 
 ## Como usar esta ferramenta:
 
-1. Antes de começar, é preciso baixar os dados atualizados das bases de dados:
+1. Antes de começar, edite o arquivo [config.R](config.R), selecionando o estado de interesse. Por padrão, a ferramenta restringe os dados a apenas um estado antes de aplicar os algoritmos mais pesados de tratamento.
+
+2. Baixe os dados brutos atualizados das bases de dados. Podem ser baixados vários arquivos de cada plataforma, e os dados duplicados serão removidos automaticamente. Este repositório vem com alguns arquivos de exemplo. As plataformas aceitas são as seguintes:
 - [GBIF](https://www.gbif.org/occurrence/search?taxon_key=6&occurrence_status=present) - arquivos .zip
 - [Reflora](https://reflora.jbrj.gov.br/reflora/herbarioVirtual/ConsultaPublicoHVUC/BemVindoConsultaPublicaHVConsultar.do?modoConsulta=LISTAGEM&quantidadeResultado=20) - arquivos .csv
 - [splink](https://specieslink.net/search/) (obs.: para baixar dados em grandes quantidades, será necessário criar uma conta) - arquivos .txt
 - [JABOT](https://jabot.jbrj.gov.br/v3/consulta.php) - arquivos .csv
+- Outras fontes de dados podem ser usadas, adicionando arquivos .csv na pasta [OtherSources](data-input/Occurrences/OtherSources/). Os arquivos devem ter colunas nomeadas no padrão Darwin Core em inglês. Obs.: é possível baixar dados Jabot e Reflora neste formato usando a função [downloadIPTResource](R/downloadIPTResource.R).
 
-Os dados devem ser salvos nas respectivas pastas dentro de [data-input/Occurrences/](data-input).
+Os dados devem ser salvos nas respectivas pastas dentro de [data-input/Occurrences/](data-input/Occurrences/).
 No caso de mais de um arquivo serem salvos na mesma pasta, o script combinará os dados dos arquivos diferentes antes de iniciar o tratamento dos dados.
 No caso dos dados Reflora, por favor abra os arquivos e salve como csv na mesma pasta antes de prosseguir.
 
-2. Execute os scripts da pasta [analyses/formatData/](analyses/formatData/).
+3. Execute o script [make.R](make.R). Alternativamente, para garantir que cada etapa executada por esse script funciona corretamente, ou para customizar a execução, siga os passos:
 
-3. Execute o script [analyses/joinData.R](analyses/joinData.R). Esse script pode consumir muita memória e processamento, dependendo do número de registros. Por isso, garanta que os recursos de seu computador estejam disponíveis. Antes dessa etapa, você pode opcionalmente adicionar sinônimos de localidades no arquivo [results/locations/locGazetteer.csv](results/locations/locGazetteer.csv).
+    3.1. Execute o script [config.R](config.R)
 
-4. Opcionalmente, adicione nomes alternativos de localidades na [tabela de nomes alternativos](results/locations/checkedLocations.csv).
+    3.2. Execute os scripts da pasta [analyses/formatData/](analyses/formatData/).
 
-5. Execute os scripts [analyses/getOccs.R](analyses/getOccs.R) e [analyses/treatOccs.R](analyses/treatOccs.R).
+    3.3. Execute o script [analyses/joinData.R](analyses/joinData.R). Esse script pode consumir muita memória e processamento, dependendo do número de registros. Por isso, garanta que os recursos de seu computador estejam disponíveis. Antes dessa etapa, você pode opcionalmente adicionar sinônimos de localidades no arquivo [results/locations/locGazetteer.csv](results/locations/locGazetteer.csv).
 
-6. Você pode produzir algumas estatísticas e figuras a partir dos seus resultados usando o script [analyses/resultStats.R](analyses/resultStats.R).
+    3.4. Opcionalmente, adicione nomes alternativos de localidades na [tabela de nomes alternativos](results/locations/checkedLocations.csv).
 
-7. Os resultados podem ser encontrados na pasta [results/checklist](results/checklist/).
+    3.5. Execute os scripts [analyses/getOccs.R](analyses/getOccs.R) e [analyses/treatOccs.R](analyses/treatOccs.R).
+
+4. Você pode produzir algumas estatísticas e figuras a partir dos seus resultados usando o script [analyses/resultStats.R](analyses/resultStats.R).
+
+5. Os resultados podem ser encontrados na pasta [results/checklist](results/checklist/).
 
 ## Critério de Confiança e critério de seleção para lista
 
@@ -90,3 +116,14 @@ O critério de confiança na identificação depende da especialização do iden
 ## Apoio
 
 Esta ferramenta foi financiada pela FAPESP como parte do projeto 2024/07747-9 - "Aprimoramento e integração de bases de dados geoespaciais sobre a flora paulista", filiado ao Biota Síntese.
+
+### Colaboradores
+
+Mali Oz C. Salles (autor correspondente)
+Renato A. F. Lima
+Renata Ivanauskas
+Thuane Bochorny
+Guilherme S. Grittz
+Pablo Pains
+Andre M. Pereira
+Marisa Domingos

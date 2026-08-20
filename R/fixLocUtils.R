@@ -19,6 +19,10 @@ fix_sp <- function(x) {
     gsub("(\\s|,|\\.|-)s(.?.?o?| #227;o) paulo", "\\1sao paulo", x, ignore.case=T)
 }
 
+#' Finalize formatting location
+#'
+#' This corresponds to the final part of plantR::formatLoc(), which is used in fixLocation()
+#' @importFrom plantR strLoc prepLoc getLoc
 finLoc <- function(x, ...) {
   print(table(x$resolution.gazetteer))
   # strLoc

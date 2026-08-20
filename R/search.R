@@ -1,6 +1,7 @@
 #' Search for a string in location fields of a data.frame
 #' @param pattern Pattern to lookup
 #' @param corpus A data.frame with locality information
+#' @export
 searchLoc <- function(pattern, corpus, fieldA = "locality", fieldB = "municipality") {
     x <- grepl(pattern, x = rmLatin(corpus[,fieldA]), ignore.case = TRUE, perl = TRUE)
     if(fieldB != "") {
@@ -14,14 +15,16 @@ searchLoc <- function(pattern, corpus, fieldA = "locality", fieldB = "municipali
 #' Consolidate names table
 #'
 #' @param checkedLocations A table containing alternative names information
-consolidateNamesTable <- function(checkedLocations = read.csv("results/locations/checkedLocations.csv"), extraNames = c()) {
+#' @export
+consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c()) {
 
     if(!"slug" %in% names(checkedLocations))
         checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_UC)))
 
     # add oficial names
     if(length(extraNames) > 0) {
-        officialNames <- data.frame(Nome_UC = standardize_uc_name(extraNames), Municipio="QUALQUER", Nome_Alternativo = ucs$name, Relação = "Igual", Confiança = "Ouro", slug = slug(extraNames))
+        ns <- standardize_uc_name(extraNames)
+        officialNames <- data.frame(Nome_UC = ns, Municipio="QUALQUER", Nome_Alternativo = ns, Relação = "Igual", Confiança = "Ouro", slug = slug(extraNames))
         LT <- rbind(checkedLocations, officialNames)
     } else {
         LT <- checkedLocations
@@ -30,7 +33,7 @@ consolidateNamesTable <- function(checkedLocations = read.csv("results/locations
     # Generate string for regex grepl in locality data
     LT$uc_strings <- paste0("(",generate_uc_string(LT$Nome_Alternativo),")")
     # Summarize alternative names
-    ST <- aggregate(LT$Nome_Alternativo, list(slug = LT$slug, Municipio = LT$Municipio, relationship = LT$Relação, confidenceLocality = LT$Confiança), combineSearchStrings)
+    ST <- stats::aggregate(LT$Nome_Alternativo, list(slug = LT$slug, Municipio = LT$Municipio, relationship = LT$Relação, confidenceLocality = LT$Confiança), combineSearchStrings)
 }
 
 #' Combine search strings
@@ -38,6 +41,7 @@ consolidateNamesTable <- function(checkedLocations = read.csv("results/locations
 #' Combine strings into a single string that correspond to searching for all strings
 #'
 #' @param x An array of patterns
+#' @export
 combineSearchStrings <- function(x) {
     x <- tolower(unique(x))
     st <- generate_uc_string(x[1])
@@ -50,11 +54,11 @@ combineSearchStrings <- function(x) {
             # pick one string
             y <- generate_uc_string(x[1])
             # check if this string is better than the previous one
-            if(grepl(y, st)) {
-                st <- y
-            } else {
+            # if(grepl(y, st)) {
+                # st <- y
+            # } else {
                 st <- paste0(st, "|", y)
-            }
+            # }
         } else {
             return(st)
         }
@@ -65,6 +69,7 @@ combineSearchStrings <- function(x) {
 #' Search for several different entries
 #'
 #' @param ucs A data.frame containing names
+#' @export
 nameSearch <- function(ucs, corpus, LT, degrees = "Ouro") {
 
     # Subset to degrees

@@ -1,4 +1,4 @@
 library(testthat)
-library(rtemplate)
+# library(rtemplate)
 
-test_check("rtemplate")
+# test_check("integraFlora")

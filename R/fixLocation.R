@@ -1,16 +1,26 @@
 
+#' Fix Location
+#'
+#' A more elaborate version of plantR::formatLoc, focused on fixing locations within Brazil, especially in São Paulo.
+#'
+#' @param dt A data.frame treated with plantR::formatDwc() and plantR::formatOcc()
+#' @param selectedCountry The name of a country, usually "Brazil".
+#'
+#' @importFrom utils read.csv
+#' @importFrom plantR formatLoc
+#' @export
 fixLocation <- function(dt, selectedCountry = "Brazil") {
 
     print(paste("Found", nrow(dt), "records."))
 
     # get municipalities with unique name
     print("Loading municipality gazetteer...")
-    munis <- read.csv("results/locations/municipalityGazetteer.csv")
+    munis <- read.csv("data-input/Locations/extraTables/municipalityGazetteer.csv")
     gazet = rbind(plantR:::gazetteer, munis)
 
     # load complementary gazetteer
     print("Loading extra gazetteer...")
-    extra_gazet <- read.csv("results/locations/locGazetteer.csv")
+    extra_gazet <- read.csv("data-input/Locations/extraTables/locGazetteer.csv")
     extra_gazet <- subset(extra_gazet, (!loc %in% gazet$loc) & (loc.correct %in% gazet$loc.correct), select = c("loc", "loc.correct"))
     extra_gazet_filled <- merge(extra_gazet, gazet[!duplicated(gazet$loc.correct),c(1,3:6)], by="loc.correct", all=F)[,names(gazet)]
     str(extra_gazet_filled)
@@ -19,6 +29,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
 
     print("Formatting loc...")
     if(!"locality" %in% names(dt)) dt$locality <- NA
+    if(!"municipality" %in% names(dt)) dt$municipality <- dt$county
     dt$municipality <- sub("([ ,\\.^])sta\\.","\\1santa", dt$municipality, ignore.case = T)
     dt$locality <- sub("([ ,\\.^])sta\\.","\\1santa", dt$locality, ignore.case = T)
 
@@ -128,7 +139,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
         x <- finLoc(x, gazet = gazet)
     })
 
-    munis <- read.csv("results/locations/uniqueMunicipalities.csv")
+    munis <- read.csv("data-input/Locations/extraTables/uniqueMunicipalities.csv")
     dt <- tryAgain(dt, function(x) x$resolution.gazetteer == "country" & !is.na(x$municipality.new), function(x) {
         # find state name in municipality name
         x$stateProvince.new <- munis$stateProvince.new[match(x$municipality.new, munis$municipality.new)]

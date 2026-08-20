@@ -3,6 +3,14 @@ library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 library(florabr)
 
+# Clean results folders
+if(!dir.exists("results/total")) stop('Results dir not found')
+if(!dir.exists("results/checklist")) dir.create("results/checklist")
+if(!dir.exists("results/total-treated")) dir.create("results/total-treated")
+tt <- list.files("results/total-treated", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
+checklist <- list.files("results/checklist", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
+sapply(c(tt,checklist), file.remove)
+
 # Data from previous runs
 done <- read.csv("results/summary_getOccs.csv")
 
@@ -39,8 +47,6 @@ if (length(list.files("data-tmp/florabr","*.rds", recursive = T))>0) {
 }
 
 for(i in 1:sample_size){
-try({
-
     uc_data <- ucs[i,]
     Nome_UC <- uc_data$name
     print("Getting data for UC:")
@@ -66,6 +72,23 @@ try({
     # total$confidenceLocality[gps_orig & unsure_coords] <- "Low" #todo: evaluate quality of gps polygon
     # total$confidenceLocality <- factor(total$confidenceLocality, levels = c("None", "Low", "Medium", "High"), ordered = T)
 
+
+    # Separate unmatched taxons
+    nf <- not_found(total)
+    if(any(nf)) {
+        matched <- total[!nf,]
+        unmatched <- total[nf,]
+        unmatched$origin <- NA
+        unmatched$group <- NA
+        unmatched <- format_list(unmatched, Nome_UC)
+        write.csv(unmatched, paste0("results/checklist/",nome_file,"_nomesInvalidos.csv"), na="", row.names=FALSE)
+        if(all(nf)) {
+            continue
+        }
+    } else {
+       matched <- total
+    }
+
     # Avoid taxons that are already represented by more detailed taxons
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
     subspecies <- subset(total, taxon.rank < "species")
@@ -79,22 +102,19 @@ try({
     final <- dplyr::bind_rows(subspecies, species, genus, family)
 
     # Get info from  F&FBR
-    ids <- substr(final$id, 5, nchar(final$id))
+    matched$fromBFO <- startsWith(matched$id, "bfo")
+    ids <- ifelse(matched$fromBFO, substr(final$id, 5, nchar(final$id)), NA)
     matches <- match(ids, bf$id)
 
     # Extract origin and group information
-    final$origin <-bf$origin[matches]
-    final$group <-bf$group[matches]
+    matched$origin <-bf$origin[matches]
+    matched$group <-bf$group[matches]
 
     # Generate output file
-    finalList <- format_list(final, Nome_UC)
-
-    # Separate unmatched taxons
-    unmatched <- subset(finalList, is.na(Origem_FFBr))
-    matched <- subset(finalList, !is.na(Origem_FFBr))
+    finalList <- format_list(matched, Nome_UC)
 
     # Get best records for each taxon
-    tops <- top_records(matched)
+    tops <- top_records(finalList)
     top <- tops$top
     bottom <- tops$extra
 
@@ -111,8 +131,6 @@ try({
 
     write.csv(top, paste0("results/checklist/",nome_file,"_modeloCatalogo.csv"), na="", row.names=FALSE)
     write.csv(bottom, paste0("results/checklist/",nome_file,"_extra.csv"), na="", row.names=FALSE)
-    write.csv(unmatched, paste0("results/checklist/",nome_file,"_nomesInvalidos.csv"), na="", row.names=FALSE)
-})
 }
 ucs$nome_file <- NULL
 
