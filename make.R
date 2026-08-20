@@ -24,7 +24,7 @@ source("analyses/treatData.R")
 source("analyses/deduplicate.R")
 
 # Clean old files
-# source("analyses/cleanResults.R")
+source("analyses/cleanResults.R")
 # Filter occs for each UC
 source("analyses/getOccs.R")
 # Generate checklists
