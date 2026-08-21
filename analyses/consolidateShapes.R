@@ -2,7 +2,7 @@ if(!require(integraFlora)) devtools::load_all()
 require(sf)
 
 print("Loading multipolygons...")
-folder <- "data-input/Locations/shapes/"
+folder <- "data-input/Locations/shapes"
 shape_files <- list.files(folder, pattern = "*.shp", full.names = TRUE, recursive = TRUE)
 shapes <- lapply(shape_files, readShape)
 

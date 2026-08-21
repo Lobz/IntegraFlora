@@ -1,0 +1,9 @@
+arquivo,nome_uc,pais,estadoProvincia,municipio,categoria,codigo,geometry
+"cnuc_2025_08/cnuc_2025_08.shp","nome_uc","brazil","uf","municipio","grupo","codigo_uc","geometry"
+"limite_ucs_federais_052026_a/limite_ucs_federais_052026.shp","nomeuc","brazil","uf",NA,"cat_iucn","cnuc","geometry"
+"limites_ucs_federais_21072025/limites_ucs_federais_21072025.shp","NomeUC","UFAbrang",NA,"GrupoUC","Cnuc","geometry"
+"ucs/ucs.shp","nome_uc","brazil","uf","municipio","cat_iucn","cd_cnuc","geometry"
+"ucs2/ucs.shp","nome_uc","brazil","uf","municipio","cat_iucn","cd_cnuc","geometry"
+"WDPA_WDOECM_Jun2026_Public_Brazil_057f_shp/057f_shp_0/polygons.shp","NAME","brazil",,,"IUCN_CAT",,"geometry"
+"WDPA_WDOECM_Jun2026_Public_Brazil_057f_shp/057f_shp_1/polygons.shp","NAME","brazil",,,"IUCN_CAT",,"geometry"
+"WDPA_WDOECM_Jun2026_Public_Brazil_057f_shp/057f_shp_2/polygons.shp","NAME","brazil",,,"IUCN_CAT",,"geometry"
