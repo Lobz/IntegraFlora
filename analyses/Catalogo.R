@@ -8,7 +8,7 @@ names(cl0)
 # Choose the units we are interested in
 cl0$UC <- standardize_uc_name(cl0$Unidade.Conservação)
 tab(cl0$UC)
-ucs <- read.csv("results/summary_multilist.csv")
+ucs <- read.csv(file.path(Sys.getenv("RESULTS_DIR"), "summary_multilist.csv"))
 used <- cl0$UC %in% ucs$Nome.da.UC
 tab(cl0$UC[used])
 cl0 <- cl0[used,]
@@ -27,4 +27,4 @@ length(speciesRef)
 str(cl0)
 
 
-save(catalogoCompleto, file="data/raw-data/catalogoCompleto.RData")
+save(catalogoCompleto, file="data/raw-data/catalogoCompleto.rda")

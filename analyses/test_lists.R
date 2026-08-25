@@ -45,7 +45,7 @@ occs <- formatOcc(occs)
 occs <- formatLoc(occs)
 
 # join with reflora and gbif
-load("data/derived-data/reflora_gbif_jabot_saopaulo.RData")
+load("data/derived-data/reflora_gbif_jabot_saopaulo.rda")
 occs <- dplyr::bind_rows(occs, saopaulo)
 
 
@@ -163,8 +163,8 @@ total <- get_species_and_genus(total)
 
 total <- total[order(total$taxon.rank, total$tax.check, total$scientificName.new, as.numeric(total$year.new), as.numeric(total$yearIdentified.new), na.last=F, decreasing = T),]
 
-save(total, file=paste0("data/derived-data/occs_",nome_file,".RData"))
-# load(file=paste0("data/derived-data/occs_",nome_file,".RData"))
+save(total, file=paste0("data/derived-data/occs_",nome_file,".rda"))
+# load(file=paste0("data/derived-data/occs_",nome_file,".rda"))
 
 table(total$scientificName.new, total$tax.check)
 table(total$scientificName.new, total$taxon.rank, useNA = "always")
@@ -185,7 +185,7 @@ final <- rbind(species, genus)
 summ <- summaryData(final)
 
 # load comparison data
-load("data/raw-data/catalogoCompleto.RData")
+load("data/raw-data/catalogoCompleto.rda")
 UC_catalogo <- subset(catalogoCompleto, grepl(Nome_UC, Unidade.Conservação, perl = T, ignore.case = T))
 dim(UC_catalogo)
 speciesCatalogo <- unique(UC_catalogo$scientificNameFull)
@@ -215,7 +215,7 @@ compareLists(subset(final, tax.check >= "high"))
 
 # Get best records for each taxon
 top <- top_records(final, n = 1)
-write.csv(top, paste0("results/checklist_",nome_file,".csv"), na="")
+write.csv(top, paste0(file.path(Sys.getenv("RESULTS_DIR"), "checklist_",nome_file,".csv"), na=""))
 
 # Get info from  F&FBR
 # get_florabr(output_dir = "data/raw-data", #directory to save the data
@@ -257,4 +257,4 @@ table(finalList$BD_Origem[!listed])
 table(finalList$Localidade[!listed])
 table(is.na(finalList$Barcode))
 
-write.csv(finalList, paste0("results/checklist_",nome_file,"_modeloCatalogo.csv"), na="")
+write.csv(finalList, paste0(file.path(Sys.getenv("RESULTS_DIR"), "checklist_",nome_file,"_modeloCatalogo.csv"), na=""))

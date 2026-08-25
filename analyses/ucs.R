@@ -87,7 +87,7 @@ my_UC <- subset(shapes, grepl(UC_de_interesse, nome_uc, ignore.case=T))
 plot(my_UC[c(3,1,2),"nome_uc"])
 
 # read data from file
-load(paste0("data/derived-data/occs_",nome_file[4],".RData"))
+load(paste0("data/derived-data/occs_",nome_file[4],".rda"))
 
 str(total)
 dim(total)

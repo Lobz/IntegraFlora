@@ -2,7 +2,7 @@ if(!require(integraFlora)) devtools::load_all()
 library(geobr)
 
 # Let's see what's going on with those stats
-summ <- read.csv("results/summary_treatOccs.csv")
+summ <- read.csv(file.path(results_dir, "summary_treatOccs.csv"))
 # Load UC data
 ucs <- read.csv("data/cnuc_2025_03.csv", sep=";", dec=",")
 ucs <- subset(ucs, grepl("SP|SAO PAULO", UF))
@@ -29,11 +29,11 @@ ucs$hasGeom <- ucs$Nome.da.UC %in% shapes$nome_uc
 ucs$UC <- ucs$Nome.da.UC
 
 # Open data
-modCat <- list.files("results/checklist", "*.csv", full.names = T)
+modCat <- list.files(file.path(results_dir, "checklist", "*.csv"), full.names = T)
 nome_file_c <- sub(".*/","",modCat)
 nome_file_c <- sub("_modeloCatalogo.csv","",nome_file_c)
-original <- list.files("results/allfields", "*.csv", full.names = T)
-tt <- list.files("results/total-treated", "*.csv", full.names = T)
+original <- list.files(file.path(results_dir, "allfields", "*.csv"), full.names = T)
+tt <- list.files(file.path(results_dir, "total-treated", "*.csv"), full.names = T)
 nome_file_o <- sub(".*/","",original)
 nome_file_o <- sub(".csv","",nome_file_o)
 
@@ -159,7 +159,7 @@ summary(selCats)
 m <- merge(summ_ml, confLoc, all=T)
 summary(m)
 m[is.na(m)] <- 0
-write.csv(m, "results/summary_multilist.csv", row.names=F)
+write.csv(m, file.path(results_dir, "summary_multilist.csv"), row.names=F)
 
 selCats$total <- rowSums(selCats)
 props <- 100*selCats/selCats$total

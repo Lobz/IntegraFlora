@@ -67,8 +67,8 @@ table(inter_state$name_state)
 inter_state$area_calc2 <- st_area(inter_state)
 inter_state$area_prop <- as.numeric(inter_state$area_calc2/inter_state$area_calc)
 boxplot(inter_state$area_prop~ inter_state$name_state)
-save(inter_state, file="data-tmp/inter_state.rda")
-load("data-tmp/inter_state.rda")
+save(inter_state, file="file.path(Sys.getenv("DATATMP")/inter_state.rda")
+load("file.path(Sys.getenv("DATATMP")/inter_state.rda")
 
 inter_state <- subset(inter_state, area_prop > 0.05)
 table(inter_state$name_state, useNA="always")
@@ -117,8 +117,8 @@ inter_munis$area_calc_mun <- st_area(inter_munis)
 inter_munis$area_prop_mun <- as.numeric(inter_munis$area_calc_mun/inter_munis$area_calc)
 summary(inter_munis$area_prop_mun)
 boxplot(inter_munis$area_prop_mun~ inter_munis$code_muni)
-save(inter_munis, file="data-tmp/inter_munis.rda")
-load("data-tmp/inter_munis.rda")
+save(inter_munis, file="file.path(Sys.getenv("DATATMP")/inter_munis.rda")
+load("file.path(Sys.getenv("DATATMP")/inter_munis.rda")
 
 inter_munis <- subset(inter_munis, area_prop_mun > 0.005)
 dim(inter_munis)
@@ -207,7 +207,7 @@ write.csv(dt.ready, "data-input/Locations/extraTables/ucs_locs_cnuc_shapes.csv")
 write.csv(dt[correct.long | correct.short,c("uc_name", "stateProvince", "municipality", "loc.correct", "loc.extra")], "data-input/Locations/extraTables/uc_locstrings.csv")
 
 # Check legality of gazetteer locs
-gazetteer <- read.csv("data-tmp/gazetteer - gazetteer_new.csv")
+gazetteer <- read.csv("file.path(Sys.getenv("DATATMP")/gazetteer - gazetteer_new.csv")
 
 res_orig <- gazetteer$resolution.gazetteer
 res_orig <- sub("\\|.*", "", res_orig)

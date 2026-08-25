@@ -7,7 +7,7 @@ library(sf)
 library(geobr)
 
 # Pre-treated data from GBIF, REflora and JABOT
-load("data-tmp/reflora_gbif_jabot_splink_saopaulo.RData")
+load(file.path(Sys.getenv("DATATMP"), "reflora_gbif_jabot_splink_saopaulo.rda"))
 dt$recordID <- 1:nrow(dt) # I need a unique ID for this
 
 # Data with valid coordinates: either original coordinates or locality
@@ -111,8 +111,8 @@ tabs <- lapply(rownames(shapes), function(x) try(plotMun(x, plot=T)))
 tabls <- sapply(tabs, function(x) if(class(x) == "integer") FALSE else TRUE)
 tabs <- do.call(rbind, tabs)
 rownames(tabs) <- rownames(shapes)
-write.csv(tabs, "results/locations/test_gps_municipalitites.csv")
-tabs <- read.csv("results/locations/test_gps_municipalitites.csv")
+write.csv(tabs, file.path(Sys.getenv("RESULTS_DIR"), "locations/test_gps_municipalitites.csv"))
+tabs <- read.csv(file.path(Sys.getenv("RESULTS_DIR"), "locations/test_gps_municipalitites.csv"))
 
 t <- as.data.frame(tabs)
 t$total <- t$total_gps + t$total_name - t$correct
