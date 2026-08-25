@@ -32,7 +32,7 @@ for(x in states) {
     system(paste("bash changeConf.sh", x))
 
     # copy tmp files to folder
-    system(paste0("cp -n data-tmp/*.rda ", st_dir, "/"))
+    system(paste0("cp -na data-tmp/*.rda ", st_dir, "/"))
 
     # make
     system(paste0("make DATATMP=", st_dir, " RESULTS_DIR=", st_dir))
