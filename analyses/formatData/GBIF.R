@@ -13,4 +13,4 @@ if(length(gbif_files > 0)) {
     gbif <- list()
 }
 
-save(gbif, file="data-tmp/gbif.RData")
+save(gbif, file=file.path(Sys.getenv("DATATMP"), "gbif.rda"))

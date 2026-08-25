@@ -2,13 +2,16 @@ if(!require(integraFlora)) devtools::load_all()
 library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 library(florabr)
-library(parallel)
 library(sf)
 
 source("config.R")
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir=="") results_dir <- "results"
+DATATMP <- Sys.getenv("DATATMP")
+if(DATATMP=="") DATATMP <- "data-tmp"
 
-if(!dir.exists("results")) dir.create("results")
-if(!dir.exists("results/total")) dir.create("results/total")
+if(!dir.exists(results_dir)) dir.create(results_dir)
+if(!dir.exists(file.path(results_dir, "total"))) dir.create(file.path(results_dir, "total"))
 
 # Data about UCs from CNUC
 print("Loading conservation units data...")
@@ -54,9 +57,8 @@ LT <- aggregate(LT$uc_strings, list(slug = LT$slug, Municipio = LT$Municipio, re
 LT <- subset(LT, confidenceLocality == "Ouro")
 
 # Pre-treated data from GBIF, REflora and JABOT
-# load("data-tmp/reflora_gbif_jabot_splink_saopaulo.RData")
 print("Loading occurrence data...")
-load("data-tmp/corpus.rda")
+load(file.path(DATATMP,"corpus.rda"))
 if(!"recordID" %in% names(corpus)) corpus$recordID <- 1:nrow(corpus)
 if(exists("COUNTRY")) corpus <- subset(corpus, country.correct %in% COUNTRY)
 if(exists("STATEPROVINCE")) corpus <- subset(corpus, stateProvince.correct %in% STATEPROVINCE | is.na(stateProvince.correct))
@@ -96,7 +98,7 @@ names(occs_locality) <- names(occs_string)
 # Shape data
 print("Loading multipolygons...")
 shapes <- st_read("data-input/Locations/shapes/cnuc_2025_08/cnuc_2025_08.shp")
-shapes <- subset(shapes, uf == "SÃO PAULO")
+shapes <- subset(shapes, uf == STATEPROVINCE)
 shapes$slug <- slug(standardize_uc_name(shapes$nome_uc))
 shapes <- subset(shapes, slug %in% ucs$slug)
 shapes <- shapes[order(shapes$slug), ]
@@ -124,7 +126,8 @@ if(nrow(coords_gazet) > 0) {
     points_ucs_gazet <- st_intersects(shapes, coords_gazet)
     names(points_ucs_gazet) <- shapes$slug
 } else {
-    points_ucs_gazet <- FALSE
+    points_ucs_gazet <- as.list(rep(FALSE, nrow(shapes)))
+    names(points_ucs_gazet) <- shapes$slug
 }
 
 
@@ -140,7 +143,6 @@ intersecUCs$slug2 <- slug(standardize_uc_name(intersecUCs$outra_uc))
 intersecUCs <- subset(intersecUCs, slug2 %in% ucs$slug)
 
 for(i in 1:sample_size){
-tryCatch({
 
     uc_data <- ucs[i,]
     print("Getting data for UC:")
@@ -209,7 +211,7 @@ tryCatch({
     total <- corpus[occs_total,]
 
     total$Nome_UC <- uc_data$name
-    save(total, file=paste0("results/total/",nome_file,".rda"))
+    save(total, file=file.path(results_dir, "total", paste0(nome_file,".rda")))
 
     print(paste("Found",nrow(total),"records."))
     ucs[i,]$NumRecords <- nrow(total)
@@ -218,15 +220,12 @@ tryCatch({
     ucs[i,]$NumPrata <- sum(total$confidenceLocality=="Medium")
     ucs[i,]$NumBronze <- sum(total$confidenceLocality=="Low")
 
-}, error = function(e) {
-    warning(e)
-})
 }
 
 ucs$nome_file <- NULL
 ucs$slug <- NULL
 
 # Save summary
-write.csv(ucs, "results/summary_getOccs.csv", row.names=FALSE)
+write.csv(ucs, file.path(results_dir, "summary_getOccs.csv"), row.names=FALSE)
 summary(ucs==0)
 summary(ucs<20)

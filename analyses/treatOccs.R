@@ -3,16 +3,19 @@ library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 library(florabr)
 
-# Clean results folders
-if(!dir.exists("results/total")) stop('Results dir not found')
-if(!dir.exists("results/checklist")) dir.create("results/checklist")
-if(!dir.exists("results/total-treated")) dir.create("results/total-treated")
-tt <- list.files("results/total-treated", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
-checklist <- list.files("results/checklist", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
+results_dir <- Sys.getenv("RESULTS_DIR")
+
+# Make sure results folders exist
+if(!dir.exists(file.path(results_dir, "total"))) stop('Results dir not found')
+if(!dir.exists(file.path(results_dir, "checklist"))) dir.create(file.path(results_dir, "checklist"))
+if(!dir.exists(file.path(results_dir, "total-treated"))) dir.create(file.path(results_dir, "total-treated"))
+
+tt <- list.files(file.path(results_dir, "total-treated", pattern = "*.csv"), full.names = TRUE, recursive = TRUE)
+checklist <- list.files(file.path(results_dir, "checklist", pattern = "*.csv"), full.names = TRUE, recursive = TRUE)
 sapply(c(tt,checklist), file.remove)
 
 # Data from previous runs
-done <- read.csv("results/summary_getOccs.csv")
+done <- read.csv(file.path(results_dir, "summary_getOccs.csv"))
 
 # Select for treating: one or more records
 has_records <- done$NumRecords > 0
@@ -21,7 +24,7 @@ has_records <- done$NumRecords > 0
 ucs <- done[has_records, ]
 
 # Select a subset of UCs (for testing)
-# ucs <- ucs[sample(1:nrow(ucs), 10), ]
+# ucs <- ucs[sample(1:nrow(ucs), 10), ]paste0(
 (sample_size = nrow(ucs))
 
 # If using sample, I want to remove sample from done
@@ -53,7 +56,7 @@ for(i in 1:sample_size){
     print(Nome_UC)
     nome_file <- slug(uc_data$name)
 
-    load(file=paste0("results/total/",nome_file,".rda"))
+    load(file=file.path(results_dir, "total", paste0(nome_file,".rda")))
 
     print(paste("Found",nrow(total),"records."))
     ucs[i,]$NumRecords <- nrow(total)
@@ -61,17 +64,7 @@ for(i in 1:sample_size){
     # Order occs
     total <- total[order(total$taxon.rank, total$tax.check, total$scientificName.new, as.numeric(total$year.new), as.numeric(total$yearIdentified.new), na.last=F, decreasing = T),]
 
-    write.csv(total, paste0("results/total-treated/",nome_file,".csv"),  na="", row.names=FALSE)
-
-    # # Detail locality quality
-    # gps_orig <- total$selectionCategory == "coord_orig"
-    # total$confidenceLocality[gps_orig] <- "None"
-    # good_coords <- startsWith(total$geo.check, "ok_county") | startsWith(total$geo.check, "ok_locality")
-    # unsure_coords <- total$geo.check %in% c("sea", "shore")
-    # total$confidenceLocality[gps_orig & good_coords] <- "Medium" #todo: evaluate quality of gps polygon
-    # total$confidenceLocality[gps_orig & unsure_coords] <- "Low" #todo: evaluate quality of gps polygon
-    # total$confidenceLocality <- factor(total$confidenceLocality, levels = c("None", "Low", "Medium", "High"), ordered = T)
-
+    write.csv(total, file.path(results_dir, "total-treated", paste0(nome_file,".csv")),  na="", row.names=FALSE)
 
     # Separate unmatched taxons
     nf <- not_found(total)
@@ -81,7 +74,7 @@ for(i in 1:sample_size){
         unmatched$origin <- NA
         unmatched$group <- NA
         unmatched <- format_list(unmatched, Nome_UC)
-        write.csv(unmatched, paste0("results/checklist/",nome_file,"_nomesInvalidos.csv"), na="", row.names=FALSE)
+        write.csv(unmatched, file.path(results_dir, "checklist", paste0(nome_file,"_nomesInvalidos.csv")), na="", row.names=FALSE)
         if(all(nf)) {
             continue
         }
@@ -129,14 +122,14 @@ for(i in 1:sample_size){
     ucs[i,]$NumLatao <- sum(top$ConfiançaID == "Latão")
     ucs[i,]$NumNoMatch <- nrow(unmatched)
 
-    write.csv(top, paste0("results/checklist/",nome_file,"_modeloCatalogo.csv"), na="", row.names=FALSE)
-    write.csv(bottom, paste0("results/checklist/",nome_file,"_extra.csv"), na="", row.names=FALSE)
+    write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_modeloCatalogo.csv")), na="", row.names=FALSE)
+    write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
 }
 ucs$nome_file <- NULL
 
 # Save summary
 total <- dplyr::bind_rows(done, ucs)
 total <- total[order(total$name),]
-write.csv(total, "results/summary_treatOccs.csv", row.names=FALSE)
+write.csv(total, file.path(results_dir, "summary_treatOccs.csv"), row.names=FALSE)
 summary(total==0)
 summary(total<20)

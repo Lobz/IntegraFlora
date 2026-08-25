@@ -2,7 +2,7 @@
 if(!require(integraFlora)) devtools::load_all()
 library(plantR) # used for reading and cleaning occurrence data
 
-taxons <- read.csv("results/taxons_not_found.csv")
+taxons <- read.csv(file.path(Sys.getenv("RESULTS_DIR"), "taxons_not_found.csv"))
 
 head(taxons)
 
@@ -42,10 +42,10 @@ tab(x$tax.notes)
 
 names(x)[4] <- "Freq"
 
-write.csv(x[,1:4], "results/taxons_not_found.csv", row.names=F)
+write.csv(x[,1:4], file.path(Sys.getenv("RESULTS_DIR"), "taxons_not_found.csv"), row.names=F)
 
 nf <- x[not_found(x), ]
-write.csv(nf[,1:4], "results/taxons_not_found.csv", row.names=F)
+write.csv(nf[,1:4], file.path(Sys.getenv("RESULTS_DIR"), "taxons_not_found.csv"), row.names=F)
 
 x <- x[found(x), ]
 world <- startsWith(x$id, "wfo") | startsWith(x$id, "wcvp")
@@ -57,12 +57,12 @@ head(matched_back)
 not_bfo <- x[world,]
 
 x <- matched_back
-write.csv(not_bfo, "results/taxons_not_bfo.csv")
-write.csv(x, "results/taxons_matched_back.csv")
+write.csv(not_bfo, file.path(Sys.getenv("RESULTS_DIR"), "taxons_not_bfo.csv"))
+write.csv(x, file.path(Sys.getenv("RESULTS_DIR"), "taxons_matched_back.csv"))
 
 # Check what's in the results
 
-nf_lists <- list.files("results/checklist/", ".*_nomesInvalidos.csv", full.names = T)
+nf_lists <- list.files(file.path(Sys.getenv("RESULTS_DIR"), "checklist/", ".*_nomesInvalidos.csv"), full.names = T)
 ni <- lapply(nf_lists, read.csv)
 ni <- do.call(rbind, ni)
 

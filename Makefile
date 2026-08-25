@@ -1,5 +1,11 @@
 SHELL := /bin/bash
 R ?= Rscript
+include config.R
+
+# Temporary objects folder
+DATATMP=data-tmp
+# Results folder
+RESULTS_DIR=results
 
 GBIF_URL ?= https://api.gbif.org/v1/occurrence/download/request/0000452-260623161305970.zip
 GBIF_FILE ?= "data-input/Occurrences/GBIF/GBIF_Brazil.zip"
@@ -18,44 +24,44 @@ create-uc-summary: data-input/Locations/info/Summary.csv
 data-input/Locations/info/Summary.csv: config.R
 	$(R) "analyses/createUCsummary.R"
 
-data-tmp/gbif.RData: data-input/Occurrences/GBIF/*
+$(DATATMP)/gbif.rda: data-input/Occurrences/GBIF/*
 	$(R) "analyses/formatData/GBIF.R"
 
-data-tmp/jabot.RData: data-input/Occurrences/JABOT/*
+$(DATATMP)/jabot.rda: data-input/Occurrences/JABOT/*
 	$(R) "analyses/formatData/JABOT.R"
 
-data-tmp/reflora.RData: data-input/Occurrences/REFLORA/*
+$(DATATMP)/reflora.rda: data-input/Occurrences/REFLORA/*
 	$(R) "analyses/formatData/Reflora.R"
 
-data-tmp/splink.RData: data-input/Occurrences/splink/*
+$(DATATMP)/splink.rda: data-input/Occurrences/splink/*
 	$(R) "analyses/formatData/splink.R"
 
-data-tmp/other.RData: data-input/Occurrences/OtherSources/*
+$(DATATMP)/other.rda: data-input/Occurrences/OtherSources/*
 	$(R) "analyses/formatData/other.R"
 
-data-tmp/all_data.RData: data-tmp/gbif.RData data-tmp/jabot.RData data-tmp/reflora.RData data-tmp/splink.RData data-tmp/other.RData
+$(DATATMP)/all_data.rda: $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/reflora.rda $(DATATMP)/splink.rda $(DATATMP)/other.rda
 	$(R) "analyses/joinData.R"
 
-data-tmp/treated_data_all.RData: data-tmp/all_data.RData
+$(DATATMP)/treated_data_all.rda: $(DATATMP)/all_data.rda
 	$(R) "analyses/treatData_part1.R"
 
-data-tmp/corpus-full.rda: data-tmp/treated_data_all.RData config.R
+$(DATATMP)/corpus-full.rda: $(DATATMP)/treated_data_all.rda
 	$(R) "analyses/treatData.R"
 
-data-tmp/corpus.rda: data-tmp/corpus-full.rda
+$(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda
 	$(R) "analyses/deduplicate.R"
 
-results/summary_getOccs.csv: clean data-tmp/corpus.rda data-input/Locations/extraTables/checkedLocations.csv data-input/Locations/info/Summary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
+$(RESULTS_DIR)/summary_getOccs.csv: clean $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv data-input/Locations/info/Summary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
 	$(R) "analyses/getOccs.R"
 
-treat-occs: results/summary_getOccs.csv analyses/treatOccs.R
+treat-occs: $(RESULTS_DIR)/summary_getOccs.csv analyses/treatOccs.R
 	$(R) "analyses/treatOccs.R"
 
 clean:
 	$(R) "analyses/cleanResults.R"
 
 purge: clean
-	rm -rf data-tmp/*.rda data-tmp/*.RData plantR_input/*
+	rm -rf $(DATATMP)/*.rda $(DATATMP)/*.rda plantR_input/*
 
 downloadIPTs:
 	$(R) -e "devtools::load_all(); downloadReflora(); downloadJabot()"

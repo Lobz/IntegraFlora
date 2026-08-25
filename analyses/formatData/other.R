@@ -16,4 +16,4 @@ if(length(other_files) > 0) {
     other <-list()
 }
 
-save(other,file="data-tmp/other.RData")
+save(other,file=file.path(Sys.getenv("DATATMP"), "other.rda"))

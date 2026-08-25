@@ -13,4 +13,4 @@ if(length(reflora_files) > 0) {
     reflora <-list()
 }
 
-save(reflora,file="data-tmp/reflora.RData")
+save(reflora,file=file.path(Sys.getenv("DATATMP"), "reflora.rda"))

@@ -10,4 +10,4 @@ if(length(jabot_files) > 0) {
     jabot <- list()
 }
 
-save(jabot,file="data-tmp/jabot.RData")
+save(jabot,file=file.path(Sys.getenv("DATATMP"), "jabot.rda"))

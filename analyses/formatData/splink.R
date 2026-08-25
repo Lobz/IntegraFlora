@@ -12,5 +12,5 @@ if(length(splink_files) > 0) {
     splink <- list()
 }
 
-save(splink, file="data-tmp/splink.RData")
+save(splink, file=file.path(Sys.getenv("DATATMP"), "splink.rda"))
 # todo: decide what to do with barcode NA
