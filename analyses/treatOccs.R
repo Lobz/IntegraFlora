@@ -81,6 +81,7 @@ for(i in 1:sample_size){
         }
     } else {
        matched <- total
+       unmatched <- data.frame()
     }
 
     # Avoid taxons that are already represented by more detailed taxons
