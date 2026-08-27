@@ -29,7 +29,7 @@ for(x in states) {
     }
 
     # change conf
-    system(paste("bash changeConf.sh", x))
+    system(paste0("bash changeConf.sh \"", x, '\"'))
 
     # copy tmp files to folder
     system(paste0("cp -na data-tmp/*.rda ", st_dir, "/"))
