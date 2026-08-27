@@ -3,6 +3,12 @@ library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 library(florabr)
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
 # The point of this is to create and compare lists from different techniques
 # For this exercise, we are using data about Estação Ecológica de Avaré
 ucs <- read.csv("data/raw-data/cnuc_2025_03.csv", sep=";", dec=",")
@@ -215,7 +221,7 @@ compareLists(subset(final, tax.check >= "high"))
 
 # Get best records for each taxon
 top <- top_records(final, n = 1)
-write.csv(top, paste0(file.path(Sys.getenv("RESULTS_DIR"), "checklist_",nome_file,".csv"), na=""))
+write.csv(top, paste0(file.path(results_dir, "checklist_",nome_file,".csv"), na=""))
 
 # Get info from  F&FBR
 # get_florabr(output_dir = "data/raw-data", #directory to save the data
@@ -257,4 +263,4 @@ table(finalList$BD_Origem[!listed])
 table(finalList$Localidade[!listed])
 table(is.na(finalList$Barcode))
 
-write.csv(finalList, paste0(file.path(Sys.getenv("RESULTS_DIR"), "checklist_",nome_file,"_modeloCatalogo.csv"), na=""))
+write.csv(finalList, paste0(file.path(results_dir, "checklist_",nome_file,"_modeloCatalogo.csv"), na=""))

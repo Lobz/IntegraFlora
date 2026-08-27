@@ -2,6 +2,12 @@
 if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
 # other data
 other_files <- list.files("data-input/Occurrences/OtherSources", pattern = "*.(csv|txt)", full.names = TRUE, recursive = TRUE)
 if(length(other_files) > 0) {
@@ -16,4 +22,4 @@ if(length(other_files) > 0) {
     other <-list()
 }
 
-save(other,file=file.path(Sys.getenv("DATATMP"), "other.rda"))
+save(other,file=file.path(tmp_dir, "other.rda"))

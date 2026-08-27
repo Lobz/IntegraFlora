@@ -1,5 +1,12 @@
 if(!require(integraFlora)) devtools::load_all()
 require(plantR)
+
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
 # splink data
 splink_files <- list.files("data-input/Occurrences/splink", pattern = "*.txt$", full.names = TRUE, recursive = TRUE)
 if(length(splink_files) > 0) {
@@ -12,5 +19,5 @@ if(length(splink_files) > 0) {
     splink <- list()
 }
 
-save(splink, file=file.path(Sys.getenv("DATATMP"), "splink.rda"))
+save(splink, file=file.path(tmp_dir, "splink.rda"))
 # todo: decide what to do with barcode NA

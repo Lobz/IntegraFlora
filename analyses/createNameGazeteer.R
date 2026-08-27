@@ -2,13 +2,19 @@ if(!require(integraFlora)) devtools::load_all()
 library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 
-tt <- list.files(file.path(Sys.getenv("RESULTS_DIR"), "total"), full.names = T)
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
+tt <- list.files(file.path(results_dir, "total"), full.names = T)
 dt <- lapply(tt, function(s) {load(s); return(total)})
 nome_file <- sub(".*/","",tt)
 nome_file <- sub(".csv","",nome_file)
 names(dt) <- nome_file
 
-ucs <- read.csv(file.path(Sys.getenv("RESULTS_DIR"), "summary_multilist.csv"))
+ucs <- read.csv(file.path(results_dir, "summary_multilist.csv"))
 ucs$nome_file <- gsub(" ","",tolower(rmLatin(ucs$Nome.da.UC)))
 rownames(ucs) <- ucs$nome_file
 
@@ -191,7 +197,7 @@ locTable3 <- function(df, filter=""){
     #status in gazet and frequency here
     LT_tmp <- aggregate(DT$loc.orig, list(loc = DT$loc.orig, loc.correct = DT$loc.correct), length)
     LT$Freq <-LT_tmp$x
-    gazetteer <- read.csv(file.path(file.path(Sys.getenv("DATATMP"),"gazetteer - gazetteer_new.csv"))
+    gazetteer <- read.csv(file.path(file.path(tmp_dir,"gazetteer - gazetteer_new.csv"))
 
     locs_existentes <- unique(gazetteer$loc)
 
@@ -227,7 +233,7 @@ LT_final <- locTable3(df)
 
 names(gazetteer)
 
-upl <- read.csv(file.path(file.path(Sys.getenv("DATATMP"),"locs frequentes - locationsTable_getLoc_new.csv"))
+upl <- read.csv(file.path(file.path(tmp_dir,"locs frequentes - locationsTable_getLoc_new.csv"))
 
 upl$Freq <- LT_final$Freq[match(upl$loc,LT_final$loc)]
 head(upl)
@@ -247,7 +253,7 @@ loctab <- unique(total[,c("Nome_UC","locality")])
 
 ## Second source of tab: names that "look like" they might be UCs
 
-load(file.path(file.path(Sys.getenv("DATATMP"),"corpus.rda"))
+load(file.path(file.path(tmp_dir,"corpus.rda"))
 
 
 df <- subset(saopaulo, resolution.gazetteer != "locality")
@@ -272,7 +278,7 @@ LT_final <- subset(LT_unused, Freq>10 & !alreadyInGazet)
 head(LT_final)
 
 
-old <- read.csv("file.path(Sys.getenv("DATATMP")/temp_unused locations.csv")
+old <- read.csv(file.path(tmp_dir, "temp_unused locations.csv"))
 
 removed <- old$loc
 LT_final <- subset(LT_final, !loc %in% removed)

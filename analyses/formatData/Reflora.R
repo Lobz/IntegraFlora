@@ -1,6 +1,12 @@
 if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
 # Reflora data
 reflora_files <- list.files("data-input/Occurrences/REFLORA", pattern = "*.csv", full.names = TRUE, recursive = TRUE)
 if(length(reflora_files) > 0) {
@@ -13,4 +19,4 @@ if(length(reflora_files) > 0) {
     reflora <-list()
 }
 
-save(reflora,file=file.path(Sys.getenv("DATATMP"), "reflora.rda"))
+save(reflora,file=file.path(tmp_dir, "reflora.rda"))

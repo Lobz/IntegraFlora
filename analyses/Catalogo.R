@@ -1,6 +1,9 @@
 library(plantR) # used foi reading and cleaning occurrence data
 if(!require(integraFlora)) devtools::load_all()
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
 # Read list from Catalogo das Plantas das UCs do Brasil
 cl0 <- read.csv(("data/raw-data/Dados_Catalogo_UCs_Brasil.csv"))
 names(cl0)
@@ -8,7 +11,7 @@ names(cl0)
 # Choose the units we are interested in
 cl0$UC <- standardize_uc_name(cl0$Unidade.Conservação)
 tab(cl0$UC)
-ucs <- read.csv(file.path(Sys.getenv("RESULTS_DIR"), "summary_multilist.csv"))
+ucs <- read.csv(file.path(results_dir, "summary_multilist.csv"))
 used <- cl0$UC %in% ucs$Nome.da.UC
 tab(cl0$UC[used])
 cl0 <- cl0[used,]

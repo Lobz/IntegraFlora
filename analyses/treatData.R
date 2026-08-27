@@ -2,8 +2,14 @@ if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 source("config.R")
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
 print("Loading all data...")
-load(file.path(Sys.getenv("DATATMP"), "treated_data_all.rda"))
+load(file.path(tmp_dir, "treated_data_all.rda"))
 
 print("Subsetting...")
 if(SUBSETTOPROVINCE) {
@@ -31,10 +37,10 @@ if(max>=2) {
 }
 
 print("Saving...")
-save(corpus, file=file.path(Sys.getenv("DATATMP"), "corpus-full.rda"))
+save(corpus, file=file.path(tmp_dir, "corpus-full.rda"))
 
 # Save unmatched taxons
 nf <- corpus[corpus$tax.notes == "not found" | !startsWith(corpus$id, "bfo"), ]
 nf <- aggregate(nf$catalogNumber, list(family=nf$family, scientificName=nf$scientificName, scientificNameAuthorship=nf$scientificNameAuthorship), function(x) length(unique(x)))
 nf <- nf[order(nf$x, decreasing = T),]
-write.csv(nf[nf$x>=10,], file.path(Sys.getenv("RESULTS_DIR"), "taxons_not_found.csv"), row.names=F)
+write.csv(nf[nf$x>=10,], file.path(results_dir, "taxons_not_found.csv"), row.names=F)

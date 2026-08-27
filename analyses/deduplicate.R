@@ -1,7 +1,10 @@
 if(!require(integraFlora)) devtools::load_all()
 library(plantR)
 
-load(file.path(Sys.getenv("DATATMP"),"corpus-full.rda"))
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
+load(file.path(tmp_dir, "corpus-full.rda"))
 
 print("Removing duplicates...")
 loc.names <- c(loc.cols, paste0(loc.cols, ".new"), "longitude.gazetteer", "latitude.gazetteer")
@@ -33,4 +36,4 @@ if(length(badnames) > 0) {
 corpus <- my_valDup(corpus)
 
 print("Saving...")
-save(corpus, file=file.path(Sys.getenv("DATATMP"), "corpus.rda"))
+save(corpus, file=file.path(tmp_dir, "corpus.rda"))

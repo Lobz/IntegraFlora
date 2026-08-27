@@ -4,6 +4,7 @@ library(stringr)
 library(florabr)
 
 results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
 
 # Make sure results folders exist
 if(!dir.exists(file.path(results_dir, "total"))) stop('Results dir not found')

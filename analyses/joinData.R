@@ -3,11 +3,14 @@ source("config.R")
 
 print("Loading data...")
 
-load(file.path(Sys.getenv("DATATMP"), "gbif.rda"))
-load(file.path(Sys.getenv("DATATMP"), "reflora.rda"))
-load(file.path(Sys.getenv("DATATMP"), "jabot.rda"))
-load(file.path(Sys.getenv("DATATMP"), "splink.rda"))
-load(file.path(Sys.getenv("DATATMP"), "other.rda"))
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
+load(file.path(tmp_dir, "gbif.rda"))
+load(file.path(tmp_dir, "reflora.rda"))
+load(file.path(tmp_dir, "jabot.rda"))
+load(file.path(tmp_dir, "splink.rda"))
+load(file.path(tmp_dir, "other.rda"))
 
 # Join in a single list
 print("Joining...")
@@ -56,4 +59,4 @@ if(any(sizes < chunk_size/2)) {
 }
 
 print(paste("Organized", sum(sapply(all_data, nrow)), "records in", length(all_data), "chunks of", as.integer(chunk_size), "records"))
-save(all_data, file=file.path(Sys.getenv("DATATMP"),"all_data.rda"))
+save(all_data, file=file.path(tmp_dir,"all_data.rda"))

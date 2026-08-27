@@ -1,4 +1,3 @@
-
 devtools::load_all()
 library(stringr)
 library(florabr)
@@ -6,8 +5,14 @@ library(parallel)
 library(sf)
 library(geobr)
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
+tmp_dir <- Sys.getenv("DATATMP")
+if(tmp_dir == "") tmp_dir <- "data-tmp"
+
 # Pre-treated data from GBIF, REflora and JABOT
-load(file.path(Sys.getenv("DATATMP"), "reflora_gbif_jabot_splink_saopaulo.rda"))
+load(file.path(tmp_dir, "reflora_gbif_jabot_splink_saopaulo.rda"))
 dt$recordID <- 1:nrow(dt) # I need a unique ID for this
 
 # Data with valid coordinates: either original coordinates or locality
@@ -111,8 +116,8 @@ tabs <- lapply(rownames(shapes), function(x) try(plotMun(x, plot=T)))
 tabls <- sapply(tabs, function(x) if(class(x) == "integer") FALSE else TRUE)
 tabs <- do.call(rbind, tabs)
 rownames(tabs) <- rownames(shapes)
-write.csv(tabs, file.path(Sys.getenv("RESULTS_DIR"), "locations/test_gps_municipalitites.csv"))
-tabs <- read.csv(file.path(Sys.getenv("RESULTS_DIR"), "locations/test_gps_municipalitites.csv"))
+write.csv(tabs, file.path(results_dir, "locations/test_gps_municipalitites.csv"))
+tabs <- read.csv(file.path(results_dir, "locations/test_gps_municipalitites.csv"))
 
 t <- as.data.frame(tabs)
 t$total <- t$total_gps + t$total_name - t$correct
