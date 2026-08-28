@@ -1,11 +1,10 @@
 SHELL := /bin/bash
 R ?= Rscript
-include config.R
 
 # Temporary objects folder
-DATATMP=data-tmp
+export DATATMP=data-tmp
 # Results folder
-RESULTS_DIR=results
+export RESULTS_DIR=results
 
 GBIF_URL ?= https://api.gbif.org/v1/occurrence/download/request/0000452-260623161305970.zip
 GBIF_FILE ?= "data-input/Occurrences/GBIF/GBIF_Brazil.zip"
@@ -17,7 +16,7 @@ install-deps: install_deps_linux.sh
 	$(SHELL) install_deps_linux.sh
 
 install: install-deps DESCRIPTION
-	$(R) -e "devtools::load_all()"
+	$(R) -e "devtools::install()"
 
 create-uc-summary: data-input/Locations/info/Summary.csv
 
