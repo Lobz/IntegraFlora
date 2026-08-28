@@ -1,6 +1,7 @@
 #' Isolate Problem Cases
 #'
 #' @importFrom parallel parSapply detectCores makeCluster
+#' @export
 isolateProblemCases <- function(x, FUN, breaks = 10, parallel = FALSE, no_cores = detectCores() -1, ...) {
 
     if(!"function" %in% class(FUN)) {

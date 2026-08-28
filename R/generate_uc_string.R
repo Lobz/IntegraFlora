@@ -1,5 +1,6 @@
 #' Generate UC string
 #'
+#' @export
 generate_uc_string <- function(x) {
     # String de regex para de/dos/da/das/,/-
     str_de <- "(,? ?( d[oae]s?)? ?| [-–/] )"

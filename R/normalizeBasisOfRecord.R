@@ -11,6 +11,7 @@ basisOfRecords <- c(
     "MACHINE_OBSERVATION"
 )
 
+#' @export
 as.basisOfRecord <- function(x, levels = basisOfRecords) {
     factor(x, levels = levels, labels = basisOfRecords)
 }

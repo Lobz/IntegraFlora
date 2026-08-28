@@ -4,21 +4,12 @@
 \alias{getTaxonId}
 \title{getTaxonId}
 \usage{
-getTaxonId(
-  total,
-  complete = TRUE,
-  rm.miss = FALSE,
-  na.values = c("Indeterminado", "INDETERMINADA", "ndeterminado", "Indet", "INDET.",
-    "sp.", "Plantae"),
-  ...
-)
+getTaxonId(total, complete = TRUE, ...)
 }
 \arguments{
 \item{total}{A data.frame containing identification information with columns "scientificName", "scientificNameAuthorship", "genus"}
 
 \item{complete}{Run all possible strategies? If false, will run a default formatTax. Defaults to TRUE}
-
-\item{rm.miss}{Remove data with no identification info? Defaults to FALSE}
 }
 \description{
 Try to get taxon ID using many different strategies

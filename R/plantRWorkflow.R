@@ -1,5 +1,8 @@
 
-
+#' @title plantRWorkflow_part1
+#' @description This function is part of the plantR workflow, and is used to format and validate occurrence and location data.
+#' @param x A data.frame containing occurrence data.
+#' @export
 plantRWorkflow_part1 <- function(x) {
     # Standardize missing information
     x[x==""] <- NA
@@ -23,6 +26,11 @@ plantRWorkflow_part1 <- function(x) {
     x
 }
 
+#' Subset to Province
+#'
+#' This function subsets a data.frame to a specific country and state/province, and removes records that have no location information.
+#' @param x A data.frame containing occurrence data.
+#' @export
 subsetToProvince <- function(x) {
     print("Subsetting to state...")
 
@@ -41,6 +49,10 @@ subsetToProvince <- function(x) {
     x
 }
 
+#' @title plantRWorkflow_part2
+#' @description This function is part of the plantR workflow, and is used to format and validate taxonomic and geolocation data.
+#' @param x A data.frame containing occurrence data.
+#' @export
 plantRWorkflow_part2 <- function(x) {
 
     # formatTax and validateTax

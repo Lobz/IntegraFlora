@@ -19,8 +19,11 @@ taxonRankSubstitutions <- data.frame(
     original = c(names(taxonRankSubstitutions), taxonRanks, ""),
     final = c(taxonRankSubstitutions, taxonRanks, NA))
 
+#' @export
 as.taxon.rank <- function(x) factor(x, levels = taxonRanks, ordered=TRUE)
 
+#' Normalize taxon rank as factor
+#' @export
 normalizeTaxonRank <- function(x) {
     x <- taxonRankSubstitutions$final[match(x, taxonRankSubstitutions$original)]
     as.taxon.rank(x)

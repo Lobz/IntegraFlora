@@ -5,6 +5,7 @@
 #' @param x UC names
 #'
 #' @details In addition to correcting common mistakes and coverting abbreviations to long form, this function also removes connectors between
+#' @export
 standardize_uc_name <- function(x) {
     x <- plantR:::squish(x)
     x <- toupper(x)

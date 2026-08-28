@@ -7,6 +7,7 @@
 #' @param na What datum do you assume NA or unkown values to be. Defaults to SIRGAS 2000 (EPSG:4674).
 #'
 #' @importFrom sf st_crs st_transform
+#' @export
 fixDatum <- function(x, convert.to = "EPSG:4674", na = "EPSG:4674") {
 
     # Figure out datum
