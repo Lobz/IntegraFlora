@@ -24,6 +24,7 @@
 ^pkgdown$
 cheatsheet.pdf
 ^\.github$
+^\.git$
 ^_config.yml$
 ^articles$
 ^paper$
@@ -37,3 +38,10 @@ cheatsheet.pdf
 ^data-input/
 ^data-tmp/
 ^results/
+^analyses/
+^plots/
+^Makefile$
+^plantR_input
+.sh$
+^.RData$
+^.Rhistory$
