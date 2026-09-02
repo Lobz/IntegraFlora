@@ -1,4 +1,4 @@
-devtools::load_all()
+if(!require(integraFlora)) devtools::load_all()
 library(geobr)
 
 results_folder <- "../ChecklistsBrazil/"
