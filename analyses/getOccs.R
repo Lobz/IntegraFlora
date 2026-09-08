@@ -148,7 +148,7 @@ for(i in 1:sample_size){
     print("Getting data for UC:")
     print(uc_data[1])
     UC <- uc_data$slug
-    nome_file <- UC
+    nome_file <- slug(UC)
 
     # Which records are in the gps shp
     if(any(points_ucs_original[[UC]])) {
