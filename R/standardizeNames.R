@@ -62,5 +62,6 @@ slug <- function(x) {
     x <- plantR::rmLatin(x)
     x <- plantR:::squish(x)
     x <- gsub("\\s+","_",x)
+    x <- gsub('\\/',"_",x, fixed=T)
     x
 }
