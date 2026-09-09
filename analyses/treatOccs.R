@@ -77,7 +77,7 @@ for(i in 1:sample_size){
         unmatched <- format_list(unmatched, Nome_UC)
         write.csv(unmatched, file.path(results_dir, "checklist", paste0(nome_file,"_nomesInvalidos.csv")), na="", row.names=FALSE)
         if(all(nf)) {
-            continue
+            next()
         }
     } else {
        matched <- total
