@@ -11,9 +11,8 @@ if(!dir.exists(file.path(results_dir, "total"))) stop('Results dir not found')
 if(!dir.exists(file.path(results_dir, "checklist"))) dir.create(file.path(results_dir, "checklist"))
 if(!dir.exists(file.path(results_dir, "total-treated"))) dir.create(file.path(results_dir, "total-treated"))
 
-tt <- list.files(file.path(results_dir, "total-treated", pattern = "*.csv"), full.names = TRUE, recursive = TRUE)
-checklist <- list.files(file.path(results_dir, "checklist", pattern = "*.csv"), full.names = TRUE, recursive = TRUE)
-sapply(c(tt,checklist), file.remove)
+# Clean results dir
+clean_lists(results_dir)
 
 # Data from previous runs
 done <- read.csv(file.path(results_dir, "summary_getOccs.csv"))

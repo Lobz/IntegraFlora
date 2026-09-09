@@ -13,6 +13,9 @@ if(DATATMP=="") DATATMP <- "data-tmp"
 if(!dir.exists(results_dir)) dir.create(results_dir)
 if(!dir.exists(file.path(results_dir, "total"))) dir.create(file.path(results_dir, "total"))
 
+# Clean results dir
+clean_total(results_dir)
+
 # Data about UCs from CNUC
 print("Loading conservation units data...")
 ucs <- read.csv(file.path(results_dir,"UCsummary.csv"))

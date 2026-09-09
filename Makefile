@@ -51,7 +51,6 @@ $(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda
 	$(R) "analyses/deduplicate.R"
 
 $(RESULTS_DIR)/summary_getOccs.csv: $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
-	$(R) "analyses/cleanResults.R"
 	$(R) "analyses/getOccs.R"
 
 treat-occs: $(RESULTS_DIR)/summary_treatOccs.csv
