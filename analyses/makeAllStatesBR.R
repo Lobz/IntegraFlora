@@ -31,9 +31,6 @@ for(x in states) {
         dir.create(st_dir)
     }
 
-    # Make summary
-    system(paste0("make DATATMP=", st_dir, " RESULTS_DIR=", st_dir, " create-uc-summary"))
-
     # copy tmp files to folder
     system(paste0("cp -nav data-tmp/*.rda ", st_dir, "/"))
 
