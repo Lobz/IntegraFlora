@@ -18,9 +18,9 @@ install-deps: install_deps_linux.sh
 install: install-deps DESCRIPTION
 	$(R) -e "devtools::install()"
 
-create-uc-summary: data-input/Locations/info/Summary.csv
+create-uc-summary: $(RESULTS_DIR)/UCsummary.csv
 
-data-input/Locations/info/Summary.csv: config.R
+$(RESULTS_DIR)/UCsummary.csv:
 	$(R) "analyses/createUCsummary.R"
 
 $(DATATMP)/gbif.rda: data-input/Occurrences/GBIF/*
