@@ -53,7 +53,9 @@ $(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda
 $(RESULTS_DIR)/summary_getOccs.csv: clean $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
 	$(R) "analyses/getOccs.R"
 
-treat-occs: $(RESULTS_DIR)/summary_getOccs.csv analyses/treatOccs.R
+treat-occs: $(RESULTS_DIR)/summary_treatOccs.csv
+
+$(RESULTS_DIR)/summary_treatOccs.csv: $(RESULTS_DIR)/summary_getOccs.csv analyses/treatOccs.R
 	$(R) "analyses/treatOccs.R"
 
 clean:
