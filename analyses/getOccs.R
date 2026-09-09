@@ -15,7 +15,7 @@ if(!dir.exists(file.path(results_dir, "total"))) dir.create(file.path(results_di
 
 # Data about UCs from CNUC
 print("Loading conservation units data...")
-ucs <- read.csv("data-input/Locations/info/Summary.csv")
+ucs <- read.csv(file.path(results_dir,"UCsummary.csv"))
 ucs <- ucs[grep(STATEPROVINCE, ucs$stateProvince),]
 
 # Make a summary table
