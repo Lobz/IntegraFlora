@@ -50,7 +50,7 @@ $(DATATMP)/corpus-full.rda: $(DATATMP)/treated_data_all.rda
 $(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda
 	$(R) "analyses/deduplicate.R"
 
-$(RESULTS_DIR)/summary_getOccs.csv: clean $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv data-input/Locations/info/Summary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
+$(RESULTS_DIR)/summary_getOccs.csv: clean $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
 	$(R) "analyses/getOccs.R"
 
 treat-occs: $(RESULTS_DIR)/summary_getOccs.csv analyses/treatOccs.R
