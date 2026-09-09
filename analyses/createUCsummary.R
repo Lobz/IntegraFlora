@@ -2,9 +2,12 @@ if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 source("config.R")
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
 folder <- "data-input/Locations/info/"
 info_files <- read.csv("data-input/Locations/info/file_descriptions.csv", na.strings = c("", "NA"))
-filenames <- paste0("data-input/Locations/info/", info_files$arquivo)
+filenames <- file.path(folder, info_files$arquivo)
 
 # apply default values
 info_files$sep[is.na(info_files$sep)] <- ","
@@ -125,4 +128,4 @@ dt <- dt[order(dt$name),]
 
 
 head(dt)
-write.csv(dt, "data-input/Locations/info/Summary.csv", row.names=F)
+write.csv(dt, file.path(results_dir, "UCsummary.csv"), row.names=F)

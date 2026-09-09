@@ -14,25 +14,35 @@ states <- geobr::read_state(year = st_latest_year)$name_state
 head(states)
 states <- sort(states)
 
-
 # Create dirs
 if(!dir.exists(results_folder)) {
     dir.create(results_folder)
 }
 
 for(x in states) {
+    print(paste("Starting state ", x))
     st_dir <- paste0(results_folder, slug(x))
-
-    # make sure folder exists and is empty
-    if(!dir.exists(st_dir)) {
-        dir.create(st_dir)
-    }
 
     # change conf
     system(paste0("bash changeConf.sh \"", x, '\"'))
 
+    # make sure folder exists
+    if(!dir.exists(st_dir)) {
+        dir.create(st_dir)
+    }
+
+    # Make summary
+    system(paste0("make DATATMP=", st_dir, " RESULTS_DIR=", st_dir, " create-uc-summary"))
+
+    if (file.exists(file.path(st_dir, "summary_treatOccs.csv"))) {
+       print("Nothing to do. Touching only.")
+       system(paste0("touch ", st_dir,"/summary_getOccs.csv"))
+       system(paste0("touch ", st_dir,"/summary_treatOccs.csv"))
+       next()
+    }
+
     # copy tmp files to folder
-    system(paste0("cp -na data-tmp/*.rda ", st_dir, "/"))
+    system(paste0("cp -nav data-tmp/*.rda ", st_dir, "/"))
 
     # make
     system(paste0("make DATATMP=", st_dir, " RESULTS_DIR=", st_dir))
