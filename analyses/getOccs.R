@@ -101,7 +101,7 @@ names(occs_locality) <- names(occs_string)
 # Shape data
 print("Loading multipolygons...")
 shapes <- st_read("data-input/Locations/shapes/cnuc_2025_08/cnuc_2025_08.shp")
-shapes <- subset(shapes, uf == STATEPROVINCE)
+shapes <- subset(shapes, uf == toupper(STATEPROVINCE))
 shapes$slug <- slug(standardize_uc_name(shapes$nome_uc))
 shapes <- subset(shapes, slug %in% ucs$slug)
 shapes <- shapes[order(shapes$slug), ]
