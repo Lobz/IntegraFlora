@@ -126,11 +126,13 @@ for(i in 1:sample_size){
     write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_modeloCatalogo.csv")), na="", row.names=FALSE)
     write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
 }
-ucs$nome_file <- NULL
 
 # Save summary
-total <- dplyr::bind_rows(done, ucs)
+# total <- dplyr::bind_rows(done, ucs)
+total <- ucs
+total$nome_file <- NULL
 total <- total[order(total$name),]
+total$name <- shorten_uc_name(total$name)
 write.csv(total, file.path(results_dir, "summary_treatOccs.csv"), row.names=FALSE)
 summary(total==0)
 summary(total<20)
