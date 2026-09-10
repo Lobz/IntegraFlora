@@ -40,6 +40,7 @@ standardize_uc_name <- function(x) {
 #' @param x UC names
 #'
 #' @details This function assumes that the names have already been stantardized. It will not standardize names not correct mistakes, and will not work properly if the names are misspelled.
+#' @export
 shorten_uc_name <- function(x) {
     L <- uc_abbrevs$long
     S <- sub("\\|.*","",uc_abbrevs$short)
@@ -57,6 +58,7 @@ shorten_uc_name <- function(x) {
 #'
 #' @details This function assumes that the names have already been stantardized. It will not standardize names not correct mistakes, and will not work properly if the names are misspelled.
 #' @importFrom plantR rmLatin
+#' @export
 slug <- function(x) {
     x <- shorten_uc_name(x)
     x <- plantR::rmLatin(x)

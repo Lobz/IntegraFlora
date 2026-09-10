@@ -36,8 +36,13 @@ isolateProblemCases <- function(x, FUN, breaks = 10, parallel = FALSE, no_cores 
     x
 }
 
+#' @export
 loc.cols <- c("country", "stateProvince", "municipality", "locality")
+#' @export
 loc.cols.plantR <- c("country.new", "stateProvince.new", "municipality.new", "locality.new", "locality.scrap", "resol.orig", "loc", "loc.correct", "latitude.gazetteer", "longitude.gazetteer", "resolution.gazetteer")
+#' @export
 geo.cols <- c("decimalLatitude", "decimalLongitude", "geodeticDatum")
+#' @export
 geo.cols.plantR <- c("decimalLatitude.new", "decimalLongitude.new", "origin.coord", "precision.coord", "coord.check")
+#' @export
 tax.cols <- c("scientificName", "family")

@@ -16,7 +16,7 @@ install-deps: install_deps_linux.sh
 	$(SHELL) install_deps_linux.sh
 
 install: install-deps DESCRIPTION
-	$(R) -e "devtools::install()"
+	$(R) -e "devtools::document(); devtools::install()"
 
 create-uc-summary: $(RESULTS_DIR)/UCsummary.csv
 
