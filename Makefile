@@ -20,7 +20,7 @@ install: install-deps DESCRIPTION
 
 create-uc-summary: $(RESULTS_DIR)/UCsummary.csv
 
-$(RESULTS_DIR)/UCsummary.csv:
+$(RESULTS_DIR)/UCsummary.csv: analyses/createUCsummary.R
 	$(R) "analyses/createUCsummary.R"
 
 $(DATATMP)/gbif.rda: data-input/Occurrences/GBIF/*
