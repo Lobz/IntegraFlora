@@ -49,7 +49,7 @@ info_data_list <- lapply(1:nrow(info_files), function(i) {
 
 subset_uc_summary <- function(dt) {
     # Remove unwanted types
-    dt <- subset(dt, !type %in% c("APAM", "APA", "ESEX"))
+    # dt <- subset(dt, !type %in% c("APAM", "APA", "ESEX"))
     # FormatLoc
     dtl <- dt
     dtl$locality <- dt$name
