@@ -1,4 +1,6 @@
 
+#' Organize data into chunks of similar size
+#' @export
 chunk <- function(all_data, chunk_size = 4e5, merge = T) {
 
     print(paste("Found", sum(vapply(all_data, nrow, 0)), "records in", length(all_data), "files"))

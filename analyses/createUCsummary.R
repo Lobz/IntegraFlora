@@ -2,9 +2,12 @@ if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 source("config.R")
 
+results_dir <- Sys.getenv("RESULTS_DIR")
+if(results_dir == "") results_dir <- "results"
+
 folder <- "data-input/Locations/info/"
 info_files <- read.csv("data-input/Locations/info/file_descriptions.csv", na.strings = c("", "NA"))
-filenames <- paste0("data-input/Locations/info/", info_files$arquivo)
+filenames <- file.path(folder, info_files$arquivo)
 
 # apply default values
 info_files$sep[is.na(info_files$sep)] <- ","
@@ -44,11 +47,9 @@ info_data_list <- lapply(1:nrow(info_files), function(i) {
     })
 })
 
-lapply(info_data_list, head)
-
 subset_uc_summary <- function(dt) {
     # Remove unwanted types
-    dt <- subset(dt, !type %in% c("APAM", "APA", "ESEX"))
+    # dt <- subset(dt, !type %in% c("APAM", "APA", "ESEX"))
     # FormatLoc
     dtl <- dt
     dtl$locality <- dt$name
@@ -118,11 +119,7 @@ merge_many <- function(data_list, filenames = names(data_list), merge.function =
 
 print("Merging info...")
 dt <- merge_many(info_data_list, filenames)
-nrow(dt)
-tab(dt$source)
 
 dt <- dt[order(dt$name),]
 
-
-head(dt)
-write.csv(dt, "data-input/Locations/info/Summary.csv", row.names=F)
+write.csv(dt, file.path(results_dir, "UCsummary.csv"), row.names=F)

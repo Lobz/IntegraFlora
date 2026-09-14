@@ -10,6 +10,7 @@
 #'
 #' @keywords internal
 #'
+#' @export
 parseReflora <- function(data) {
     print(paste0('n. registros: ', nrow(data)))
     print(paste0('n. colunas: ', ncol(data)))

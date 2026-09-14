@@ -4,10 +4,10 @@
 \alias{formatGBIF}
 \title{Specific formatting for GBIF data}
 \usage{
-formatGBIF(gbif)
+formatGBIF(x)
 }
 \arguments{
-\item{gbif}{A data.frame (output from readGBIF)}
+\item{x}{A data.frame (output from readx)}
 }
 \description{
 Specific formatting for GBIF data

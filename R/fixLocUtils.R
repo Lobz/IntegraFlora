@@ -1,4 +1,6 @@
 
+#' Remove extra spaces from a string
+#' @export
 remove_spaces <- function(x) {
   x<- gsub(" +$","",x, perl=T)
   x<- gsub("^ +","",x, perl=T)
@@ -7,6 +9,8 @@ remove_spaces <- function(x) {
   x
 }
 
+#' Remove punctuation from a string
+#' @export
 remove_punct <- function(x) {
   x<- gsub("\\(.*\\)","",x, perl=T)
   x<- gsub("\\[.*\\]","",x, perl=T)
@@ -14,6 +18,8 @@ remove_punct <- function(x) {
   x
 }
 
+#' Fix São Paulo string
+#' @export
 fix_sp <- function(x) {
     x <- gsub("^s(.?.?o?| #227;o) paulo", "sao paulo", x, ignore.case=T)
     gsub("(\\s|,|\\.|-)s(.?.?o?| #227;o) paulo", "\\1sao paulo", x, ignore.case=T)
@@ -23,6 +29,7 @@ fix_sp <- function(x) {
 #'
 #' This corresponds to the final part of plantR::formatLoc(), which is used in fixLocation()
 #' @importFrom plantR strLoc prepLoc getLoc
+#' @export
 finLoc <- function(x, ...) {
   print(table(x$resolution.gazetteer))
   # strLoc

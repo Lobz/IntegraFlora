@@ -4,6 +4,7 @@
 #'
 #' @param x A data.frame treated with plantR::formatLoc()
 #' @return The same data.frame, with added columns "loc.correct.admin", "country.correct", "stateProvince.correct", "municipality.correct", "locality.correct" and "source.loc", taken from the result of plantR::getAdmin()
+#' @export
 addAdmin <- function(x) {
 
     locs <- plantR::getAdmin(x$loc.correct)

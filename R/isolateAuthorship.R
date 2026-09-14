@@ -15,6 +15,7 @@
 #' @importFrom plantR fixAuthors
 #'
 #' @details This function uses plantR::fixAuthors() to extract authorship information
+#' @export
 isolateAuthorship <- function(x,
     save.original.as = "verbatimScientificName",
     overwrite.authorship = TRUE,

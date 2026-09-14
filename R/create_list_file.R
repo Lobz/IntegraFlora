@@ -1,4 +1,6 @@
 
+#' Get the best records for each taxon
+#' @export
 top_records <- function(x, n = 5) {
     # Get best specimen/identification combo
     x <- x[order(x$ConfiançaLoc, x$ConfiançaID, !is.na(x$Imagens), as.numeric(x$AnoColeta), as.numeric(x$AnoID), na.last=F, decreasing = T),]
@@ -18,6 +20,8 @@ top_records <- function(x, n = 5) {
     res
 }
 
+#' Format a list of records
+#' @export
 format_list <- function(x, UC) {
     finalList <- data.frame(
         UC = UC,
@@ -49,6 +53,7 @@ format_list <- function(x, UC) {
 #'
 #' @param x A data.frame
 #' @return A data.frame formatted with formatDwc
+#' @export
 reverseListFormatting <- function(x) {
     x <- data.frame(
         family = x$Família,
@@ -76,6 +81,8 @@ reverseListFormatting <- function(x) {
 }
 
 
+#' Get the best barcode for each record
+#' @export
 getBarcode <- function(x) {
     ifelse(!is.na(x$barcode), x$barcode,
     ifelse(grepl("[A-Z]+", x$catalogNumber), x$catalogNumber,

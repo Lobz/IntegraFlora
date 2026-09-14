@@ -42,14 +42,21 @@ downloadIPTResource <- function(resource,
 }
 
 
+#' Open a zip file
+#'
+#' @export
 openZip <- function(file, ...) {
     utils::unzip(file, exdir = gsub(".zip", "", file), overwrite = T, ...)
 }
 
+#' Download JABOT data from ipt
+#' @export
 downloadJabot <- function() {
     lapply(herbariaJabot, downloadIPTResource)
 }
 
+#' Download Reflora data from ipt
+#' @export
 downloadReflora <- function() {
     lapply(herbariaReflora, downloadIPTResource,
         baseUrl = "https://ipt.jbrj.gov.br/reflora/resource?r=",

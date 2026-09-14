@@ -2,6 +2,7 @@
 #'
 #' Join two data.frames, avoiding errors
 #' importFrom dplyr full_join bind_rows
+#' @export
 join <- function(x, y, merge = T) {
     tryCatch({
         # Join

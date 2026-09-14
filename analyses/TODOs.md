@@ -60,3 +60,19 @@ fix: use as.numeric
 - adicionar no README: critérios de confiança, critério de seleção do melhor registro
 - listas de florísticas?
 - conversar com thaty sobre listas de planos de manejo
+
+## Notas da apresentação EcoEncontros 9/6/2026
+
+Apresentação durou apenas 20min!! 40min de perguntas!
+
+é um pacote R? (deveria ser tvz??)
+
+iNaturalist pode ser uma boa fonte de dados para um grupo e não para outro. É bom para lepidóptera e não para amfíbios
+
+"tem um vazio de dados fundiários de mata atlântica"
+
+sugestão: separar dados com problemas de identificação (eg, identificação apenas a nivel de gênero ou família) para mandar para especialistas identificarem.
+
+
+
+

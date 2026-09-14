@@ -3,6 +3,7 @@
 #' plantR doesn't return these by default so I have to do it myself
 #'
 #' @importFrom stringr str_extract
+#' @export
 get_species_and_genus <- function(x) {
     if(!"species.new" %in% names(x))
         x$species.new <- NA

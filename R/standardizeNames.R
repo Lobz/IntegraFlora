@@ -5,6 +5,7 @@
 #' @param x UC names
 #'
 #' @details In addition to correcting common mistakes and coverting abbreviations to long form, this function also removes connectors between
+#' @export
 standardize_uc_name <- function(x) {
     x <- plantR:::squish(x)
     x <- toupper(x)
@@ -39,6 +40,7 @@ standardize_uc_name <- function(x) {
 #' @param x UC names
 #'
 #' @details This function assumes that the names have already been stantardized. It will not standardize names not correct mistakes, and will not work properly if the names are misspelled.
+#' @export
 shorten_uc_name <- function(x) {
     L <- uc_abbrevs$long
     S <- sub("\\|.*","",uc_abbrevs$short)
@@ -56,10 +58,12 @@ shorten_uc_name <- function(x) {
 #'
 #' @details This function assumes that the names have already been stantardized. It will not standardize names not correct mistakes, and will not work properly if the names are misspelled.
 #' @importFrom plantR rmLatin
+#' @export
 slug <- function(x) {
     x <- shorten_uc_name(x)
     x <- plantR::rmLatin(x)
     x <- plantR:::squish(x)
     x <- gsub("\\s+","_",x)
+    x <- gsub('\\/',"_",x)
     x
 }

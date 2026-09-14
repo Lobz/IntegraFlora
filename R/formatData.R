@@ -54,6 +54,7 @@ readSpLink <- function(file, ...) {
 #' @examples
 #'
 #' x <- readOccurrence("data-input/Occurrences/OtherSources/example.csv")
+#' @export
 readOccurrence <- function(file, ...) {
     x <- as.data.frame(data.table::fread(file, na.strings = c("", "NA"), ...))
     if(nrow(x > 0)) x$originFile <- file
@@ -63,6 +64,7 @@ readOccurrence <- function(file, ...) {
 #' Specific formatting for GBIF data
 #'
 #' @param x A data.frame (output from readx)
+#' @export
 formatGBIF <- function(x) {
     x$taxonRank <- normalizeTaxonRank(tolower(x$taxonRank))
     x$verbatimBasisOfRecord <- x$basisOfRecord
@@ -91,6 +93,7 @@ formatGBIF <- function(x) {
 #'
 #' @param x A data.frame (output from readJabot)
 #' @return A data.frame formatted with formatDwc
+#' @export
 formatJabot <- function(x) {
     # Fix names
     x <- consolidateCase(x)
@@ -122,6 +125,7 @@ formatJabot <- function(x) {
 #'
 #' @param x A data.frame (output from readReflora)
 #' @return A data.frame formatted with formatDwc
+#' @export
 formatReflora <- function(x) {
     x <- parseReflora(x)
 
@@ -143,6 +147,7 @@ formatReflora <- function(x) {
 #'
 #' @param x A data.frame (output from readSpLink)
 #' @return A data.frame formatted with formatDwc
+#' @export
 formatSpLink <- function(x) {
     # Normalize basisOfRecord
     table(x$basisofrecord, useNA="always")
@@ -169,6 +174,7 @@ formatSpLink <- function(x) {
 #'
 #' @param x A data.frame (output from readOccurrence)
 #' @return A data.frame formatted with formatDwc
+#' @export
 formatOccurrence <- function(x) {
     # Fix names
     x <- consolidateCase(x)

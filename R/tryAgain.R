@@ -13,6 +13,7 @@
 #'
 #' x <- data.frame(a = 1:100, b = 100:1)
 #' y <- tryAgain(x, function(x) {x$a > x$b}, function(x) {x$b <- x$b*2; x})
+#' @export
 tryAgain <- function(x, condition, FUN, success_condition = function(x) !condition(x), add_cols = FALSE, label = NULL, ...) {
     # Label
     if(is.null(label)) {

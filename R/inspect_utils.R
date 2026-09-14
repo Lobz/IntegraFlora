@@ -1,4 +1,5 @@
 
+#' @export
 memory_usage <- function() {
     objs <- ls(name=".GlobalEnv")
     gets <- sapply(objs, get)
