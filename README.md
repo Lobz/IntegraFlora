@@ -22,14 +22,20 @@ Esta ferramenta foi desenvolvida inteiramente em linguagem [R](https://www.r-pro
 Para utilizá-la, é preciso ter instalado o R com versão pelo menos 4.3, e baixar este repositório.
 O repositório pode ser baixado por git (pela ferramenta de terminal do git, `git clone https://github.com/Lobz/IntegraFlora.git`) ou em formato zip (https://github.com/Lobz/IntegraFlora/archive/refs/heads/main.zip) e depois extraído.
 
-Para instalar o pacote, recomendo usar o pacote `devtools`. Num terminal de R, execute:
+Para instalar o pacote num sistema Debian ou Ubuntu, recomendo usar a ferramenta `make` executando no terminal:
+
+```sh
+make install
+```
+
+Caso esteja em outro tipo de sistema operacional, abra um terminal de R, e execute:
 
 ```r
 install.packages('devtools')
-devtools::load_all()
+devtools::install()
 ```
 
-O devtools pedirá permissão para instalar todas as dependências do pacote. Algumas dependências requerem bibliotecas espécíficasn que precisam ser instalados à parte. Para instalar essas dependências num sistema Debian/Ubuntu, execute o script de bash [install_deps_linux.sh](install_deps_linux.sh) ou execute num
+O devtools pedirá permissão para instalar todas as dependências do pacote. Algumas dependências requerem bibliotecas de sistema específicas que precisam ser instalados à parte. A lista de bibliotecas para Debian/Ubuntu estão no script de bash [install_deps_linux.sh](install_deps_linux.sh) e são instaladas automaticamente pelo make, mas outros sistemas podem ter dependências correspondentes.
 
 ## Estrutura de diretorios e conteúdo do repositório
 
@@ -50,9 +56,16 @@ O devtools pedirá permissão para instalar todas as dependências do pacote. Al
 - [plots](plots) - figuras
 - [R](R) - funções usadas pelos scripts
 - [results](results) - resultados, incluindo as listas de espécies
-    - [checklists](results/checklists) - listas de espécies no formato do Catálogo de Plantas das UCs do Brasil
+    - [checklists](results/checklists) - listas de espécies no formato do Catálogo de Plantas das UCs do Brasil, em formato .csv. Cada UC pode gerar até três arquivos:
+        - NOME_DA_UC_modeloCatalogo.csv - lista principal, contendo apenas o melhor representante de cada táxon.
+        - NOME_DA_UC_extra.csv - para cada táxon da lista principal, este arquivo contém até 5 outros representantes, que podem ser usados caso haja algum problema com o da lista principal.
+        - NOME_DA_UC_nomesInvalidos.csv - registros associados à UC, mas com nomes taxonômicos faltantes, incorretos ou que não foram encontrados nas floras de referência (BFO, WFO ou WCVP) por qualquer motivo.
     - [total](results/total) - todos os registros encontrados em cada UC, em formato .rda
     - [total-treated](results/total-treated) - todos os registros encontrados em cada UC, em formato .csv
+    - [summary_getOccs.csv](results/summary_getOccs.csv) - resumo do número e grau de confiança de localidade dos registros encontrados para cada UC
+    - [summary_treatOccs.csv](results/summary_treatOccs.csv) - resumo do número e grau de confiança de identificação dos registros encontrados para cada UC
+    - [UCsummary.csv](results/UCsummary.csv) - tabela final de UCs que foram consideradas. Gerada a partir dos arquivos em [data-input/Locations/info](data-input/Locations/info/)
+
 
 
 ## Como usar esta ferramenta:
@@ -70,7 +83,7 @@ Os dados devem ser salvos nas respectivas pastas dentro de [data-input/Occurrenc
 No caso de mais de um arquivo serem salvos na mesma pasta, o script combinará os dados dos arquivos diferentes antes de iniciar o tratamento dos dados.
 No caso dos dados Reflora, por favor abra os arquivos e salve como csv na mesma pasta antes de prosseguir.
 
-3. Execute o script [make.R](make.R). Alternativamente, para garantir que cada etapa executada por esse script funciona corretamente, ou para customizar a execução, siga os passos:
+3. Para executar a geração de listas, você pode usar a ferramenta `make`, ou executar o script [make.R](make.R). Alternativamente, para garantir que cada etapa executada por esse script funciona corretamente, ou para customizar a execução, siga os passos:
 
     3.1. Execute o script [config.R](config.R)
 
@@ -81,6 +94,8 @@ No caso dos dados Reflora, por favor abra os arquivos e salve como csv na mesma 
     3.4. Opcionalmente, adicione nomes alternativos de localidades na [tabela de nomes alternativos](results/locations/checkedLocations.csv).
 
     3.5. Execute os scripts [analyses/getOccs.R](analyses/getOccs.R) e [analyses/treatOccs.R](analyses/treatOccs.R).
+
+Obs: para customizar a pasta onde os arquivos são armazenados, você pode usar as variáveis e ambiente ou variáveis de `make` `RESULTS_DIR` (para resultados) e `DATATMP` (para arquivos intermadiários).
 
 4. Você pode produzir algumas estatísticas e figuras a partir dos seus resultados usando o script [analyses/resultStats.R](analyses/resultStats.R).
 
