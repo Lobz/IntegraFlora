@@ -27,7 +27,7 @@ locTable <- function(x) {
     if(nrow(x)==0) {
         return(NULL)
     }
-    x <- subset(x, !confidenceLocality %in% c("High", "Medium"))
+    # x <- subset(x, !confidenceLocality %in% c("High", "Medium"))
     if(nrow(x)==0) {
         return(NULL)
     }
@@ -70,7 +70,7 @@ locTable <- function(x) {
     LT <- aggregate(DT$recordID, list(Localidade = DT$Localidade, Municipio = DT$Municipio, Estado = DT$Estado), function(y) length(unique(y)))
 
     names(LT)[4] <- "Freq"
-    LT <- subset(LT, Freq >= nrow(x)/100 | Freq > 500)
+    # LT <- subset(LT, Freq >= nrow(x)/100 | Freq > 500)
     LT <- LT[order(LT$Freq, LT$Localidade, decreasing = T),]
     LT <- LT[!duplicated(tolower(rmLatin(paste(LT$Municipio, LT$Localidade)))),]
 
