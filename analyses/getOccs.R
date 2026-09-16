@@ -49,6 +49,7 @@ checkedLocations <- subset(checkedLocations, slug %in% ucs$slug)
 
 # add oficial names
 officialNames <- data.frame(Nome_UC = standardize_uc_name(ucs$name), Municipio="QUALQUER", Nome_Alternativo = ucs$name, Relação = "Igual", Confiança = "Ouro", slug = ucs$slug)
+checkedLocations <- checkedLocations[, c("Nome_UC", "Municipio", "Nome_Alternativo", "Relação", "Confiança", "slug")]
 LT <- rbind(checkedLocations, officialNames)
 
 # Generate string for regex grepl in locality data
