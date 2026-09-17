@@ -4,7 +4,9 @@
 
 As listas de espécies já geradas podem ser baixadas aqui: <incluir zip>
 
-Você pode ler ou baixar listas individuais aqui: [ChecklistsBrazil](http://github.com/Lobz/ChecklistsBrazil)
+Você pode ler ou baixar listas individuais aqui: [ChecklistsBrazil](http://github.com/Lobz/ChecklistsBrazil). Para cada estado, há uma lista das UCs encontradas para esse estado, e dois arquivos de resumo dos dados encontados para cada UC. Os arquivos csv com as listas de espécie estão dentro das pastas "checklist".
+
+Para cada UC, são geradas até três listas: a lista principal, com o melhor representante de cada táxon, está no arquivo de nome "NOME_DA_UC_modeloCatalogo.csv". Além disso, até 5 outros registros de cada táxon aparecem no arquivo "NOME_DA_UC_extra.csv". Por fim, se houverem registros associados a UC com nomes científicos que não foram encontrados em nenhuma das floras utilizadas, ele estará no arquivo "NOME_DA_UC_nomesInvalidos.csv".
 
 ## Resumo do workflow da ferramenta
 
