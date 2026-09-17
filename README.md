@@ -134,13 +134,15 @@ O critério de confiança na identificação depende da especialização do iden
 
 Esta ferramenta foi financiada pela FAPESP como parte do projeto 2024/07747-9 - "Aprimoramento e integração de bases de dados geoespaciais sobre a flora paulista", filiado ao Biota Síntese.
 
-### Colaboradores
+### Citação
 
-Mali Oz C. Salles (autor correspondente)
-Renato A. F. Lima
-Renata Ivanauskas
-Thuane Bochorny
-Guilherme S. Grittz
-Pablo Pains
-Andre M. Pereira
+_Geração de listas de espécies para todas as Unidades de Conservação do Brasil_,
+Mali Oz C. Salles (autor correspondente),
+Renato A. F. Lima,
+Renata Ivanauskas,
+Thuane Bochorny,
+Katê Ocano,
+Guilherme S. Grittz,
+Pablo Pains,
+Andre M. Pereira,
 Marisa Domingos
