@@ -4,7 +4,7 @@
 
 As listas de espécies já geradas podem ser baixadas aqui: <incluir zip>
 
-Você pode ler ou baixar listas individuais aqui: [ChecklistsBrazil](github.com/Lobz/ChecklistsBrazil)
+Você pode ler ou baixar listas individuais aqui: [ChecklistsBrazil](http://github.com/Lobz/ChecklistsBrazil)
 
 ## Resumo do workflow da ferramenta
 
