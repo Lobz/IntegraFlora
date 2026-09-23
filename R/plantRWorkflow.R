@@ -66,11 +66,11 @@ plantRWorkflow_part2 <- function(x) {
     }
     tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
     tax <- dplyr::full_join(tax, plantR::bfoNames)
-    x <- getTaxonId(x, db = tax)
+    x <- getTaxonId(x, db = tax, split.letters = TRUE)
 
     x <- tryAgain(x, not_found, function(x) {
         x <- isolateAuthorship(x)
-        x <- getTaxonId(x, db = tax)
+        x <- getTaxonId(x, db = tax, split.letters = TRUE)
     })
 
     # We'll try getting extra taxons with wfo
@@ -80,9 +80,9 @@ plantRWorkflow_part2 <- function(x) {
         data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
     }
     # using the World Flora Online
-    x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
+    x <- tryAgain(x, not_found, getTaxonId, db = wfoNames, split.letters = TRUE)
     # using the World Checklist of Vascular Plants
-    x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
+    x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames, split.letters = TRUE)
 
     x <- getTaxonRank(x)
     x <- get_species_and_genus(x)
@@ -96,6 +96,11 @@ plantRWorkflow_part2 <- function(x) {
     x <- plantR::validateTax(x, generalist = T)
     x$tax.check <- factor(x$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
 
+    tab(x$tax.notes)
+    x$tax.origin <- sub("-","",substr(x$id, 0, 4))
+    tab(x$tax.origin)
+    x$isBFO <- ifelse(found(x), startsWith(x$id, "bfo"), NA)
+    tab(x$isBFO)
 
     print("Validating geolocation info...")
     map <- plantR::latamMap$brazil
