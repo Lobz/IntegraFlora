@@ -5,6 +5,10 @@ tmp_dir <- Sys.getenv("DATATMP")
 if(tmp_dir == "") tmp_dir <- "data-tmp"
 
 load(file.path(tmp_dir, "corpus-full.rda"))
+try({
+  nostate <- readRDS("treated-data/noStateInfo.rds")
+  corpus <- dplys::bind_rows(nostate, corpus)
+})
 
 print("Removing duplicates...")
 loc.names <- c(loc.cols, paste0(loc.cols, ".new"), "longitude.gazetteer", "latitude.gazetteer")
@@ -12,7 +16,7 @@ names(loc.names) <- loc.names
 loc.names <- c(loc.str = "loc.correct", res.gazet = "resolution.gazetteer", res.orig =
     "resol.orig", loc.check = "loc.check", loc.names)
 
-my_valDup <- function(x) validateDup(x, noNumb = NA, noYear = NA, noName = NA, prop=0.6,
+my_valDup <- function(x) validateDup(x, noNumb = NA, noYear = NA, noName = NA, prop=0.2,
   comb.fields = list(
     c("family", "col.last.name", "col.number", "col.loc"),
     c("family", "col.last.name", "col.number", "col.year"),

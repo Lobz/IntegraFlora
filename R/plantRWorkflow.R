@@ -36,12 +36,12 @@ subsetToProvince <- function(x) {
 
     tab(x$country.correct)
     tab(x$country.new[is.na(x$country.correct)])
-    x <- subset(x, country.correct == COUNTRY)
+    x <- subset(x, country.correct %in% COUNTRY)
 
     # noCountry <- subset(dt, is.na(country.correct))
     tab(x$stateProvince.correct)
     tab(x$municipality.new[is.na(x$stateProvince.correct)])
-    x <- subset(x, stateProvince.correct == STATEPROVINCE | is.na(stateProvince.correct))
+    x <- subset(x, stateProvince.correct %in% STATEPROVINCE)
 
     # Select only records that have SOME location info
     noloc <- is.na(x$municipality) & is.na(x$locality) & (x$origin.coord == "coord_gazet")
@@ -53,7 +53,7 @@ subsetToProvince <- function(x) {
 #' @description This function is part of the plantR workflow, and is used to format and validate taxonomic and geolocation data.
 #' @param x A data.frame containing occurrence data.
 #' @export
-plantRWorkflow_part2 <- function(x) {
+plantRWorkflow_part2 <- function(x, stateProvince = STATEPROVINCE) {
 
     # formatTax and validateTax
     print("Formatting taxonomy...")
@@ -87,6 +87,12 @@ plantRWorkflow_part2 <- function(x) {
     x <- getTaxonRank(x)
     x <- get_species_and_genus(x)
 
+    tab(x$tax.notes)
+    x$tax.origin <- sub("-","",substr(x$id, 0, 4))
+    tab(x$tax.origin)
+    x$isBFO <- ifelse(found(x), startsWith(x$id, "bfo"), NA)
+    tab(x$isBFO)
+
     # validate
     print("Validating location info...")
     x <- plantR::validateLoc(x)
@@ -96,15 +102,9 @@ plantRWorkflow_part2 <- function(x) {
     x <- plantR::validateTax(x, generalist = T)
     x$tax.check <- factor(x$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
 
-    tab(x$tax.notes)
-    x$tax.origin <- sub("-","",substr(x$id, 0, 4))
-    tab(x$tax.origin)
-    x$isBFO <- ifelse(found(x), startsWith(x$id, "bfo"), NA)
-    tab(x$isBFO)
-
     print("Validating geolocation info...")
     map <- plantR::latamMap$brazil
-    map <- subset(map, NAME_1 == "sao paulo")
+    map <- subset(map, NAME_1 == tolower(plantR::rmLatin(stateProvince)))
     x <- plantR::validateCoord(x, high.map = map) # WORKING
     x <- tryAgain(x, function(x) is.na(x$decimalLatitude.new), plantR::formatCoord)
     x <- tryAgain(x, function(x) is.na(x$geo.check), plantR::validateCoord, high.map=map)

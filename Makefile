@@ -45,10 +45,10 @@ $(DATATMP)/all_data.rda: $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/ref
 $(DATATMP)/treated_data_all.rda: $(DATATMP)/all_data.rda
 	$(R) "analyses/treatData_part1.R"
 
-$(DATATMP)/corpus-full.rda: $(DATATMP)/treated_data_all.rda
+$(DATATMP)/corpus-full.rda: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
 	$(R) "analyses/treatData.R"
 
-$(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda
+$(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"
 
 $(RESULTS_DIR)/summary_getOccs.csv: $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
