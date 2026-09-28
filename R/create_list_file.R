@@ -100,7 +100,6 @@ formatRDS <- function(corpus) {
   out <- corpus[,ns$name1]
   names(out) <- ns$name2
   out$municipality[is.na(out$municipality)] <- corpus$municipality[is.na(out$municipality)]
-  out$stateProvince[is.na(out$stateProvince)] <- corpus$stateProvince[is.na(out$stateProvince)]
 
   out
 }

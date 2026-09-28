@@ -165,7 +165,9 @@ rdsss <- lapply(states, function(f){
   saveRDS(out, file.path(results_folder, paste0(slug(f),".rds")))
 })
 
-  nostate <- readRDS("treated-data/noStateInfo.rds")
-    out <- formatRDS(nostate)
+    load(file.path(results_folder, slug(f), "corpus-full-NoSTATE.rda"))
+    tab(corpus$id)
+    saveRDS(corpus, "treated-data/noStateInfo.rds")
+    out <- formatRDS(corpus)
 
   saveRDS(out, file.path(results_folder, "noStateInfo.rds"))
