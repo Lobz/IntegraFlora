@@ -92,7 +92,7 @@ getBarcode <- function(x) {
 
 #' Create RDS file for exporting
 #' @export
-formatRDS <- function(x) {
+formatRDS <- function(corpus) {
   ns <- read.csv("data/names.csv")
 
   rownames(ns) <- ns$name1

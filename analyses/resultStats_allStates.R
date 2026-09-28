@@ -157,9 +157,15 @@ subset(bfgood, family %in% "Brassicaceae")$Táxon_completo
 # Make a smaller corpus output
 ns <- data.frame(name1 = names(corpus), name2=names(corpus))
 write.csv(ns, "data/names.csv", row.names=F)
-ns <- read.csv("data/names.csv")
 
-out <- corpus[,ns$name1]
-names(out) <- ns$name2
+rdsss <- lapply(states, function(f){
+    load(file.path(results_folder, slug(f), "corpus.rda"))
+    out <- formatRDS(corpus)
 
-saveRDS(out, "data-tmp/test.rds")
+  saveRDS(out, file.path(results_folder, paste0(slug(f),".rds")))
+})
+
+  nostate <- readRDS("treated-data/noStateInfo.rds")
+    out <- formatRDS(nostate)
+
+  saveRDS(out, file.path(results_folder, "noStateInfo.rds"))
