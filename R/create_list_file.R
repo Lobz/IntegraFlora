@@ -92,11 +92,14 @@ getBarcode <- function(x) {
 
 #' Create RDS file for exporting
 #' @export
-formatRDS <- function(x, file = "export.rds") {
-    ns <- read.csv("data/names.csv")
+formatRDS <- function(x) {
+  ns <- read.csv("data/names.csv")
 
-    out <- x[,ns$name1]
-    names(out) <- ns$name2
+  rownames(ns) <- ns$name1
+  ns <- ns[intersect(ns$name1, names(corpus)), ]
+  out <- corpus[,ns$name1]
+  names(out) <- ns$name2
+  out$municipality[is.na(out$municipality)] <- corpus$municipality[is.na(out$municipality)]
 
-    saveRDS(out, file)
+  out
 }
