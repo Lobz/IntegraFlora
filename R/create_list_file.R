@@ -89,3 +89,14 @@ getBarcode <- function(x) {
     ifelse(is.na(x$associatedMedia), x$catalogNumber,
             str_extract(x$associatedMedia, "[A-z]+[0-9]+"))))
 }
+
+#' Create RDS file for exporting
+#' @export
+formatRDS <- function(x, file = "export.rds") {
+    ns <- read.csv("data/names.csv")
+
+    out <- x[,ns$name1]
+    names(out) <- ns$name2
+
+    saveRDS(out, file)
+}
