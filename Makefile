@@ -48,7 +48,7 @@ $(DATATMP)/treated_data_all.rda: $(DATATMP)/all_data.rda
 $(DATATMP)/corpus-full.rda: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
 	$(R) "analyses/treatData.R"
 
-$(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda analyses/deduplicate.R
+$(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda treated-data/noStateInfo.rds analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"
 
 $(RESULTS_DIR)/summary_getOccs.csv: $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
