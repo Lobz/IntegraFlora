@@ -7,7 +7,7 @@ if(tmp_dir == "") tmp_dir <- "data-tmp"
 load(file.path(tmp_dir, "corpus-full.rda"))
 try({
   nostate <- readRDS("treated-data/noStateInfo.rds")
-  corpus <- dplys::bind_rows(nostate, corpus)
+  corpus <- dplyr::bind_rows(nostate, corpus)
 })
 
 print("Removing duplicates...")
