@@ -80,7 +80,7 @@ occs_plantr <- sapply(ucs$slug, function(s) {
 # Use regex to look for more occs
 print("Searching with regex...")
 occs_string_mun <- pairwiseMap(LT$x, LT$Municipio, function(str, mun) {
-    if(mun=="QUALQUER") {
+    if(mun %in% c("QUALQUER","") | is.na(mun)) {
         res <- searchLoc(str, corpus)
     } else {
         in_mun <- which(corpus$municipality.correct == mun)
@@ -109,7 +109,7 @@ shapes <- shapes[order(shapes$slug), ]
 
 # Data with valid coordinates: either original coordinates or locality
 print("Selecting and correcting valid georeferenced points (original coords) ...")
-coords_original <- subset(corpus, origin.coord == "coords_original")
+coords_original <- subset(corpus, origin.coord == "coord_original")
 if(nrow(coords_original) > 0) {
     coords_original <- st_as_sf(coords_original, coords = c("decimalLongitude.new", "decimalLatitude.new"))
     coords_original <- fixDatum(coords_original) # Unify and convert datum to match SIRGAS 2000
@@ -187,7 +187,7 @@ for(i in 1:sample_size){
 
 
     # Join all filters
-    occs_total <- occs_uc_name | gps_original | gps_gazet | intersect_high | intersect_medium
+    occs_total <- locality_exact | plantr_exact | gps_original | gps_gazet | intersect_high | intersect_medium
     if(!any(occs_total)) {
         print("No records found for CU:")
         print(UC)
@@ -223,7 +223,6 @@ for(i in 1:sample_size){
     ucs[i,]$NumOuro <- sum(total$confidenceLocality=="High")
     ucs[i,]$NumPrata <- sum(total$confidenceLocality=="Medium")
     ucs[i,]$NumBronze <- sum(total$confidenceLocality=="Low")
-
 }
 
 ucs$nome_file <- NULL
