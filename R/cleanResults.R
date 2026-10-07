@@ -1,7 +1,7 @@
 #' Functions to clean results folders
 #' @export
 clean_folder <- function(folder, ...) {
-    files <- list.files(folder, full.names = TRUE, recursive = TRUE)
+    files <- list.files(folder, full.names = TRUE, recursive = TRUE, ...)
     sapply(files, file.remove)
 }
 
