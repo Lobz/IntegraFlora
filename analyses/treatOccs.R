@@ -123,8 +123,12 @@ for(i in 1:sample_size){
     ucs[i,]$NumLatao <- sum(top$ConfiançaID == "Latão")
     ucs[i,]$NumNoMatch <- nrow(unmatched)
 
-    write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_modeloCatalogo.csv")), na="", row.names=FALSE)
-    write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
+    if (nrow(top) > 0) {
+        write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_modeloCatalogo.csv")), na="", row.names=FALSE)
+    }
+    if (nrow(bottom) > 0) {
+        write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
+    }
 }
 
 # Save summary
