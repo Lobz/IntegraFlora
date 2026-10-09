@@ -69,10 +69,10 @@ Apresentação durou apenas 20min!! 40min de perguntas!
 
 iNaturalist pode ser uma boa fonte de dados para um grupo e não para outro. É bom para lepidóptera e não para amfíbios
 
-"tem um vazio de dados fundiários de mata atlântica"
+32m "tem um vazio de dados fundiários de mata atlântica" - não sabemos o que são as áreas, se são UCs, se são privadas etc
 
 sugestão: separar dados com problemas de identificação (eg, identificação apenas a nivel de gênero ou família) para mandar para especialistas identificarem.
 
+Parques municipais não estão listados em nenhum lugar
 
-
-
+deixar mais claro o uso do GPS
