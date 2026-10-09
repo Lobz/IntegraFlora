@@ -41,7 +41,11 @@ subsetToProvince <- function(x) {
     # noCountry <- subset(dt, is.na(country.correct))
     tab(x$stateProvince.correct)
     tab(x$municipality.new[is.na(x$stateProvince.correct)])
-    x <- subset(x, stateProvince.correct %in% STATEPROVINCE)
+    if(STATEPROVINCE %in% c("none","",NA)) {
+        x <- subset(x, is.na(stateProvince.correct))
+    } else {
+        x <- subset(x, stateProvince.correct %in% STATEPROVINCE)
+    }
 
     # Select only records that have SOME location info
     noloc <- is.na(x$municipality) & is.na(x$locality) & (x$origin.coord == "coord_gazet")

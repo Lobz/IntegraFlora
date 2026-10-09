@@ -1,6 +1,10 @@
 SHELL := /bin/bash
 R ?= Rscript
 
+# StateProvince (overrides config)
+export STATE=none
+# Resulsts mega-folder for many states
+export RESULTS_MANY=../ChecklistsBrazil
 # Temporary objects folder
 export DATATMP=data-tmp
 # Results folder
@@ -8,7 +12,6 @@ export RESULTS_DIR=results
 
 GBIF_URL ?= https://api.gbif.org/v1/occurrence/download/request/0000452-260623161305970.zip
 GBIF_FILE ?= "data-input/Occurrences/GBIF/GBIF_Brazil.zip"
-
 
 all: treat-occs
 
@@ -45,13 +48,18 @@ $(DATATMP)/all_data.rda: $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/ref
 $(DATATMP)/treated_data_all.rda: $(DATATMP)/all_data.rda
 	$(R) "analyses/treatData_part1.R"
 
-$(DATATMP)/corpus-full.rda: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
+$(DATASTATE)/corpus-full.rda: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
 	$(R) "analyses/treatData.R"
 
-$(DATATMP)/corpus.rda: $(DATATMP)/corpus-full.rda treated-data/noStateInfo.rds analyses/deduplicate.R
+treated-data/noStateInfo.rds: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
+	bash changeConf.sh "none"
+	$(R) "analyses/treatData.R"
+	$(R) -e "load('corpus-full.rda'); saveRDS(corpus, 'treated-data/noStateInfo.rds')"
+
+$(DATASTATE)/corpus.rda: $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"
 
-$(RESULTS_DIR)/summary_getOccs.csv: $(DATATMP)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
+$(RESULTS_DIR)/summary_getOccs.csv: $(DATASTATE)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
 	$(R) "analyses/getOccs.R"
 
 treat-occs: $(RESULTS_DIR)/summary_treatOccs.csv
