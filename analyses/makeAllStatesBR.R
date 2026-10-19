@@ -36,9 +36,4 @@ for(x in states) {
 
     # make
     system(paste0("make DATATMP=", st_dir, " RESULTS_DIR=", st_dir))
-
-    # split into parts
-    load(file.path(st_dir, "corpus.rda"))
-    print(tab(corpus$stateProvince.correct))
-    saveRDS(subset(corpus, stateProvince.correct %in% x), file=paste0("treated-data", x,".rds"))
 }
