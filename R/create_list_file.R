@@ -32,7 +32,7 @@ format_list <- function(x, UC) {
         Autor = x$scientificNameAuthorship.new,
         Táxon_completo = paste(toupper(x$family.new), x$scientificNameFull),
         Barcode = getBarcode(x),
-        BD_Origem = x$downloadedFrom,
+        BD_Origem = getDataSource(x$originFile),
         Herbário = x$collectionCode.new,
         Coletor = x$recordedBy.new,
         Número_da_Coleta = x$recordNumber,
@@ -80,12 +80,23 @@ reverseListFormatting <- function(x) {
     x
 }
 
+#' Get the data source from the origin file
+#' @export
+getDataSource <- function(x) {
+    ifelse(grepl("speciesLink|splink", x), "speciesLink",
+    ifelse(grepl("SiBBr", x), "SiBBr",
+    ifelse(grepl("GBIF", x), "GBIF",
+    ifelse(grepl("JABOT", x), "JABOT",
+    ifelse(grepl("Reflora", x), "Reflora",
+    ifelse(grepl("Catalogo", x), "Catalogo de Plantas das UCs do Brasil",
+    NA))))))
+}
 
 #' Get the best barcode for each record
 #' @export
 getBarcode <- function(x) {
     ifelse(!is.na(x$barcode), x$barcode,
     ifelse(grepl("[A-Z]+", x$catalogNumber), x$catalogNumber,
-    ifelse(is.na(x$associatedMedia), x$catalogNumber,
-            str_extract(x$associatedMedia, "[A-z]+[0-9]+"))))
+    ifelse(!is.na(x$associatedMedia), str_extract(x$associatedMedia, "[A-z]+[0-9]+"),
+    x$numTombo)))
 }
