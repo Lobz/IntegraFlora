@@ -53,7 +53,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
     print("Fixing country name...")
     dt <- tryAgain(dt, function(x) {
         x$resolution.gazetteer %in% c("no_info") &
-        grepl("mog. mirim|campinas|sorocaba|peruibe|ubatuba|campos d. jordao|cananeia|cardoso|botucatu|moj. mirim|sao paulo",x$municipality.new)
+        grepl("mog. mirim|sorocaba|peruibe|ubatuba|campos d. jordao|cananeia|cardoso|botucatu|moj. mirim",x$municipality.new)
     }, function(x) {
 
         x$country.new <- "brazil"
@@ -62,7 +62,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
 
     dt <- tryAgain(dt, function(x) {
         x$resolution.gazetteer %in% c("no_info") &
-        grepl("mog. mirim|sorocaba|peruibe|ubatuba|campos d. jordao|cananeia|botucatu|moj. mirim|sao paulo",x$locality.new)
+        grepl("mog. mirim|sorocaba|peruibe|ubatuba|campos d. jordao|cananeia|botucatu|moj. mirim",x$locality.new)
     }, function(x) {
         x$country.new <- "brazil"
         x <- finLoc(x)
@@ -123,7 +123,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
     dt <- tryAgain(dt, function(x) x$resolution.gazetteer %in% c("country", "no_info"), function(x) {
         x$municipality.new[grepl("ubatuba",x$stateProvince.new)] <- "ubatuba"
         x$locality.new[grepl("ubatuba",x$stateProvince.new)] <- "ilha anchieta"
-        towns <- grepl("mog. mirim|campinas|sorocaba|peruibe|ubatuba|campos d. jordao|cananeia|cardoso|botucatu|moj. mirim",x$stateProvince.new) & is.na(x$municipality.new)
+        towns <- grepl("mog. mirim|sorocaba|peruibe|ubatuba|campos d. jordao|cananeia|cardoso|botucatu|moj. mirim",x$stateProvince.new) & is.na(x$municipality.new)
         x$municipality.new[towns] <- x$stateProvince[towns]
         x$stateProvince.new[towns] <- "sao paulo"
         x$country.new[towns] <- "brazil"

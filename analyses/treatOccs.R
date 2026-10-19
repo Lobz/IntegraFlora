@@ -66,23 +66,6 @@ for(i in 1:sample_size){
 
     write.csv(total, file.path(results_dir, "total-treated", paste0(nome_file,".csv")),  na="", row.names=FALSE)
 
-    # Separate unmatched taxons
-    nf <- not_found(total)
-    if(any(nf)) {
-        matched <- total[!nf,]
-        unmatched <- total[nf,]
-        unmatched$origin <- NA
-        unmatched$group <- NA
-        unmatched <- format_list(unmatched, Nome_UC)
-        write.csv(unmatched, file.path(results_dir, "checklist", paste0(nome_file,"_nomesInvalidos.csv")), na="", row.names=FALSE)
-        if(all(nf)) {
-            next()
-        }
-    } else {
-       matched <- total
-       unmatched <- data.frame()
-    }
-
     # Avoid taxons that are already represented by more detailed taxons
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
     subspecies <- subset(total, taxon.rank < "species")
@@ -94,6 +77,24 @@ for(i in 1:sample_size){
     family <- subset(total, taxon.rank == "family" & !family.new %in% fam)
 
     final <- dplyr::bind_rows(subspecies, species, genus, family)
+
+
+    # Separate unmatched taxons
+    nf <- not_found(final)
+    if(any(nf)) {
+        matched <- final[!nf,]
+        unmatched <- final[nf,]
+        unmatched$origin <- NA
+        unmatched$group <- NA
+        unmatched <- format_list(unmatched, Nome_UC)
+        write.csv(unmatched, file.path(results_dir, "checklist", paste0(nome_file,"_nomesInvalidos.csv")), na="", row.names=FALSE)
+        if(all(nf)) {
+            next()
+        }
+    } else {
+       matched <- final
+       unmatched <- data.frame()
+    }
 
     # Get info from  F&FBR
     matched$fromBFO <- startsWith(matched$id, "bfo")
@@ -123,8 +124,12 @@ for(i in 1:sample_size){
     ucs[i,]$NumLatao <- sum(top$ConfiançaID == "Latão")
     ucs[i,]$NumNoMatch <- nrow(unmatched)
 
-    write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_catalogo.csv")), na="", row.names=FALSE)
-    write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
+    if (nrow(top) > 0) {
+        write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_catalogo.csv")), na="", row.names=FALSE)
+    }
+    if (nrow(bottom) > 0) {
+        write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
+    }
 }
 
 # Save summary

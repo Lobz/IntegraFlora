@@ -100,3 +100,17 @@ getBarcode <- function(x) {
     ifelse(!is.na(x$associatedMedia), str_extract(x$associatedMedia, "[A-z]+[0-9]+"),
     x$numTombo)))
 }
+
+#' Create RDS file for exporting
+#' @export
+formatRDS <- function(corpus) {
+  ns <- read.csv("data/names.csv")
+
+  rownames(ns) <- ns$name1
+  ns <- ns[intersect(ns$name1, names(corpus)), ]
+  out <- corpus[,ns$name1]
+  names(out) <- ns$name2
+  out$municipality[is.na(out$municipality)] <- corpus$municipality[is.na(out$municipality)]
+
+  out
+}
