@@ -57,6 +57,7 @@ treated-data/noStateInfo.rds: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R
 	bash changeConf.sh "none"
 	$(R) "analyses/treatData.R"
 	$(R) -e "load('corpus-full.rda'); saveRDS(corpus, 'treated-data/noStateInfo.rds')"
+	bash changeConf.sh $(STATE)
 
 $(DATASTATE)/corpus.rda: $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"

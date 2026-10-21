@@ -19,6 +19,9 @@ if(!dir.exists(results_folder)) {
     dir.create(results_folder)
 }
 
+# Create common files and noState file
+system("make treated-data/noStateInfo.rds")
+
 for(x in states) {
     print(paste("Starting state ", x))
     st_dir <- paste0(results_folder, slug(x))

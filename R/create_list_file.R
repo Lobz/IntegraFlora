@@ -32,7 +32,7 @@ format_list <- function(x, UC) {
         Autor = x$scientificNameAuthorship.new,
         Táxon_completo = paste(toupper(x$family.new), x$scientificNameFull),
         Barcode = getBarcode(x),
-        BD_Origem = getDataSource(x$originFile),
+        BD_Origem = getDataSource(x$originFile, x$downloadedFrom),
         Herbário = x$collectionCode.new,
         Coletor = x$recordedBy.new,
         Número_da_Coleta = x$recordNumber,
@@ -82,13 +82,13 @@ reverseListFormatting <- function(x) {
 
 #' Get the data source from the origin file
 #' @export
-getDataSource <- function(x) {
+getDataSource <- function(x, d) {
     ifelse(grepl("speciesLink|splink", x), "speciesLink",
-    ifelse(grepl("SiBBr", x), "SiBBr",
-    ifelse(grepl("GBIF", x), "GBIF",
-    ifelse(grepl("JABOT", x), "JABOT",
-    ifelse(grepl("Reflora", x), "Reflora",
-    ifelse(grepl("Catalogo", x), "Catalogo de Plantas das UCs do Brasil",
+    ifelse(grepl("SiBBr", x, fixed=T), "SiBBr",
+    ifelse(grepl("GBIF", d, fixed=T), "GBIF",
+    ifelse(grepl("JABOT", x, fixed=T), "JABOT",
+    ifelse(grepl("Reflora", x, fixed=T), "Reflora",
+    ifelse(grepl("Catalogo", x, fixed=T), "Catalogo de Plantas das UCs do Brasil",
     NA))))))
 }
 
