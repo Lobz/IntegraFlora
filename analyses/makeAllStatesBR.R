@@ -35,5 +35,5 @@ for(x in states) {
     # system(paste0("cp -nav data-tmp/*.rda ", st_dir, "/"))
 
     # make
-    system(paste0("make DATATMP=", st_dir, " RESULTS_DIR=", st_dir))
+    system(paste0("make DATASTATE=", st_dir, " RESULTS_DIR=", st_dir))
 }

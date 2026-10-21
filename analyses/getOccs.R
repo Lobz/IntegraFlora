@@ -7,7 +7,7 @@ library(sf)
 source("config.R")
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir=="") results_dir <- "results"
-DATATMP <- Sys.getenv("DATATMP")
+DATATMP <- Sys.getenv("DATASTATE")
 if(DATATMP=="") DATATMP <- "data-tmp"
 
 if(!dir.exists(results_dir)) dir.create(results_dir)

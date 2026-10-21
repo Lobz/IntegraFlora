@@ -1,7 +1,7 @@
 if(!require(integraFlora)) devtools::load_all()
 library(plantR)
 
-tmp_dir <- Sys.getenv("DATATMP")
+tmp_dir <- Sys.getenv("DATASTATE")
 if(tmp_dir == "") tmp_dir <- "data-tmp"
 
 load(file.path(tmp_dir, "corpus-full.rda"))

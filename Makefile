@@ -7,6 +7,8 @@ export STATE=none
 export RESULTS_MANY=../ChecklistsBrazil
 # Temporary objects folder
 export DATATMP=data-tmp
+# Temporary state-specific folder
+export DATASTATE=$(DATATMP)
 # Results folder
 export RESULTS_DIR=results
 
