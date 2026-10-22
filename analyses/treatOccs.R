@@ -105,6 +105,12 @@ for(i in 1:sample_size){
     matched$origin <-bf$origin[matches]
     matched$group <-bf$group[matches]
 
+    # For any records missing group, we will try to find it from family only
+    matched <- tryAgain(matched, function(x) (is.na(x$origin) | x$origin=="") , function(x) {
+        fam <- match(x$family.new, bf$family)
+        x$group <- bf$group[fam]
+    })
+
     # Generate output file
     finalList <- format_list(matched, Nome_UC)
 
