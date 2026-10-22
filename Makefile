@@ -67,7 +67,7 @@ $(RESULTS_DIR)/summary_getOccs.csv: $(DATASTATE)/corpus.rda data-input/Locations
 
 treat-occs: $(RESULTS_DIR)/summary_treatOccs.csv
 
-$(RESULTS_DIR)/summary_treatOccs.csv: $(RESULTS_DIR)/summary_getOccs.csv analyses/treatOccs.R
+$(RESULTS_DIR)/summary_treatOccs.csv: $(RESULTS_DIR)/summary_getOccs.csv analyses/treatOccs.R R/create_list_file.R
 	$(R) "analyses/treatOccs.R"
 
 clean:
