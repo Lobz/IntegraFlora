@@ -92,7 +92,7 @@ getDataSource <- function(x, d) {
     ifelse(grepl("JABOT", x, fixed=T), "JABOT",
     ifelse(grepl("Reflora", x, fixed=T), "Reflora",
     ifelse(grepl("Catalogo", x, fixed=T), "Catalogo de Plantas das UCs do Brasil",
-    d))))))
+    "Outros"))))))
 }
 
 #' Get the best barcode for each record
