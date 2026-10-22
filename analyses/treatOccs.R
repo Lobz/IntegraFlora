@@ -106,9 +106,10 @@ for(i in 1:sample_size){
     matched$group <-bf$group[matches]
 
     # For any records missing group, we will try to find it from family only
-    matched <- tryAgain(matched, function(x) (is.na(x$origin) | x$origin=="") , function(x) {
+    matched <- tryAgain(matched, condition = function(x) (is.na(x$group) | x$group==""), FUN=function(x) {
         fam <- match(x$family.new, bf$family)
         x$group <- bf$group[fam]
+        x
     })
 
     # Generate output file
@@ -145,5 +146,5 @@ total$nome_file <- NULL
 total <- total[order(total$name),]
 total$name <- shorten_uc_name(total$name)
 write.csv(total, file.path(results_dir, "summary_treatOccs.csv"), row.names=FALSE)
-summary(total==0)
-summary(total<20)
+
+print("Finished.")
