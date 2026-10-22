@@ -11,11 +11,14 @@ top_records <- function(x, n = 5) {
         extra = x[dup,]
     )
     # Select up to five non-best extra records
-    sp <- split(res$extra, res$extra$Táxon_completo)
-    sp <- lapply(sp, function(y) {
-        if(nrow(y) > n) return(y[1:n,])
-        else return(y)})
-    res$extra <- do.call(rbind, sp)
+    if(nrow(res$extra) > 0) {
+        sp <- split(res$extra, res$extra$Táxon_completo)
+        sp <- lapply(sp, function(y) {
+            if(nrow(y) > n) return(y[1:n,])
+            else return(y)})
+        res$extra <- do.call(rbind, sp)
+    }
+
     # return
     res
 }
