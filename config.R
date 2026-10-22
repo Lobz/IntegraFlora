@@ -2,7 +2,7 @@
 
 # Data will be treated in chunks of chunk_size rows. Reduce this number if your RAM is limited
 # Default is 4e5 (400000)
-chunk_size = 2e5
+chunk_size = 4e5
 # Options for parallelization in treating data
 PARALLEL = TRUE
 CORES = max(2, parallel::detectCores()-2)
@@ -11,3 +11,8 @@ CORES = max(2, parallel::detectCores()-2)
 COUNTRY = "Brazil"
 STATEPROVINCE = "Rio de Janeiro"
 SUBSETTOPROVINCE = TRUE
+
+# Select which groups to include or remove
+includeAlgae = FALSE
+includeBryophyta = FALSE
+includeFungi = FALSE

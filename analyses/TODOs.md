@@ -85,3 +85,9 @@ deixar mais claro o uso do GPS
 - ARIE santa helena (n está no cnuc) - histórico de coletas: nenhum
 - PE São Camilo (tb n está no cnuc)
 - checar outras UCs que estão no catálogo e não no cnuc
+
+## Todo conversa com Thaty
+
+- Pegar grupo diretamente da família
+- Remover epítetos infraespecíficos
+- Remover algas, fungos e briófitas
