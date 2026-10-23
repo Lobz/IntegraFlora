@@ -69,22 +69,27 @@ for(i in 1:sample_size){
 
     # Avoid taxons that are already represented by more detailed taxons
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
+    species <- subset(total, taxon.rank == "species")
     subspecies <- subset(total, taxon.rank < "species")
     sp <- unique(subspecies$species.new)
-    species <- subset(total, taxon.rank == "species")
-    if(!includeSubspecies) {
+    if(includeSubspecies) {
+        species <- dplyr::bind_rows(species, subspecies)
+    } else {
         sp <- unique(species$species.new)
         # no worry about subspecies from species already represented
         subspecies <- subset(subspecies, !species.new %in% sp)
-        # for all others, we want to get the base species
-        subspecies <- getTaxonId(subspecies, tax.name = "species.new")
-        species <- dplyr::bind_rows(species, subspecies[found(subspecies),])
-        if(any(not_found(subspecies))) {
-            subspecies <- subspecies[not_found(subspecies),]
-            subspecies$scientificName.new <- subspecies$species.new
+        if(nrow(subspecies) > 0) {
+            # for all others, we want to get the base species
+            subspecies <- formatTax(subspecies, tax.name = "species.new")
+            species <- dplyr::bind_rows(species, subspecies[found(subspecies),])
+            if(any(not_found(subspecies))) {
+                subspecies <- subspecies[not_found(subspecies),]
+                subspecies$scientificName.new <- subspecies$species.new
+                subspecies$taxon.rank <- "species"
+                species <- dplyr::bind_rows(species, subspecies)
+            }
         }
     }
-    species <- dplyr::bind_rows(species, subspecies)
     gen <- unique(c(species$genus.new))
     genus <- subset(total, taxon.rank == "genus" & !genus.new %in% gen)
     fam <- unique(c(species$family.new, genus$family.new))
@@ -151,9 +156,11 @@ for(i in 1:sample_size){
     ucs[i,]$NumNoMatch <- nrow(unmatched)
 
     if (nrow(top) > 0) {
+        top <- top[order(top$Grupos, top$Táxon_completo),]
         write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_catalogo.csv")), na="", row.names=FALSE)
     }
     if (nrow(bottom) > 0) {
+        bottom <- bottom[order(bottom$Grupos, bottom$Táxon_completo),]
         write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
     }
 }
