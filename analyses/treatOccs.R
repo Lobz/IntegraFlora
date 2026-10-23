@@ -2,6 +2,7 @@ if(!require(integraFlora)) devtools::load_all()
 library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 library(florabr)
+source("config.R")
 
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir == "") results_dir <- "results"
@@ -70,13 +71,26 @@ for(i in 1:sample_size){
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
     subspecies <- subset(total, taxon.rank < "species")
     sp <- unique(subspecies$species.new)
-    species <- subset(total, taxon.rank == "species" & !species.new %in% sp)
-    gen <- unique(c(subspecies$genus.new, species$genus.new))
+    species <- subset(total, taxon.rank == "species")
+    if(!includeSubspecies) {
+        sp <- unique(species$species.new)
+        # no worry about subspecies from species already represented
+        subspecies <- subset(subspecies, !species.new %in% sp)
+        # for all others, we want to get the base species
+        subspecies <- getTaxonId(subspecies, tax.name = "species.new")
+        species <- dplyr::bind_rows(species, subspecies[found(subspecies),])
+        if(any(not_found(subspecies))) {
+            subspecies <- subspecies[not_found(subspecies),]
+            subspecies$scientificName.new <- subspecies$species.new
+        }
+    }
+    species <- dplyr::bind_rows(species, subspecies)
+    gen <- unique(c(species$genus.new))
     genus <- subset(total, taxon.rank == "genus" & !genus.new %in% gen)
-    fam <- unique(c(subspecies$family.new, species$family.new, genus$family.new))
+    fam <- unique(c(species$family.new, genus$family.new))
     family <- subset(total, taxon.rank == "family" & !family.new %in% fam)
 
-    final <- dplyr::bind_rows(subspecies, species, genus, family)
+    final <- dplyr::bind_rows(species, genus, family)
 
 
     # Separate unmatched taxons
@@ -111,6 +125,11 @@ for(i in 1:sample_size){
         x$group <- bf$group[fam]
         x
     })
+
+    # Remove unwanted taxa
+    groups <- c("Algae", "Bryophytes", "Fungi")
+    not_accepted <- groups[c(!includeAlgae, !includeBryophyta, !includeFungi)]
+    matched <- subset(matched, !group %in% not_accepted)
 
     # Generate output file
     finalList <- format_list(matched, Nome_UC)

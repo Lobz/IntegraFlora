@@ -16,3 +16,4 @@ SUBSETTOPROVINCE = TRUE
 includeAlgae = FALSE
 includeBryophyta = FALSE
 includeFungi = FALSE
+includeSubspecies = FALSE
