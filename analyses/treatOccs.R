@@ -81,6 +81,7 @@ for(i in 1:sample_size){
         if(nrow(subspecies) > 0) {
             # for all others, we want to get the base species
             subspecies <- formatTax(subspecies, tax.name = "species.new")
+            subspecies$taxon.rank <- as.taxon.rank(subspecies$taxon.rank)
             species <- dplyr::bind_rows(species, subspecies[found(subspecies),])
             if(any(not_found(subspecies))) {
                 subspecies <- subspecies[not_found(subspecies),]
@@ -127,7 +128,7 @@ for(i in 1:sample_size){
     # For any records missing group, we will try to find it from family only
     matched <- tryAgain(matched, condition = function(x) (is.na(x$group) | x$group==""), FUN=function(x) {
         fam <- match(x$family.new, bf$family)
-        x$group <- bf$group[fam]
+        if(any(!is.na(fam))) x$group <- bf$group[fam]
         x
     })
 
