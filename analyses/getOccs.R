@@ -127,12 +127,16 @@ if(nrow(coords_gazet) > 0) {
     coords_gazet <- st_as_sf(coords_gazet, coords = c("longitude.gazetteer", "latitude.gazetteer"))
     st_crs(coords_gazet) <- "EPSG:4674" # Assumes datum is SIRGAS 2000 (used by IBGE)
     print("Intersecting points and shapes (gazet coords) ...")
-    points_ucs_gazet <- st_intersects(shapes, coords_gazet)
-    names(points_ucs_gazet) <- shapes$slug
+    tryCatch({
+        points_ucs_gazet <- st_intersects(shapes, coords_gazet)
+    }, err = function(e) {
+        warning(e)
+        points_ucs_gazet <- as.list(rep(FALSE, nrow(shapes)))
+    })
 } else {
     points_ucs_gazet <- as.list(rep(FALSE, nrow(shapes)))
-    names(points_ucs_gazet) <- shapes$slug
 }
+names(points_ucs_gazet) <- shapes$slug
 
 
 # Get intersection table
