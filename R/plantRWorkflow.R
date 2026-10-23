@@ -18,6 +18,10 @@ plantRWorkflow_part1 <- function(x) {
     print("Formatting locs")
     if(!exists("COUNTRY")) COUNTRY <- "Brazil"
     if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
+    STATE <- Sys.getenv("STATE")
+    if(STATE == "") STATE <- STATEPROVINCE
+    STATEPROVINCE <- STATE
+
     x <- fixLocation(x)
 
     # Treat gps data
@@ -33,6 +37,11 @@ plantRWorkflow_part1 <- function(x) {
 #' @export
 subsetToProvince <- function(x) {
     print("Subsetting to state...")
+
+    if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
+    STATE <- Sys.getenv("STATE")
+    if(STATE == "") STATE <- STATEPROVINCE
+    STATEPROVINCE <- STATE
 
     tab(x$country.correct)
     tab(x$country.new[is.na(x$country.correct)])

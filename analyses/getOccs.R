@@ -7,8 +7,13 @@ library(sf)
 source("config.R")
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir=="") results_dir <- "results"
+
 DATATMP <- Sys.getenv("DATASTATE")
 if(DATATMP=="") DATATMP <- "data-tmp"
+
+STATE <- Sys.getenv("STATE")
+if(STATE == "") STATE <- STATEPROVINCE
+STATEPROVINCE <- STATE
 
 if(!dir.exists(results_dir)) dir.create(results_dir)
 if(!dir.exists(file.path(results_dir, "total"))) dir.create(file.path(results_dir, "total"))

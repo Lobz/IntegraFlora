@@ -2,6 +2,11 @@ if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 source("config.R")
 
+if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
+STATE <- Sys.getenv("STATE")
+if(STATE == "") STATE <- STATEPROVINCE
+STATEPROVINCE <- STATE
+
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir == "") results_dir <- "results"
 

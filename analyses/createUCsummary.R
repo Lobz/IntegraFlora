@@ -5,6 +5,10 @@ source("config.R")
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir == "") results_dir <- "results"
 
+STATE <- Sys.getenv("STATE")
+if(STATE == "") STATE <- STATEPROVINCE
+STATEPROVINCE <- STATE
+
 folder <- "data-input/Locations/info/"
 info_files <- read.csv("data-input/Locations/info/file_descriptions.csv", na.strings = c("", "NA"))
 filenames <- file.path(folder, info_files$arquivo)
