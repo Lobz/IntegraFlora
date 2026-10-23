@@ -114,12 +114,16 @@ if(nrow(coords_original) > 0) {
     coords_original <- st_as_sf(coords_original, coords = c("decimalLongitude.new", "decimalLatitude.new"))
     coords_original <- fixDatum(coords_original) # Unify and convert datum to match SIRGAS 2000
     print("Intersecting points and shapes (original coords) ...")
-    points_ucs_original <- st_intersects(shapes, coords_original)
-    names(points_ucs_original) <- shapes$slug
+    tryCatch({
+        points_ucs_original <- st_intersects(shapes, coords_original)
+    }, err = function(e) {
+        warning(e)
+        points_ucs_original <- as.list(rep(FALSE, nrow(shapes)))
+    })
 } else {
     points_ucs_original <- as.list(rep(FALSE, nrow(shapes)))
-    names(points_ucs_original) <- shapes$slug
 }
+names(points_ucs_original) <- shapes$slug
 
 print("Selecting and correcting valid georeferenced points (gazet coords) ...")
 coords_gazet <- subset(corpus, resolution.gazetteer == "locality")
