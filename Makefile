@@ -2,7 +2,7 @@ SHELL := /bin/bash
 R ?= Rscript
 
 # StateProvince (overrides config)
-export STATE=""
+export STATE
 # Resulsts mega-folder for many states
 export RESULTS_MANY=../ChecklistsBrazil
 # Temporary objects folder
