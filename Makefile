@@ -50,16 +50,16 @@ $(DATATMP)/all_data.rda: $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/ref
 $(DATATMP)/treated_data_all.rda: $(DATATMP)/all_data.rda
 	$(R) "analyses/treatData_part1.R"
 
-$(DATASTATE)/corpus-full.rda: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
+$(DATASTATE)/corpus-full.rda: $(DATATMP)/treated_data_all.rda #R/plantRWorkflow.R R/getTaxonId.R
 	$(R) "analyses/treatData.R"
 
-treated-data/noStateInfo.rds: $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
+treated-data/noStateInfo.rds: $(DATATMP)/treated_data_all.rda #R/plantRWorkflow.R R/getTaxonId.R
 	bash changeConf.sh "none"
 	$(R) "analyses/treatData.R"
 	$(R) -e "load('corpus-full.rda'); saveRDS(corpus, 'treated-data/noStateInfo.rds')"
 	bash changeConf.sh $(STATE)
 
-$(DATASTATE)/corpus.rda: $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds analyses/deduplicate.R
+$(DATASTATE)/corpus.rda: $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds #analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"
 
 $(RESULTS_DIR)/summary_getOccs.csv: $(DATASTATE)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
