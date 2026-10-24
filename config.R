@@ -17,3 +17,5 @@ includeAlgae = FALSE
 includeBryophyta = FALSE
 includeFungi = FALSE
 includeSubspecies = FALSE
+includeGenus = FALSE
+includeFamily = FALSE

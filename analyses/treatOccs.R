@@ -91,13 +91,23 @@ for(i in 1:sample_size){
             }
         }
     }
-    gen <- unique(c(species$genus.new))
-    genus <- subset(total, taxon.rank == "genus" & !genus.new %in% gen)
-    fam <- unique(c(species$family.new, genus$family.new))
-    family <- subset(total, taxon.rank == "family" & !family.new %in% fam)
+    invalid <- data.frame()
+    final <- species
 
-    final <- dplyr::bind_rows(species, genus, family)
-
+    if(includeGenus) {
+        gen <- unique(c(species$genus.new))
+        genus <- subset(total, taxon.rank == "genus" & !genus.new %in% gen)
+        final <- dplyr::bind_rows(species, genus)
+    } else {
+        invalid <- dplyr::bind_rows(invalid, subset(total,  taxon.rank == "genus"))
+    }
+    if(includeFamily) {
+        fam <- unique(c(species$family.new, genus$family.new))
+        family <- subset(total, taxon.rank == "family" & !family.new %in% fam)
+        final <- dplyr::bind_rows(final, family)
+    } else {
+        invalid <- dplyr::bind_rows(invalid, subset(total,  taxon.rank == "family"))
+    }
 
     # Separate unmatched taxons
     nf <- not_found(final)
@@ -115,6 +125,7 @@ for(i in 1:sample_size){
        matched <- final
        unmatched <- data.frame()
     }
+    unmatched <- dplyr::bind_rows(invalid, unmatched)
 
     # Get info from  F&FBR
     matched$fromBFO <- startsWith(matched$id, "bfo")
