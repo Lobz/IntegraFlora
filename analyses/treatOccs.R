@@ -53,8 +53,8 @@ if (length(list.files("data-tmp/florabr","*.rds", recursive = T))>0) {
 for(i in 1:sample_size){
     uc_data <- ucs[i,]
     Nome_UC <- uc_data$name
-    print("Getting data for UC:")
-    print(Nome_UC)
+    print(paste("Getting data for UC:", slug(Nome_UC)))
+
     nome_file <- slug(uc_data$name)
 
     load(file=file.path(results_dir, "total", paste0(nome_file,".rda")))
@@ -65,7 +65,24 @@ for(i in 1:sample_size){
     # Order occs
     total <- total[order(total$taxon.rank, total$tax.check, total$scientificName.new, as.numeric(total$year.new), as.numeric(total$yearIdentified.new), na.last=F, decreasing = T),]
 
+    # For any records missing group, we will try to find it from family
+    getGroup <- function(x) {
+        fam <- match(x$family.new, bf$family)
+        if(any(!is.na(fam))) x$group <- bf$group[fam]
+        x
+    }
+    total <- getGroup(total)
+
     write.csv(total, file.path(results_dir, "total-treated", paste0(nome_file,".csv")),  na="", row.names=FALSE)
+
+    # Remove unwanted taxa
+    groups <- c("Algae", "Bryophytes", "Fungi")
+    not_accepted <- groups[c(!includeAlgae, !includeBryophyta, !includeFungi)]
+    total <- subset(total, !group %in% not_accepted)
+    if(nrow(total) == 0) {
+        print(paste("No records for UC", Nome_UC, "after removing unwanted taxa."))
+        next()
+    }
 
     # Avoid taxons that are already represented by more detailed taxons
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
@@ -134,19 +151,7 @@ for(i in 1:sample_size){
 
     # Extract origin and group information
     matched$origin <-bf$origin[matches]
-    matched$group <-bf$group[matches]
-
-    # For any records missing group, we will try to find it from family only
-    matched <- tryAgain(matched, condition = function(x) (is.na(x$group) | x$group==""), FUN=function(x) {
-        fam <- match(x$family.new, bf$family)
-        if(any(!is.na(fam))) x$group <- bf$group[fam]
-        x
-    })
-
-    # Remove unwanted taxa
-    groups <- c("Algae", "Bryophytes", "Fungi")
-    not_accepted <- groups[c(!includeAlgae, !includeBryophyta, !includeFungi)]
-    matched <- subset(matched, !group %in% not_accepted)
+    matched$group <-ifelse(is.na(bf$group[matches]) | bf$group[matches] == "", matched$group, bf$group[matches])
 
     # Generate output file
     finalList <- format_list(matched, Nome_UC)
