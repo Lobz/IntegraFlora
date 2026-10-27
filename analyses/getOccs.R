@@ -118,6 +118,9 @@ shapes$slug <- slug(standardize_uc_name(shapes$nome_uc))
 shapes <- subset(shapes, slug %in% ucs$slug)
 shapes <- shapes[order(shapes$slug), ]
 
+# Fix shapes with invalid geometry
+shapes <- st_make_valid(shapes)
+
 # Data with valid coordinates: either original coordinates or locality
 print("Selecting and correcting valid georeferenced points (original coords) ...")
 coords_original <- subset(corpus, origin.coord == "coord_original")
