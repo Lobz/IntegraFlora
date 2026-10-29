@@ -75,8 +75,11 @@ LT <- subset(LT, confidenceLocality == "Ouro")
 print("Loading occurrence data...")
 load(file.path(DATATMP,"corpus.rda"))
 if(!"recordID" %in% names(corpus)) corpus$recordID <- 1:nrow(corpus)
-if(exists("COUNTRY")) corpus <- subset(corpus, country.correct %in% COUNTRY)
-if(exists("STATEPROVINCE")) corpus <- subset(corpus, stateProvince.correct %in% STATEPROVINCE | is.na(stateProvince.correct))
+print("State distribution:")
+print(tab(corpus$stateProvince.correct))
+if(SUBSETTOPROVINCE & !STATEPROVINCE %in% corpus$stateProvince.correct) {
+    stop("No entries have the correct STATEPROVINCE. Check your data.")
+}
 
 # Which occs are associated with each UC
 print("Searching with plantR locs...")
@@ -91,7 +94,7 @@ occs_plantr <- sapply(ucs$slug, function(s) {
 # Use regex to look for more occs
 print("Searching with regex...")
 occs_string_mun <- pairwiseMap(LT$x, LT$Municipio, function(str, mun) {
-    if(mun %in% c("QUALQUER","") | is.na(mun)) {
+    if(mun %in% c("QUALQUER","",NA,"Qualquer") | is.na(mun)) {
         res <- searchLoc(str, corpus)
     } else {
         in_mun <- which(corpus$municipality.correct == mun)
@@ -189,8 +192,8 @@ for(i in 1:sample_size){
 
     # Generate string for regex grepl in locality data
     intersected <- subset(intersecUCs, slug == UC)
-    high <- intersected$outra_uc[intersected$confidence=="High"]
-    medium <- intersected$outra_uc[intersected$confidence=="Medium"]
+    high <- intersected$slug2[intersected$confidence=="High"]
+    medium <- intersected$slug2[intersected$confidence=="Medium"]
 
     # Exact UC name
     occs_uc_name <- occs_locality[[UC]]
@@ -252,5 +255,5 @@ ucs$slug <- NULL
 
 # Save summary
 write.csv(ucs, file.path(results_dir, "summary_getOccs.csv"), row.names=FALSE)
-summary(ucs==0)
-summary(ucs<20)
+print("Finished getting occs for each UC. Summary of records:")
+summary(ucs$NumRecords)

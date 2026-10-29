@@ -89,6 +89,6 @@ deixar mais claro o uso do GPS
 ## Todo conversa com Thaty
 
 - Pegar grupo diretamente da família - done
-- Remover epítetos infraespecíficos
-- Remover algas, fungos e briófitas
-- PE SERRA DO MAR e APA SERRA DO MAR sumiram?????
+- Remover epítetos infraespecíficos - done
+- Remover algas, fungos e briófitas - done
+- PE SERRA DO MAR e APA SERRA DO MAR sumiram????? - done
