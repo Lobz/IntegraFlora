@@ -81,6 +81,15 @@ for(i in 1:sample_size){
     total <- subset(total, !group %in% not_accepted)
     if(nrow(total) == 0) {
         print(paste("No records for UC", Nome_UC, "after removing unwanted taxa."))
+        ucs[i,]$NumTaxons <- 0
+        ucs[i,]$NumSpecies <- 0
+        ucs[i,]$NumGenus <- 0
+        ucs[i,]$NumFamilies <- 0
+        ucs[i,]$NumOuro <- 0
+        ucs[i,]$NumPrata <- 0
+        ucs[i,]$NumBronze <- 0
+        ucs[i,]$NumLatao <- 0
+        ucs[i,]$NumNoMatch <- 0
         next()
     }
 
@@ -132,17 +141,27 @@ for(i in 1:sample_size){
         matched <- final[!nf,]
         unmatched <- final[nf,]
         unmatched$origin <- NA
-        unmatched$group <- NA
+        unmatched <- dplyr::bind_rows(invalid, unmatched)
         unmatched <- format_list(unmatched, Nome_UC)
         write.csv(unmatched, file.path(results_dir, "checklist", paste0(nome_file,"_nomesInvalidos.csv")), na="", row.names=FALSE)
-        if(all(nf)) {
-            next()
-        }
+        ucs[i,]$NumNoMatch <- nrow(unmatched)
     } else {
        matched <- final
-       unmatched <- data.frame()
+        ucs[i,]$NumNoMatch <- 0
     }
-    unmatched <- dplyr::bind_rows(invalid, unmatched)
+
+    if(nrow(matched) == 0) {
+        print(paste("No records for UC", Nome_UC, "after removing invalid taxa."))
+        ucs[i,]$NumTaxons <- 0
+        ucs[i,]$NumSpecies <- 0
+        ucs[i,]$NumGenus <- 0
+        ucs[i,]$NumFamilies <- 0
+        ucs[i,]$NumOuro <- 0
+        ucs[i,]$NumPrata <- 0
+        ucs[i,]$NumBronze <- 0
+        ucs[i,]$NumLatao <- 0
+        next()
+    }
 
     # Get info from  F&FBR
     matched$fromBFO <- startsWith(matched$id, "bfo")
@@ -170,7 +189,6 @@ for(i in 1:sample_size){
     ucs[i,]$NumPrata <- sum(top$ConfiançaID == "Prata")
     ucs[i,]$NumBronze <- sum(top$ConfiançaID == "Bronze")
     ucs[i,]$NumLatao <- sum(top$ConfiançaID == "Latão")
-    ucs[i,]$NumNoMatch <- nrow(unmatched)
 
     if (nrow(top) > 0) {
         top <- top[order(top$Grupos, top$Táxon_completo),]
