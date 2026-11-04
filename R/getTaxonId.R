@@ -115,7 +115,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
     if("tax.notes" %in% names(total)) {
         total <- tryAgain(total, not_found, formatTax, label = "Default formatTax", ...)
     } else {
-        total <- formatTax(total, split.letters = TRUE, ...)
+        total <- formatTax(total, ...)
     }
 
     # we're gonna try again without author (see issue #170 in plantR)

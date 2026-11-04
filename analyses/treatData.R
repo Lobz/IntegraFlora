@@ -2,11 +2,19 @@ if(!require(integraFlora)) devtools::load_all()
 require(plantR)
 source("config.R")
 
+if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
+STATE <- Sys.getenv("STATE")
+if(STATE == "") STATE <- STATEPROVINCE
+STATEPROVINCE <- STATE
+
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir == "") results_dir <- "results"
 
 tmp_dir <- Sys.getenv("DATATMP")
 if(tmp_dir == "") tmp_dir <- "data-tmp"
+
+tmp_dir_state <- Sys.getenv("DATASTATE")
+if(tmp_dir_state == "") tmp_dir_state <- "data-tmp"
 
 print("Loading all data...")
 load(file.path(tmp_dir, "treated_data_all.rda"))
@@ -14,6 +22,7 @@ load(file.path(tmp_dir, "treated_data_all.rda"))
 print("Subsetting...")
 if(SUBSETTOPROVINCE) {
     treated_data <- lapply(treated_data, subsetToProvince)
+    tmp_dir <- tmp_dir_state
 }
 
 print("Chunking...")

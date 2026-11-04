@@ -2,6 +2,7 @@ if(!require(integraFlora)) devtools::load_all()
 library(plantR) # used for reading and cleaning occurrence data
 library(stringr)
 library(florabr)
+source("config.R")
 
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir == "") results_dir <- "results"
@@ -52,8 +53,8 @@ if (length(list.files("data-tmp/florabr","*.rds", recursive = T))>0) {
 for(i in 1:sample_size){
     uc_data <- ucs[i,]
     Nome_UC <- uc_data$name
-    print("Getting data for UC:")
-    print(Nome_UC)
+    print(paste("Getting data for UC:", slug(Nome_UC)))
+
     nome_file <- slug(uc_data$name)
 
     load(file=file.path(results_dir, "total", paste0(nome_file,".rda")))
@@ -64,36 +65,103 @@ for(i in 1:sample_size){
     # Order occs
     total <- total[order(total$taxon.rank, total$tax.check, total$scientificName.new, as.numeric(total$year.new), as.numeric(total$yearIdentified.new), na.last=F, decreasing = T),]
 
+    # For any records missing group, we will try to find it from family
+    getGroup <- function(x) {
+        fam <- match(x$family.new, bf$family)
+        if(any(!is.na(fam))) x$group <- bf$group[fam]
+        x
+    }
+    total <- getGroup(total)
+
     write.csv(total, file.path(results_dir, "total-treated", paste0(nome_file,".csv")),  na="", row.names=FALSE)
 
-    # Separate unmatched taxons
-    nf <- not_found(total)
-    if(any(nf)) {
-        matched <- total[!nf,]
-        unmatched <- total[nf,]
-        unmatched$origin <- NA
-        unmatched$group <- NA
-        unmatched <- format_list(unmatched, Nome_UC)
-        write.csv(unmatched, file.path(results_dir, "checklist", paste0(nome_file,"_nomesInvalidos.csv")), na="", row.names=FALSE)
-        if(all(nf)) {
-            next()
-        }
-    } else {
-       matched <- total
-       unmatched <- data.frame()
+    # Remove unwanted taxa
+    groups <- c("Algae", "Bryophytes", "Fungi")
+    not_accepted <- groups[c(!includeAlgae, !includeBryophyta, !includeFungi)]
+    total <- subset(total, !group %in% not_accepted)
+    if(nrow(total) == 0) {
+        print(paste("No records for UC", Nome_UC, "after removing unwanted taxa."))
+        ucs[i,]$NumTaxons <- 0
+        ucs[i,]$NumSpecies <- 0
+        ucs[i,]$NumGenus <- 0
+        ucs[i,]$NumFamilies <- 0
+        ucs[i,]$NumOuro <- 0
+        ucs[i,]$NumPrata <- 0
+        ucs[i,]$NumBronze <- 0
+        ucs[i,]$NumLatao <- 0
+        ucs[i,]$NumNoMatch <- 0
+        next()
     }
 
     # Avoid taxons that are already represented by more detailed taxons
     total$tax.check <- factor(total$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
+    species <- subset(total, taxon.rank == "species")
     subspecies <- subset(total, taxon.rank < "species")
     sp <- unique(subspecies$species.new)
-    species <- subset(total, taxon.rank == "species" & !species.new %in% sp)
-    gen <- unique(c(subspecies$genus.new, species$genus.new))
-    genus <- subset(total, taxon.rank == "genus" & !genus.new %in% gen)
-    fam <- unique(c(subspecies$family.new, species$family.new, genus$family.new))
-    family <- subset(total, taxon.rank == "family" & !family.new %in% fam)
+    if(includeSubspecies) {
+        species <- dplyr::bind_rows(species, subspecies)
+    } else {
+        sp <- unique(species$species.new)
+        # no worry about subspecies from species already represented
+        subspecies <- subset(subspecies, !species.new %in% sp)
+        if(nrow(subspecies) > 0) {
+            # for all others, we want to get the base species
+            subspecies <- formatTax(subspecies, tax.name = "species.new")
+            subspecies$taxon.rank <- as.taxon.rank(subspecies$taxon.rank)
+            species <- dplyr::bind_rows(species, subspecies[found(subspecies),])
+            if(any(not_found(subspecies))) {
+                subspecies <- subspecies[not_found(subspecies),]
+                subspecies$scientificName.new <- subspecies$species.new
+                subspecies$taxon.rank <- "species"
+                species <- dplyr::bind_rows(species, subspecies)
+            }
+        }
+    }
+    invalid <- data.frame()
+    final <- species
 
-    final <- dplyr::bind_rows(subspecies, species, genus, family)
+    if(includeGenus) {
+        gen <- unique(c(species$genus.new))
+        genus <- subset(total, taxon.rank == "genus" & !genus.new %in% gen)
+        final <- dplyr::bind_rows(species, genus)
+    } else {
+        invalid <- dplyr::bind_rows(invalid, subset(total,  taxon.rank == "genus"))
+    }
+    if(includeFamily) {
+        fam <- unique(c(species$family.new, genus$family.new))
+        family <- subset(total, taxon.rank == "family" & !family.new %in% fam)
+        final <- dplyr::bind_rows(final, family)
+    } else {
+        invalid <- dplyr::bind_rows(invalid, subset(total,  taxon.rank == "family"))
+    }
+
+    # Separate unmatched taxons
+    nf <- not_found(final)
+    if(any(nf)) {
+        matched <- final[!nf,]
+        unmatched <- final[nf,]
+        unmatched$origin <- NA
+        unmatched <- dplyr::bind_rows(invalid, unmatched)
+        unmatched <- format_list(unmatched, Nome_UC)
+        write.csv(unmatched, file.path(results_dir, "checklist", paste0(nome_file,"_nomesInvalidos.csv")), na="", row.names=FALSE)
+        ucs[i,]$NumNoMatch <- nrow(unmatched)
+    } else {
+       matched <- final
+        ucs[i,]$NumNoMatch <- 0
+    }
+
+    if(nrow(matched) == 0) {
+        print(paste("No records for UC", Nome_UC, "after removing invalid taxa."))
+        ucs[i,]$NumTaxons <- 0
+        ucs[i,]$NumSpecies <- 0
+        ucs[i,]$NumGenus <- 0
+        ucs[i,]$NumFamilies <- 0
+        ucs[i,]$NumOuro <- 0
+        ucs[i,]$NumPrata <- 0
+        ucs[i,]$NumBronze <- 0
+        ucs[i,]$NumLatao <- 0
+        next()
+    }
 
     # Get info from  F&FBR
     matched$fromBFO <- startsWith(matched$id, "bfo")
@@ -102,7 +170,7 @@ for(i in 1:sample_size){
 
     # Extract origin and group information
     matched$origin <-bf$origin[matches]
-    matched$group <-bf$group[matches]
+    matched$group <-ifelse(is.na(bf$group[matches]) | bf$group[matches] == "", matched$group, bf$group[matches])
 
     # Generate output file
     finalList <- format_list(matched, Nome_UC)
@@ -121,10 +189,15 @@ for(i in 1:sample_size){
     ucs[i,]$NumPrata <- sum(top$ConfiançaID == "Prata")
     ucs[i,]$NumBronze <- sum(top$ConfiançaID == "Bronze")
     ucs[i,]$NumLatao <- sum(top$ConfiançaID == "Latão")
-    ucs[i,]$NumNoMatch <- nrow(unmatched)
 
-    write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_modeloCatalogo.csv")), na="", row.names=FALSE)
-    write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
+    if (nrow(top) > 0) {
+        top <- top[order(top$Grupos, top$Táxon_completo),]
+        write.csv(top, file.path(results_dir, "checklist", paste0(nome_file, "_catalogo.csv")), na="", row.names=FALSE)
+    }
+    if (nrow(bottom) > 0) {
+        bottom <- bottom[order(bottom$Grupos, bottom$Táxon_completo),]
+        write.csv(bottom, file.path(results_dir, "checklist", paste0(nome_file, "_extra.csv")), na="", row.names=FALSE)
+    }
 }
 
 # Save summary
@@ -134,5 +207,5 @@ total$nome_file <- NULL
 total <- total[order(total$name),]
 total$name <- shorten_uc_name(total$name)
 write.csv(total, file.path(results_dir, "summary_treatOccs.csv"), row.names=FALSE)
-summary(total==0)
-summary(total<20)
+
+print("Finished.")

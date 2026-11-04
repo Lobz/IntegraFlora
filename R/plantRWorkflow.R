@@ -18,6 +18,10 @@ plantRWorkflow_part1 <- function(x) {
     print("Formatting locs")
     if(!exists("COUNTRY")) COUNTRY <- "Brazil"
     if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
+    STATE <- Sys.getenv("STATE")
+    if(STATE == "") STATE <- STATEPROVINCE
+    STATEPROVINCE <- STATE
+
     x <- fixLocation(x)
 
     # Treat gps data
@@ -34,14 +38,23 @@ plantRWorkflow_part1 <- function(x) {
 subsetToProvince <- function(x) {
     print("Subsetting to state...")
 
+    if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
+    STATE <- Sys.getenv("STATE")
+    if(STATE == "") STATE <- STATEPROVINCE
+    STATEPROVINCE <- STATE
+
     tab(x$country.correct)
     tab(x$country.new[is.na(x$country.correct)])
-    x <- subset(x, country.correct == COUNTRY)
+    x <- subset(x, country.correct %in% COUNTRY)
 
     # noCountry <- subset(dt, is.na(country.correct))
     tab(x$stateProvince.correct)
     tab(x$municipality.new[is.na(x$stateProvince.correct)])
-    x <- subset(x, stateProvince.correct == STATEPROVINCE | is.na(stateProvince.correct))
+    if(STATEPROVINCE %in% c("none","",NA)) {
+        x <- subset(x, is.na(stateProvince.correct))
+    } else {
+        x <- subset(x, stateProvince.correct %in% STATEPROVINCE)
+    }
 
     # Select only records that have SOME location info
     noloc <- is.na(x$municipality) & is.na(x$locality) & (x$origin.coord == "coord_gazet")
@@ -53,7 +66,7 @@ subsetToProvince <- function(x) {
 #' @description This function is part of the plantR workflow, and is used to format and validate taxonomic and geolocation data.
 #' @param x A data.frame containing occurrence data.
 #' @export
-plantRWorkflow_part2 <- function(x) {
+plantRWorkflow_part2 <- function(x, stateProvince = STATEPROVINCE) {
 
     # formatTax and validateTax
     print("Formatting taxonomy...")
@@ -66,11 +79,11 @@ plantRWorkflow_part2 <- function(x) {
     }
     tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
     tax <- dplyr::full_join(tax, plantR::bfoNames)
-    x <- getTaxonId(x, db = tax)
+    x <- getTaxonId(x, db = tax, split.letters = TRUE)
 
     x <- tryAgain(x, not_found, function(x) {
         x <- isolateAuthorship(x)
-        x <- getTaxonId(x, db = tax)
+        x <- getTaxonId(x, db = tax, split.letters = TRUE)
     })
 
     # We'll try getting extra taxons with wfo
@@ -80,12 +93,18 @@ plantRWorkflow_part2 <- function(x) {
         data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
     }
     # using the World Flora Online
-    x <- tryAgain(x, not_found, getTaxonId, db = wfoNames)
+    x <- tryAgain(x, not_found, getTaxonId, db = wfoNames, split.letters = TRUE)
     # using the World Checklist of Vascular Plants
-    x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames)
+    x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames, split.letters = TRUE)
 
     x <- getTaxonRank(x)
     x <- get_species_and_genus(x)
+
+    tab(x$tax.notes)
+    x$tax.origin <- sub("-","",substr(x$id, 0, 4))
+    tab(x$tax.origin)
+    x$isBFO <- ifelse(found(x), startsWith(x$id, "bfo"), NA)
+    tab(x$isBFO)
 
     # validate
     print("Validating location info...")
@@ -96,10 +115,9 @@ plantRWorkflow_part2 <- function(x) {
     x <- plantR::validateTax(x, generalist = T)
     x$tax.check <- factor(x$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
 
-
     print("Validating geolocation info...")
     map <- plantR::latamMap$brazil
-    map <- subset(map, NAME_1 == "sao paulo")
+    map <- subset(map, NAME_1 == tolower(plantR::rmLatin(stateProvince)))
     x <- plantR::validateCoord(x, high.map = map) # WORKING
     x <- tryAgain(x, function(x) is.na(x$decimalLatitude.new), plantR::formatCoord)
     x <- tryAgain(x, function(x) is.na(x$geo.check), plantR::validateCoord, high.map=map)

@@ -11,11 +11,14 @@ top_records <- function(x, n = 5) {
         extra = x[dup,]
     )
     # Select up to five non-best extra records
-    sp <- split(res$extra, res$extra$Táxon_completo)
-    sp <- lapply(sp, function(y) {
-        if(nrow(y) > n) return(y[1:n,])
-        else return(y)})
-    res$extra <- do.call(rbind, sp)
+    if(nrow(res$extra) > 0) {
+        sp <- split(res$extra, res$extra$Táxon_completo)
+        sp <- lapply(sp, function(y) {
+            if(nrow(y) > n) return(y[1:n,])
+            else return(y)})
+        res$extra <- do.call(rbind, sp)
+    }
+
     # return
     res
 }
@@ -32,7 +35,7 @@ format_list <- function(x, UC) {
         Autor = x$scientificNameAuthorship.new,
         Táxon_completo = paste(toupper(x$family.new), x$scientificNameFull),
         Barcode = getBarcode(x),
-        BD_Origem = x$downloadedFrom,
+        BD_Origem = getDataSource(x$originFile, x$downloadedFrom),
         Herbário = x$collectionCode.new,
         Coletor = x$recordedBy.new,
         Número_da_Coleta = x$recordNumber,
@@ -80,12 +83,37 @@ reverseListFormatting <- function(x) {
     x
 }
 
+#' Get the data source from the origin file
+#' @export
+getDataSource <- function(x, d) {
+    ifelse(grepl("speciesLink|splink", x), "speciesLink",
+    ifelse(grepl("SiBBr", x, fixed=T), "SiBBr",
+    ifelse(grepl("GBIF", d, fixed=T), "GBIF",
+    ifelse(grepl("JABOT", x, fixed=T), "JABOT",
+    ifelse(grepl("Reflora", x, fixed=T), "Reflora",
+    ifelse(grepl("Catalogo", x, fixed=T), "Catalogo de Plantas das UCs do Brasil",
+    "Outros"))))))
+}
 
 #' Get the best barcode for each record
 #' @export
 getBarcode <- function(x) {
     ifelse(!is.na(x$barcode), x$barcode,
     ifelse(grepl("[A-Z]+", x$catalogNumber), x$catalogNumber,
-    ifelse(is.na(x$associatedMedia), x$catalogNumber,
-            str_extract(x$associatedMedia, "[A-z]+[0-9]+"))))
+    ifelse(!is.na(x$associatedMedia), str_extract(x$associatedMedia, "[A-z]+[0-9]+"),
+    x$numTombo)))
+}
+
+#' Create RDS file for exporting
+#' @export
+formatRDS <- function(corpus) {
+  ns <- read.csv("data/names.csv")
+
+  rownames(ns) <- ns$name1
+  ns <- ns[intersect(ns$name1, names(corpus)), ]
+  out <- corpus[,ns$name1]
+  names(out) <- ns$name2
+  out$municipality[is.na(out$municipality)] <- corpus$municipality[is.na(out$municipality)]
+
+  out
 }

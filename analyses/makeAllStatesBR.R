@@ -19,6 +19,9 @@ if(!dir.exists(results_folder)) {
     dir.create(results_folder)
 }
 
+# Create common files and noState file
+system("make treated-data/noStateInfo.rds")
+
 for(x in states) {
     print(paste("Starting state ", x))
     st_dir <- paste0(results_folder, slug(x))
@@ -32,8 +35,8 @@ for(x in states) {
     }
 
     # copy tmp files to folder
-    system(paste0("cp -nav data-tmp/*.rda ", st_dir, "/"))
+    # system(paste0("cp -nav data-tmp/*.rda ", st_dir, "/"))
 
     # make
-    system(paste0("make DATATMP=", st_dir, " RESULTS_DIR=", st_dir))
+    system(paste0("make DATASTATE=", st_dir, " RESULTS_DIR=", st_dir))
 }

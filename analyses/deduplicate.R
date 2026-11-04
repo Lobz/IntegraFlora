@@ -1,18 +1,22 @@
 if(!require(integraFlora)) devtools::load_all()
 library(plantR)
 
-tmp_dir <- Sys.getenv("DATATMP")
+tmp_dir <- Sys.getenv("DATASTATE")
 if(tmp_dir == "") tmp_dir <- "data-tmp"
 
+print("Loading data...")
 load(file.path(tmp_dir, "corpus-full.rda"))
+try({
+  nostate <- readRDS("treated-data/noStateInfo.rds")
+  corpus <- dplyr::bind_rows(nostate, corpus)
+})
 
-print("Removing duplicates...")
 loc.names <- c(loc.cols, paste0(loc.cols, ".new"), "longitude.gazetteer", "latitude.gazetteer")
 names(loc.names) <- loc.names
 loc.names <- c(loc.str = "loc.correct", res.gazet = "resolution.gazetteer", res.orig =
     "resol.orig", loc.check = "loc.check", loc.names)
 
-my_valDup <- function(x) validateDup(x, noNumb = NA, noYear = NA, noName = NA, prop=0.6,
+my_valDup <- function(x) validateDup(x, noNumb = NA, noYear = NA, noName = NA, prop=0.2,
   comb.fields = list(
     c("family", "col.last.name", "col.number", "col.loc"),
     c("family", "col.last.name", "col.number", "col.year"),
@@ -33,6 +37,8 @@ if(length(badnames) > 0) {
   warning(paste("Removing problematic columns:", paste(badnames, collapse=", ")))
   corpus[,badnames] <- NULL
 }
+
+print("Removing duplicates...")
 corpus <- my_valDup(corpus)
 
 print("Saving...")

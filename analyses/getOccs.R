@@ -7,8 +7,19 @@ library(sf)
 source("config.R")
 results_dir <- Sys.getenv("RESULTS_DIR")
 if(results_dir=="") results_dir <- "results"
-DATATMP <- Sys.getenv("DATATMP")
+cat("results_dir is ")
+print(results_dir)
+
+DATATMP <- Sys.getenv("DATASTATE")
 if(DATATMP=="") DATATMP <- "data-tmp"
+cat("DATATMP is ")
+print(DATATMP)
+
+STATE <- Sys.getenv("STATE")
+if(STATE == "") STATE <- STATEPROVINCE
+STATEPROVINCE <- STATE
+cat("STATEPROVINCE is ")
+print(STATEPROVINCE)
 
 if(!dir.exists(results_dir)) dir.create(results_dir)
 if(!dir.exists(file.path(results_dir, "total"))) dir.create(file.path(results_dir, "total"))
@@ -49,6 +60,7 @@ checkedLocations <- subset(checkedLocations, slug %in% ucs$slug)
 
 # add oficial names
 officialNames <- data.frame(Nome_UC = standardize_uc_name(ucs$name), Municipio="QUALQUER", Nome_Alternativo = ucs$name, Relação = "Igual", Confiança = "Ouro", slug = ucs$slug)
+checkedLocations <- checkedLocations[, c("Nome_UC", "Municipio", "Nome_Alternativo", "Relação", "Confiança", "slug")]
 LT <- rbind(checkedLocations, officialNames)
 
 # Generate string for regex grepl in locality data
@@ -63,8 +75,11 @@ LT <- subset(LT, confidenceLocality == "Ouro")
 print("Loading occurrence data...")
 load(file.path(DATATMP,"corpus.rda"))
 if(!"recordID" %in% names(corpus)) corpus$recordID <- 1:nrow(corpus)
-if(exists("COUNTRY")) corpus <- subset(corpus, country.correct %in% COUNTRY)
-if(exists("STATEPROVINCE")) corpus <- subset(corpus, stateProvince.correct %in% STATEPROVINCE | is.na(stateProvince.correct))
+print("State distribution:")
+print(tab(corpus$stateProvince.correct))
+if(SUBSETTOPROVINCE & !STATEPROVINCE %in% corpus$stateProvince.correct) {
+    stop("No entries have the correct STATEPROVINCE. Check your data.")
+}
 
 # Which occs are associated with each UC
 print("Searching with plantR locs...")
@@ -79,7 +94,7 @@ occs_plantr <- sapply(ucs$slug, function(s) {
 # Use regex to look for more occs
 print("Searching with regex...")
 occs_string_mun <- pairwiseMap(LT$x, LT$Municipio, function(str, mun) {
-    if(mun=="QUALQUER") {
+    if(mun %in% c("QUALQUER","",NA,"Qualquer") | is.na(mun)) {
         res <- searchLoc(str, corpus)
     } else {
         in_mun <- which(corpus$municipality.correct == mun)
@@ -106,19 +121,26 @@ shapes$slug <- slug(standardize_uc_name(shapes$nome_uc))
 shapes <- subset(shapes, slug %in% ucs$slug)
 shapes <- shapes[order(shapes$slug), ]
 
+# Fix shapes with invalid geometry
+shapes <- st_make_valid(shapes)
+
 # Data with valid coordinates: either original coordinates or locality
 print("Selecting and correcting valid georeferenced points (original coords) ...")
-coords_original <- subset(corpus, origin.coord == "coords_original")
+coords_original <- subset(corpus, origin.coord == "coord_original")
 if(nrow(coords_original) > 0) {
     coords_original <- st_as_sf(coords_original, coords = c("decimalLongitude.new", "decimalLatitude.new"))
     coords_original <- fixDatum(coords_original) # Unify and convert datum to match SIRGAS 2000
     print("Intersecting points and shapes (original coords) ...")
-    points_ucs_original <- st_intersects(shapes, coords_original)
-    names(points_ucs_original) <- shapes$slug
+    tryCatch({
+        points_ucs_original <- st_intersects(shapes, coords_original)
+    }, err = function(e) {
+        warning(e)
+        points_ucs_original <- as.list(rep(FALSE, nrow(shapes)))
+    })
 } else {
     points_ucs_original <- as.list(rep(FALSE, nrow(shapes)))
-    names(points_ucs_original) <- shapes$slug
 }
+names(points_ucs_original) <- shapes$slug
 
 print("Selecting and correcting valid georeferenced points (gazet coords) ...")
 coords_gazet <- subset(corpus, resolution.gazetteer == "locality")
@@ -126,12 +148,16 @@ if(nrow(coords_gazet) > 0) {
     coords_gazet <- st_as_sf(coords_gazet, coords = c("longitude.gazetteer", "latitude.gazetteer"))
     st_crs(coords_gazet) <- "EPSG:4674" # Assumes datum is SIRGAS 2000 (used by IBGE)
     print("Intersecting points and shapes (gazet coords) ...")
-    points_ucs_gazet <- st_intersects(shapes, coords_gazet)
-    names(points_ucs_gazet) <- shapes$slug
+    tryCatch({
+        points_ucs_gazet <- st_intersects(shapes, coords_gazet)
+    }, err = function(e) {
+        warning(e)
+        points_ucs_gazet <- as.list(rep(FALSE, nrow(shapes)))
+    })
 } else {
     points_ucs_gazet <- as.list(rep(FALSE, nrow(shapes)))
-    names(points_ucs_gazet) <- shapes$slug
 }
+names(points_ucs_gazet) <- shapes$slug
 
 
 # Get intersection table
@@ -166,8 +192,8 @@ for(i in 1:sample_size){
 
     # Generate string for regex grepl in locality data
     intersected <- subset(intersecUCs, slug == UC)
-    high <- intersected$outra_uc[intersected$confidence=="High"]
-    medium <- intersected$outra_uc[intersected$confidence=="Medium"]
+    high <- intersected$slug2[intersected$confidence=="High"]
+    medium <- intersected$slug2[intersected$confidence=="Medium"]
 
     # Exact UC name
     occs_uc_name <- occs_locality[[UC]]
@@ -186,7 +212,7 @@ for(i in 1:sample_size){
 
 
     # Join all filters
-    occs_total <- occs_uc_name | gps_original | gps_gazet | intersect_high | intersect_medium
+    occs_total <- locality_exact | plantr_exact | gps_original | gps_gazet | intersect_high | intersect_medium
     if(!any(occs_total)) {
         print("No records found for CU:")
         print(UC)
@@ -222,7 +248,6 @@ for(i in 1:sample_size){
     ucs[i,]$NumOuro <- sum(total$confidenceLocality=="High")
     ucs[i,]$NumPrata <- sum(total$confidenceLocality=="Medium")
     ucs[i,]$NumBronze <- sum(total$confidenceLocality=="Low")
-
 }
 
 ucs$nome_file <- NULL
@@ -230,5 +255,5 @@ ucs$slug <- NULL
 
 # Save summary
 write.csv(ucs, file.path(results_dir, "summary_getOccs.csv"), row.names=FALSE)
-summary(ucs==0)
-summary(ucs<20)
+print("Finished getting occs for each UC. Summary of records:")
+summary(ucs$NumRecords)

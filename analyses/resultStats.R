@@ -54,7 +54,7 @@ savePlot("plots/NumRecords_hist_log.png")
 
 # Number of records vc type
 summary(ucs)
-table(ucs$type)
+tab(ucs$type)
 table(ucs$NumRecords > 0, ucs$type)
 table(ucs$NumRecords > 20, ucs$type)
 table(ucs$NumRecords > 20)
@@ -68,7 +68,7 @@ savePlot("plots/numRecords_log.png")
 boxplot(NumRecords ~ factor(type), data = subset(ucs, type %in% c("APA", "ARIE","EEC", "PE", "PNM", "RPPN")), xlab = "Tipo de UC", ylab = "Número de registros", main = "Número de registros por tipo de UC")
 savePlot("plots/NumRecords.png")
 
-ucs[order(ucs$NumRecords),]
+tail(ucs[order(ucs$NumRecords),])
 
 # NumRecords vs Area
 anova(lm(ucs$NumRecords ~ ucs$area + ucs$type + ucs$hasGeom))

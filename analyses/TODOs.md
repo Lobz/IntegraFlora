@@ -69,10 +69,26 @@ Apresentação durou apenas 20min!! 40min de perguntas!
 
 iNaturalist pode ser uma boa fonte de dados para um grupo e não para outro. É bom para lepidóptera e não para amfíbios
 
-"tem um vazio de dados fundiários de mata atlântica"
+32m "tem um vazio de dados fundiários de mata atlântica" - não sabemos o que são as áreas, se são UCs, se são privadas etc
 
 sugestão: separar dados com problemas de identificação (eg, identificação apenas a nivel de gênero ou família) para mandar para especialistas identificarem.
 
+Parques municipais não estão listados em nenhum lugar
 
+deixar mais claro o uso do GPS
+## Anotações simpósio 16-10-2026
 
+- escrever função para adicionar registros do catálogo já com padrão ouro
+- será que posso dar padrão ouro pra localidade?
+- paraná tem mais de 300 RPPNs
+- parque estadual da cabeça do cachorro (n está no cnuc) procurar no IAT instituto água e terra
+- ARIE santa helena (n está no cnuc) - histórico de coletas: nenhum
+- PE São Camilo (tb n está no cnuc)
+- checar outras UCs que estão no catálogo e não no cnuc
 
+## Todo conversa com Thaty
+
+- Pegar grupo diretamente da família - done
+- Remover epítetos infraespecíficos - done
+- Remover algas, fungos e briófitas - done
+- PE SERRA DO MAR e APA SERRA DO MAR sumiram????? - done

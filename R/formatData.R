@@ -8,10 +8,12 @@
 #' @export
 readGBIF <- function(file, ...) {
     if(endsWith(file, ".zip")) {
-        readData(file, quote = "", na.strings = c("", "NA"), output = c("occurrence", "verbatim"), ...)
+        x <- readData(file, quote = "", na.strings = c("", "NA"), output = c("occurrence", "verbatim"), ...)
+        if(nrow(x > 0)) x$originFile <- file
     } else {
-        readOccurrence(file = file, sep = "\t", quote = "", ...)
+        x <- readOccurrence(file = file, sep = "\t", quote = "", ...)
     }
+    x
 }
 
 #' readJabot

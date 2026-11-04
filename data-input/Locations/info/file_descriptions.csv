@@ -4,3 +4,4 @@ arquivo,sep,dec,nome_uc,pais,estadoProvincia,municipio,categoria,codigo
 "DadosGeoestatisticos_UCs_21jul2025.csv",",",,Nome da Unidade de Conservação conforme o Ato legal,brazil,"UF de Abrangência",,Grupo (SNUC),"Código CNUC (MMA)"
 "relatorio_ucs_05_06_2025_saopaulo.csv",,,Nome,brazil,UFs abrangidas,Municípios abrangidos,,Código CNUC
 "UCs_IF.csv",,,"Nome.da.UC",brazil,São Paulo,Município,,
+"UCsAdicionais.csv",,,"Nome",brazil,Estado,Município,,
