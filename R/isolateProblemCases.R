@@ -13,6 +13,7 @@ isolateProblemCases <- function(x, FUN, breaks = 10, parallel = FALSE, no_cores 
     if(parallel && no_cores > 1) {
         # Initiate cluster
         cl <- makeCluster(no_cores)
+        # Evaluate whether a chunk triggers an error during the custom function.
         l_prob <- parSapply(makeCluster(no_cores), l_orig, function(x1) {
             tryCatch(
                 {FUN(x1, ...); FALSE},
@@ -21,6 +22,7 @@ isolateProblemCases <- function(x, FUN, breaks = 10, parallel = FALSE, no_cores 
         })
     }
     else {
+        # Evaluate whether a chunk triggers an error during the custom function.
         l_prob <- vapply(l_orig, function(x1) {
             tryCatch(
                 {FUN(x1, ...); FALSE},

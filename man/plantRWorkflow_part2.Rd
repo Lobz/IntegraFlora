@@ -4,7 +4,7 @@
 \alias{plantRWorkflow_part2}
 \title{plantRWorkflow_part2}
 \usage{
-plantRWorkflow_part2(x)
+plantRWorkflow_part2(x, stateProvince = STATEPROVINCE)
 }
 \arguments{
 \item{x}{A data.frame containing occurrence data.}
