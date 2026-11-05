@@ -220,6 +220,12 @@ getTaxonId <- function(total, complete = TRUE, ...) {
     total
 }
 
+#' Infer taxon rank from name and previous fields
+#'
+#' Fills missing taxonomic ranks from available rank fields and the scientific
+#' name structure when direct rank metadata is absent.
+#' @param total A data.frame of taxon records.
+#' @return A data.frame with taxon ranks completed.
 getTaxonRank <- function(total) {
     # fix missing taxon rank
     total$taxon.rank <- as.taxon.rank(total$taxon.rank)
@@ -248,3 +254,17 @@ getTaxonRank <- function(total) {
 
     total
 }
+
+#' Assign group information from the Flora reference table.
+#'
+#' Maps each record's family to the corresponding biological group when that
+#' information is missing from the working dataset.
+#' @param x A data.frame containing taxonomic family information.
+#' @param bf A data.frame of taxonomic reference, usually BFO
+#' @return The updated data.frame with the group column filled when available.
+#' @export
+getGroup <- function(x, bf) {
+        fam <- match(x$family.new, bf$family)
+        if(any(!is.na(fam))) x$group <- bf$group[fam]
+        x
+    }

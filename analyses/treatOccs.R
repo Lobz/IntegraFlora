@@ -66,12 +66,7 @@ for(i in 1:sample_size){
     total <- total[order(total$taxon.rank, total$tax.check, total$scientificName.new, as.numeric(total$year.new), as.numeric(total$yearIdentified.new), na.last=F, decreasing = T),]
 
     # For any records missing group, we will try to find it from family
-    getGroup <- function(x) {
-        fam <- match(x$family.new, bf$family)
-        if(any(!is.na(fam))) x$group <- bf$group[fam]
-        x
-    }
-    total <- getGroup(total)
+    total <- getGroup(total, bf)
 
     write.csv(total, file.path(results_dir, "total-treated", paste0(nome_file,".csv")),  na="", row.names=FALSE)
 
