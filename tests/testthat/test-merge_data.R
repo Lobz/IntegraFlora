@@ -52,8 +52,8 @@ test_that("readShapeInfo reads and combines all metadata-listed shapes", {
     shapes_dir = file.path(project_root, "data-input", "Locations", "shapes")
   )
 
-  expect_class(all_shapes, "list")
-  expect_all(sapply(all_shapes, function(x) inherits(x, "sf")))
+  expect_equal(class(all_shapes), "list")
+  expect_all_true(sapply(all_shapes, function(x) inherits(x, "sf")))
 
   merged_shapes <- merge_shapes(all_shapes)
 
@@ -66,6 +66,8 @@ test_that("readShapeInfo reads and combines all metadata-listed shapes", {
     "protectionCategory", "UC_ID", "source", "type", "slug"
   ) %in% names(merged_shapes)))
   expect_true(length(unique(merged_shapes$source)) >= 2L)
+  expect_all_equal(unique(merged_shapes$country), "brazil")
+  expect_all_true(merged_shapes$name == unlist(sapply(all_shapes, function(x) x$name)))
 })
 
 test_that("merge_shapes preserves the default metadata columns and accepts keep_cols='all'", {
@@ -84,9 +86,13 @@ test_that("merge_shapes preserves the default metadata columns and accepts keep_
   expect_s3_class(merged, "sf")
   expect_equal(nrow(merged), 2L)
   expect_true(all(c("name", "geometry") %in% names(merged)))
+  expect_false("id" %in% names(merged))
+  expect_false("status" %in% names(merged))
+  expect_equal(merged$name, c("A", "B"))
 
   merged_all <- merge_shapes(list(s1, s2), keep_cols = "all")
   expect_s3_class(merged_all, "sf")
   expect_equal(nrow(merged_all), 2L)
   expect_true(all(c("name", "geometry", "id", "status") %in% names(merged_all)))
+  expect_equal(merged_all$name, c("A", "B"))
 })
