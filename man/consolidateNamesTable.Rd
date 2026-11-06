@@ -2,7 +2,7 @@
 % Please edit documentation in R/search.R
 \name{consolidateNamesTable}
 \alias{consolidateNamesTable}
-\title{Consolidate names table}
+\title{Consolidate alternative names for location matching}
 \usage{
 consolidateNamesTable(
   checkedLocations =
@@ -11,8 +11,19 @@ consolidateNamesTable(
 )
 }
 \arguments{
-\item{checkedLocations}{A table containing alternative names information}
+\item{checkedLocations}{A data frame with alternative/locality names to be
+consolidated.}
+
+\item{extraNames}{An optional character vector of additional official names to
+append to the table.}
+}
+\value{
+A data frame with consolidated names, a normalized slug, and a
+generated \code{uc_strings} expression for regex matching.
 }
 \description{
-Consolidate names table
+Prepare a names table for downstream searches by normalizing unique slugs and
+generating regex fragments for each alternative name. The output is meant to be
+used with search routines that compare alternative locality names against the
+occurrence records in a corpus.
 }

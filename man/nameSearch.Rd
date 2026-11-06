@@ -2,13 +2,29 @@
 % Please edit documentation in R/search.R
 \name{nameSearch}
 \alias{nameSearch}
-\title{Search for several different entries}
+\title{Search for multiple alternative names across the occurrence corpus}
 \usage{
 nameSearch(ucs, corpus, LT, degrees = "Ouro")
 }
 \arguments{
-\item{ucs}{A data.frame containing names}
+\item{ucs}{A data frame or object containing the names to search. This
+argument is retained for API compatibility and is not directly used in the
+current implementation.}
+
+\item{corpus}{A data frame with occurrence records to test.}
+
+\item{LT}{A table of alternative names and metadata, including a slug and
+municipality field.}
+
+\item{degrees}{Character vector indicating the confidence levels to keep when
+subsetting \code{LT}. Defaults to \code{"Ouro"}.}
+}
+\value{
+A named list of logical vectors, each aligned with the rows in
+\code{corpus} and indicating whether a given slug matched any occurrence.
 }
 \description{
-Search for several different entries
+Match a set of candidate names against the supplied corpus, optionally
+restricting the search to a municipality when one is available. The function
+returns a named list of logical vectors, one per unique slug.
 }

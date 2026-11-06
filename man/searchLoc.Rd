@@ -2,15 +2,27 @@
 % Please edit documentation in R/search.R
 \name{searchLoc}
 \alias{searchLoc}
-\title{Search for a string in location fields of a data.frame}
+\title{Search for a pattern in one or more location fields}
 \usage{
 searchLoc(pattern, corpus, fieldA = "locality", fieldB = "municipality")
 }
 \arguments{
-\item{pattern}{Pattern to lookup}
+\item{pattern}{A regular expression to search for.}
 
-\item{corpus}{A data.frame with locality information}
+\item{corpus}{A data frame containing the locality information to scan.}
+
+\item{fieldA}{Name of the primary locality field to search. Defaults to
+\code{"locality"}.}
+
+\item{fieldB}{Name of the secondary locality field to search. Set to
+\code{""} to ignore this field. Defaults to \code{"municipality"}.}
+}
+\value{
+A logical vector with one element per row in \code{corpus}, where
+\code{TRUE} indicates a match in either field.
 }
 \description{
-Search for a string in location fields of a data.frame
+This helper performs a case-insensitive regex match on a set of location
+columns after normalizing accents with \code{rmLatin()}. It is intended for
+matching locality-related terms, optionally across a municipal field.
 }

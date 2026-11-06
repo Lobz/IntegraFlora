@@ -57,18 +57,7 @@ if (nrow(LT) > 0) {
 checkedLocations <- read.csv("data-input/Locations/extraTables/checkedLocations.csv")
 checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_UC)))
 checkedLocations <- subset(checkedLocations, slug %in% ucs$slug)
-
-# add oficial names
-officialNames <- data.frame(Nome_UC = standardize_uc_name(ucs$name), Municipio="QUALQUER", Nome_Alternativo = ucs$name, Relação = "Igual", Confiança = "Ouro", slug = ucs$slug)
-checkedLocations <- checkedLocations[, c("Nome_UC", "Municipio", "Nome_Alternativo", "Relação", "Confiança", "slug")]
-LT <- rbind(checkedLocations, officialNames)
-
-# Generate string for regex grepl in locality data
-LT$uc_strings <- paste0("(",generate_uc_string(LT$Nome_Alternativo),")")
-# Summarize alternative names
-LT <- aggregate(LT$uc_strings, list(slug = LT$slug, Municipio = LT$Municipio, relationship = LT$Relação, confidenceLocality = LT$Confiança), function(x) paste(unique(x), collapse="|"))
-
-# Temporary
+LT <- consolidateNamesTable(checkedLocations, extraNames = ucs$name)
 LT <- subset(LT, confidenceLocality == "Ouro")
 
 # Pre-treated data from GBIF, REflora and JABOT
@@ -91,22 +80,13 @@ occs_plantr <- sapply(ucs$slug, function(s) {
     }
 }, USE.NAMES = TRUE, simplify = FALSE)
 
-# Use regex to look for more occs
+# Use the shared name search helper to match UC names against the corpus
 print("Searching with regex...")
-occs_string_mun <- pairwiseMap(LT$x, LT$Municipio, function(str, mun) {
-    if(mun %in% c("QUALQUER","",NA,"Qualquer") | is.na(mun)) {
-        res <- searchLoc(str, corpus)
-    } else {
-        in_mun <- which(corpus$municipality.correct == mun)
-        res <- rep(FALSE, nrow(corpus))
-        res[in_mun] <- searchLoc(str, corpus[in_mun, ])
-    }
-    res
-}, simplify = FALSE)
-# Combine positive matches from different municipalities
-occs_string <- sapply(unique(LT$slug), function(n) {Reduce("|", occs_string_mun[LT$slug==n])}, simplify = FALSE, USE.NAMES = TRUE)
+occs_string <- nameSearch(ucs, corpus, LT, degrees = "Ouro")
 # Combine matches from occs_plantr and occs_string
-occs_locality <- pairwiseMap(occs_plantr[names(occs_string)], occs_string, FUN=function(x,y) {x|y})
+occs_locality <- pairwiseMap(occs_plantr[names(occs_string)],
+                            occs_string,
+                            FUN = function(x, y) x | y)
 names(occs_locality) <- names(occs_string)
 
 # Select a subset of UCs (for testing)

@@ -2,13 +2,21 @@
 % Please edit documentation in R/search.R
 \name{combineSearchStrings}
 \alias{combineSearchStrings}
-\title{Combine search strings}
+\title{Combine several alternative search strings into one regex}
 \usage{
-combineSearchStrings(x)
+combineSearchStrings(x, optimize = FALSE)
 }
 \arguments{
-\item{x}{An array of patterns}
+\item{x}{A character vector containing alternative strings to match.}
+
+\item{optimize}{Logical indicating whether the regex should be optimized to
+reduce redundancy. Defaults to \code{FALSE}.}
+}
+\value{
+A single regex string that matches any of the strings in \code{x}.
 }
 \description{
-Combine strings into a single string that correspond to searching for all strings
+This helper takes a vector of candidate strings and creates a single regular
+expression that matches any of them. The result is suitable for use with
+\code{grepl()} and related pattern-matching operations.
 }
