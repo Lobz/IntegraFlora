@@ -16,3 +16,7 @@ A data.frame with duplicate flags and validation output.
 Applies the plantR duplicate-detection routine with project-specific field
 mappings and duplicate-comparison rules.
 }
+\details{
+This function is a wrapper around the \code{validateDup} function from the
+\code{plantR} package. It applies the duplicate-detection routine with project-specific field mappings and duplicate-comparison rules. The function takes a data.frame of occurrence records as input and returns a data.frame with duplicate flags and validation output. The function is designed to be used in the context of the IntegraFlora project, and it is not intended for general use. The function is exported for use in other scripts within the project.
+}
