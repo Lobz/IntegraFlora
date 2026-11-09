@@ -37,7 +37,7 @@ searchLoc <- function(pattern, corpus, fieldA = "locality", fieldB = "municipali
 #' @return A data frame with consolidated names, a normalized slug, and a
 #'   generated \code{uc_strings} expression for regex matching.
 #' @export
-consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c()) {
+consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c(), any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA)) {
 
     if (!is.data.frame(checkedLocations)) {
         stop("checkedLocations must be a data.frame.")
@@ -46,6 +46,9 @@ consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input
     if (!"slug" %in% names(checkedLocations)) {
         checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_UC)))
     }
+
+    # check any.municipality in checkedLocations
+    checkedLocations$Municipio[checkedLocations$Municipio %in% any.municipality] <- "QUALQUER"
 
     # add official names
     if (length(extraNames) > 0) {
@@ -126,14 +129,14 @@ combineSearchStrings <- function(x, optimize = FALSE) {
 #' @return A named list of logical vectors, each aligned with the rows in
 #'   \code{corpus} and indicating whether a given slug matched any occurrence.
 #' @export
-nameSearch <- function(ucs, corpus, LT, degrees = "Ouro") {
+nameSearch <- function(ucs, corpus, LT, degrees = "Ouro", any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA)) {
 
     # Subset to degrees
     LT <- subset(LT, confidenceLocality %in% degrees)
 
     # Use regex to look for more occs
     occs_string_mun <- pairwiseMap(LT$x, LT$Municipio, function(str, mun) {
-        if (is.na(mun) || mun %in% c("", "QUALQUER", "Qualquer")) {
+        if (mun %in% any.municipality) {
             res <- searchLoc(str, corpus)
         } else {
             in_mun <- which(corpus$municipality.correct == mun)

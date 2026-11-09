@@ -55,8 +55,10 @@ if (nrow(LT) > 0) {
 
 # Read table of alternative names and locality names
 checkedLocations <- read.csv("data-input/Locations/extraTables/checkedLocations.csv")
+# Subset to UCs in the state and with names in the ucs table
 checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_UC)))
 checkedLocations <- subset(checkedLocations, slug %in% ucs$slug)
+# Consolidate table with alternative names and generate regex strings for searching
 LT <- consolidateNamesTable(checkedLocations, extraNames = ucs$name)
 LT <- subset(LT, confidenceLocality == "Ouro")
 
