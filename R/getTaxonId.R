@@ -268,3 +268,50 @@ getGroup <- function(x, bf) {
         if(any(!is.na(fam))) x$group <- bf$group[fam]
         x
     }
+
+#' Full taxon ID lookup
+#'
+#' Formats names and tries a sequence of taxonomic matching steps against the
+#' Brazilian Flora and World Flora reference databases.
+#' @param x A data.frame of occurrence records with taxonomic names.
+#' @return A data.frame with taxonomic IDs filled when found.
+#' @export
+fullGetId <- function(x) {
+    # formatTax and validateTax
+    x <- completeScientificName(x, rm.miss = T)
+    x <- removeRepeatedAuthorship(x)
+
+    if(!exists("bfoNamesBryophyta")){
+        print("Loading bryophyta and algae...")
+        data(list = c("bfoNamesBryophyta", "bfoNamesAlgae"), package = "plantRdata")
+    }
+    tax <- dplyr::full_join(bfoNamesBryophyta, bfoNamesAlgae)
+    tax <- dplyr::full_join(tax, plantR::bfoNames)
+    x <- getTaxonId(x, db = tax, split.letters = TRUE)
+
+    x <- tryAgain(x, not_found, function(x) {
+        x <- isolateAuthorship(x)
+        x <- getTaxonId(x, db = tax, split.letters = TRUE)
+    })
+
+    # We'll try getting extra taxons with wfo
+    # loading the WFO and WCVP backbones
+    if(!exists("wfoNames")) {
+        print("Loadind world flora databases...")
+        data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
+    }
+    # using the World Flora Online
+    x <- tryAgain(x, not_found, getTaxonId, db = wfoNames, split.letters = TRUE)
+    # using the World Checklist of Vascular Plants
+    x <- tryAgain(x, not_found, getTaxonId, db = wcvpNames, split.letters = TRUE)
+
+    x <- getTaxonRank(x)
+    x <- get_species_and_genus(x)
+
+    tab(x$tax.notes)
+    x$tax.origin <- sub("-","",substr(x$id, 0, 4))
+    tab(x$tax.origin)
+    x$isBFO <- ifelse(found(x), startsWith(x$id, "bfo"), NA)
+    tab(x$isBFO)
+    return(x)
+}
