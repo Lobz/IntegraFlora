@@ -37,15 +37,49 @@ searchLoc <- function(pattern, corpus, fieldA = "locality", fieldB = "municipali
 #' @return A data frame with consolidated names, a normalized slug, and a
 #'   generated \code{uc_strings} expression for regex matching.
 #' @export
-consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c(), any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA)) {
+consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c(), any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA), combineSearchStrings = function(x) paste0("(", paste(generate_uc_string(x), collapse = "|"), ")")) {
 
     if (!is.data.frame(checkedLocations)) {
         stop("checkedLocations must be a data.frame.")
     }
 
+    if (!"Nome_UC" %in% names(checkedLocations)) {
+        stop("checkedLocations must contain a 'Nome_UC' column.")
+    }
+
     if (!"slug" %in% names(checkedLocations)) {
         checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_UC)))
     }
+
+    if (!"Estado" %in% names(checkedLocations)) {
+        checkedLocations$Estado <- "QUALQUER"
+    }
+
+    if (!"Municipio" %in% names(checkedLocations)) {
+        checkedLocations$Municipio <- "QUALQUER"
+    }
+
+    if (!"Nome_Alternativo" %in% names(checkedLocations)) {
+        checkedLocations$Nome_Alternativo <- checkedLocations$Nome_UC
+    }
+
+    if (!"Relação" %in% names(checkedLocations)) {
+        checkedLocations$Relação <- "Igual"
+    }
+
+    if (!"Confiança" %in% names(checkedLocations)) {
+        checkedLocations$Confiança <- "Ouro"
+    }
+
+    if (ncol(checkedLocations) > 7) {
+        warning("checkedLocations has more than 7 columns. Only the first 7 will be used: Nome_UC, Estado, Municipio, Nome_Alternativo, Relação, Confiança, slug.")
+    }
+
+    tryCatch({
+        checkedLocations <- checkedLocations[, c("Nome_UC", "Estado", "Municipio", "Nome_Alternativo", "Relação", "Confiança", "slug")]
+    }, error = function(e) {
+        stop("checkedLocations must contain the following columns: Nome_UC, Estado, Municipio, Nome_Alternativo, Relação, Confiança, slug.")
+    })
 
     # check any.municipality in checkedLocations
     checkedLocations$Municipio[checkedLocations$Municipio %in% any.municipality] <- "QUALQUER"
@@ -54,6 +88,7 @@ consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input
     if (length(extraNames) > 0) {
         officialNames <- data.frame(
             Nome_UC = standardize_uc_name(extraNames),
+            Estado = "QUALQUER",
             Municipio = "QUALQUER",
             Nome_Alternativo = extraNames,
             Relação = "Igual",

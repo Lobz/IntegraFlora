@@ -60,9 +60,11 @@ shorten_uc_name <- function(x) {
 #' @importFrom plantR rmLatin
 #' @export
 slug <- function(x) {
+    x <- standardize_uc_name(x)
     x <- shorten_uc_name(x)
     x <- plantR::rmLatin(x)
     x <- plantR:::squish(x)
+    x <- toupper(x)
     x <- gsub("\\s+","_",x)
     x <- gsub('\\/',"_",x)
     x

@@ -4,7 +4,7 @@
 \alias{formatShapeInfo}
 \title{Standardize an sf object using the shape metadata map}
 \usage{
-formatShapeInfo(x, i, info_files = NULL)
+formatShapeInfo(x, i, info_files = NULL, remove_extra_cols = TRUE)
 }
 \arguments{
 \item{x}{An sf object or data.frame to standardize.}

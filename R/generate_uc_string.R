@@ -6,6 +6,9 @@ generate_uc_string <- function(x) {
     str_de <- "(,? ?( d[oae]s?)? ?| [-–/] )"
 
     s <- tolower(x)
+    # Capture ?
+    s <- gsub("\\?","['_ ?]?",s)
+
     # interchangeable names
     short_long <- tolower(paste0("(",uc_abbrevs$short,"|",uc_abbrevs$long,")"))
     for(n in short_long){

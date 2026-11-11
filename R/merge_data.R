@@ -85,7 +85,7 @@ formatInfo <- function(i) {
 #'   `municipality`, `protectionCategory`, `UC_ID`, `source`, `type`, and
 #'   `slug` fields.
 #' @export
-formatShapeInfo <- function(x, i, info_files = NULL) {
+formatShapeInfo <- function(x, i, info_files = NULL, remove_extra_cols = TRUE) {
     .ensure_shape_helpers()
     if (is.null(info_files)) {
         info_files <- read.csv("data-input/Locations/shapes/file_descriptions.csv",
@@ -119,7 +119,16 @@ formatShapeInfo <- function(x, i, info_files = NULL) {
     } else {
         as.data.frame(out)
     }
+
+    if(remove_extra_cols) {
+        keep_cols <- c("name", "country", "stateProvince", "municipality", "protectionCategory", "UC_ID", "source", "type", "slug")
+        out <- out[, keep_cols, drop = FALSE]
+    }
+
+    # Return the standardized object
+    sf::st_make_valid(out)
 }
+
 
 #' Read and standardize all shape files described in the metadata table
 #'
@@ -129,7 +138,7 @@ formatShapeInfo <- function(x, i, info_files = NULL) {
 #' @param shapes_dir Directory containing the shape files.
 #' @return A single sf data.frame with standardized metadata columns for all files.
 #' @export
-readShapeInfo <- function(info_files = NULL, shapes_dir = "data-input/Locations/shapes") {
+readShapeInfo <- function(info_files = NULL, shapes_dir = "data-input/Locations/shapes", remove_extra_cols = TRUE) {
     if (is.null(info_files)) {
         info_files <- read.csv(file.path(shapes_dir, "file_descriptions.csv"),
             stringsAsFactors = FALSE, na.strings = c("", "NA"))
@@ -153,7 +162,7 @@ readShapeInfo <- function(info_files = NULL, shapes_dir = "data-input/Locations/
             return(NULL)
         }
 
-        formatShapeInfo(shape, i = i, info_files = info_files)
+        formatShapeInfo(shape, i = i, info_files = info_files, remove_extra_cols = remove_extra_cols)
     })
 
     shapes
@@ -215,7 +224,7 @@ merge_shapes <- function(shapes, keep_cols = c("name", "country", "stateProvince
 #' @return A cleaned data.frame with corrected locality fields and duplicate
 #'   entries removed.
 #' @export
-subset_uc_summary <- function(dt) {
+cleanLocFields <- function(dt, subsetTo = NULL, removeDuplicates = FALSE) {
     dtl <- dt
     dtl$locality <- dt$name
     dtl <- addAdmin(formatLoc(dtl))
@@ -225,11 +234,17 @@ subset_uc_summary <- function(dt) {
         dt$stateProvince, dtl$stateProvince.correct)
     dt$municipality <- ifelse(is.na(dtl$municipality.correct),
         dt$municipality, dtl$municipality.correct)
-    dt <- dt[grep(STATEPROVINCE, dt$stateProvince), ]
+
+    if(!is.null(subsetTo)) {
+        dt <- dt[grep(subsetTo, dt$stateProvince), ]
+    }
     if (anyDuplicated(dt$name)) {
         warning(paste(c("Found UCs with duplicated names:", shorten_uc_name(dt$name[duplicated(dt$name)])),
             collapse = "\n"))
-        dt <- dt[!duplicated(dt$name) & !is.na(dt$name), ]
+        if(removeDuplicates) {
+            warning("Removing duplicated names, keeping the first occurrence.")
+            dt <- dt[!duplicated(dt$name) & !is.na(dt$name), ]
+        }
     }
     return(dt)
 }
@@ -244,13 +259,28 @@ subset_uc_summary <- function(dt) {
 #' @param B A second data.frame of UC entries.
 #' @return A merged data.frame without redundant duplicates.
 #' @export
-merge_info <- function(A, B) {
+merge_info <- function(A, B, searchWith = NULL) {
+
+    if(any(is.na(A$slug)) || any(is.na(B$slug))) {
+        warning("Some entries have NA slugs. These will be removed.")
+        A <- A[!is.na(A$slug), ]
+        B <- B[!is.na(B$slug), ]
+    }
+
     repA <- A$slug %in% B$slug
     repB <- B$slug %in% A$slug
     r <- A[repA, ]
     A <- A[!repA, ]
     B <- B[!repB, ]
-    strA <- paste0("^", generate_uc_string(A$name))
+
+    if(is.null(searchWith)) {
+        strA <- paste0("^", generate_uc_string(A$name))
+        strB <- paste0("^", generate_uc_string(B$name), "$")
+    } else {
+        strA <- searchWith$x[match(A$slug, searchWith$slug)]
+        strB <- searchWith$x[match(B$slug, searchWith$slug)]
+    }
+
     matchA <- sapply(strA, function(s) {
         any(grepl(s, x = rmLatin(B$name), ignore.case = T))
     })
@@ -261,7 +291,6 @@ merge_info <- function(A, B) {
             ignore.case = T))
         B <- B[-whichA, ]
     }
-    strB <- paste0("^", generate_uc_string(B$name), "$")
     matchB <- sapply(strB, function(s) {
         any(grepl(s, x = rmLatin(A$name), ignore.case = T))
     })
@@ -286,11 +315,45 @@ merge_info <- function(A, B) {
 #' @return A single merged UC data.frame.
 #' @export
 merge_many <- function(data_list, filenames = names(data_list),
-    merge.function = merge_info) {
+    merge.function = merge_info, ...) {
     dt <- data_list[[1]]
     for (i in 2:length(data_list)) {
         print(paste("Merging", filenames[i], "..."))
-        dt <- merge_info(dt, data_list[[i]])
+        dt <- merge_info(dt, data_list[[i]], ...)
     }
     dt
+}
+
+splitIntoStates <- function(shape, state_col = "stateProvince") {
+
+    # We will NOT be trusting the cnuc text data for what municipalities are included in each UC
+    # Instead, we will use the shape data and compare it with geobr data
+
+    # Get relevant dataset info
+    datasets <- geobr::list_geobr()
+
+    # Read state data from geobr
+    state_years <- datasets[datasets[,1]=="read_state", "year"]
+    state_latest_year <- sub(".*, ", "",state_years)
+    state <- geobr::read_state(year = state_latest_year)
+    head(state)
+
+
+    shape$area_calc <- sf::st_area(shape)
+
+    # Intersect state shapes with UC shapes
+    inter_state <- sf::st_intersection(state, shape)
+    head(inter_state)
+    table(inter_state$name_state)
+
+    # Filter areas that are too small
+    inter_state$area_calc2 <- st_area(inter_state)
+    inter_state$area_prop <- as.numeric(inter_state$area_calc2/inter_state$area_calc)
+    boxplot(inter_state$area_prop~ inter_state$name_state)
+
+    inter_state <- subset(inter_state, area_prop > 0.05)
+    table(inter_state$name_state, useNA="always")
+
+    table(inter_state$name_state)
+
 }

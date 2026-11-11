@@ -7,7 +7,10 @@
 consolidateNamesTable(
   checkedLocations =
     utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"),
-  extraNames = c()
+  extraNames = c(),
+  any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA),
+  combineSearchStrings = function(x) paste0("(", paste(generate_uc_string(x), collapse =
+    "|"), ")")
 )
 }
 \arguments{

@@ -4,7 +4,13 @@
 \alias{nameSearch}
 \title{Search for multiple alternative names across the occurrence corpus}
 \usage{
-nameSearch(ucs, corpus, LT, degrees = "Ouro")
+nameSearch(
+  ucs,
+  corpus,
+  LT,
+  degrees = "Ouro",
+  any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA)
+)
 }
 \arguments{
 \item{ucs}{A data frame or object containing the names to search. This

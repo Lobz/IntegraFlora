@@ -7,7 +7,8 @@
 merge_many(
   data_list,
   filenames = names(data_list),
-  merge.function = merge_info
+  merge.function = merge_info,
+  ...
 )
 }
 \arguments{

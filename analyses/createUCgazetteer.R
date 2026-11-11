@@ -55,13 +55,12 @@ dim(all_shapes)
 datasets <- list_geobr()
 
 # Read state data from geobr
-state_info <- datasets[datasets[,1]=="`read_state`",]
-state_latest_year <- sub(".* ","",state_info$years)
+state_years <- datasets[datasets[,1]=="read_state", "year"]
+state_latest_year <- sub(".*, ", "",state_years)
 state <- geobr::read_state(year = state_latest_year)
 head(state)
 
 # Subset to SP because I don't wanna be here all day
-shapes <- subset(shapes, grepl("SÃO PAULO", uf))
 shapes$area_calc <- st_area(shapes)
 
 # Intersect state shapes with UC shapes

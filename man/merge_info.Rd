@@ -4,7 +4,7 @@
 \alias{merge_info}
 \title{Merge duplicate UC entries from two sources}
 \usage{
-merge_info(A, B)
+merge_info(A, B, searchWith = NULL)
 }
 \arguments{
 \item{A}{A data.frame of UC entries.}

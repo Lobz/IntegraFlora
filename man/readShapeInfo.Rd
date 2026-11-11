@@ -4,7 +4,11 @@
 \alias{readShapeInfo}
 \title{Read and standardize all shape files described in the metadata table}
 \usage{
-readShapeInfo(info_files = NULL, shapes_dir = "data-input/Locations/shapes")
+readShapeInfo(
+  info_files = NULL,
+  shapes_dir = "data-input/Locations/shapes",
+  remove_extra_cols = TRUE
+)
 }
 \arguments{
 \item{info_files}{A data.frame read from data-input/Locations/shapes/file_descriptions.csv.}
