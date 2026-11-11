@@ -23,7 +23,6 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
     extra_gazet <- read.csv("data-input/Locations/extraTables/locGazetteer.csv")
     extra_gazet <- subset(extra_gazet, (!loc %in% gazet$loc) & (loc.correct %in% gazet$loc.correct), select = c("loc", "loc.correct"))
     extra_gazet_filled <- merge(extra_gazet, gazet[!duplicated(gazet$loc.correct),c(1,3:6)], by="loc.correct", all=F)[,names(gazet)]
-    str(extra_gazet_filled)
 
     gazet <- rbind(gazet, extra_gazet_filled)
 
