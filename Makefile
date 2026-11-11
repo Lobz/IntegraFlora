@@ -26,43 +26,43 @@ install: install-deps DESCRIPTION
 
 create-uc-summary: $(RESULTS_DIR)/UCsummary.csv
 
-$(RESULTS_DIR)/UCsummary.csv: analyses/createUCsummary.R data-input/Locations/info/*
+$(RESULTS_DIR)/UCsummary.csv: analyses/createUCsummary.R config.R data-input/Locations/info/*
 	$(R) "analyses/createUCsummary.R"
 
-$(DATATMP)/gbif.rda: data-input/Occurrences/GBIF/*
+$(DATATMP)/gbif.rda: analyses/formatData/GBIF.R  data-input/Occurrences/GBIF/*
 	$(R) "analyses/formatData/GBIF.R"
 
-$(DATATMP)/jabot.rda: data-input/Occurrences/JABOT/*
+$(DATATMP)/jabot.rda: analyses/formatData/JABOT.R data-input/Occurrences/JABOT/*
 	$(R) "analyses/formatData/JABOT.R"
 
-$(DATATMP)/reflora.rda: data-input/Occurrences/REFLORA/*
+$(DATATMP)/reflora.rda: analyses/formatData/Reflora.R data-input/Occurrences/REFLORA/*
 	$(R) "analyses/formatData/Reflora.R"
 
-$(DATATMP)/splink.rda: data-input/Occurrences/splink/*
+$(DATATMP)/splink.rda: analyses/formatData/splink.R data-input/Occurrences/splink/*
 	$(R) "analyses/formatData/splink.R"
 
-$(DATATMP)/other.rda: data-input/Occurrences/OtherSources/*
+$(DATATMP)/other.rda: analyses/formatData/other.R data-input/Occurrences/OtherSources/*
 	$(R) "analyses/formatData/other.R"
 
-$(DATATMP)/all_data.rda: $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/reflora.rda $(DATATMP)/splink.rda $(DATATMP)/other.rda
+$(DATATMP)/all_data.rda: analyses/joinData.R $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/reflora.rda $(DATATMP)/splink.rda $(DATATMP)/other.rda
 	$(R) "analyses/joinData.R"
 
-$(DATATMP)/treated_data_all.rda: $(DATATMP)/all_data.rda
+$(DATATMP)/treated_data_all.rda: analyses/treatData_part1.R $(DATATMP)/all_data.rda
 	$(R) "analyses/treatData_part1.R"
 
-$(DATASTATE)/corpus-full.rda: $(DATATMP)/treated_data_all.rda #R/plantRWorkflow.R R/getTaxonId.R
+$(DATASTATE)/corpus-full.rda: analyses/treatData.R config.R $(DATATMP)/treated_data_all.rda #R/plantRWorkflow.R R/getTaxonId.R
 	$(R) "analyses/treatData.R"
 
-treated-data/noStateInfo.rds: $(DATATMP)/treated_data_all.rda #R/plantRWorkflow.R R/getTaxonId.R
+treated-data/noStateInfo.rds: analyses/treatData.R config.R $(DATATMP)/treated_data_all.rda #R/plantRWorkflow.R R/getTaxonId.R
 	bash changeConf.sh "none"
 	$(R) "analyses/treatData.R"
 	$(R) -e "load('corpus-full.rda'); saveRDS(corpus, 'treated-data/noStateInfo.rds')"
 	bash changeConf.sh $(STATE)
 
-$(DATASTATE)/corpus.rda: $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds #analyses/deduplicate.R
+$(DATASTATE)/corpus.rda: analyses/deduplicate.R $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds #analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"
 
-$(RESULTS_DIR)/summary_getOccs.csv: $(DATASTATE)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv analyses/getOccs.R
+$(RESULTS_DIR)/summary_getOccs.csv: analyses/getOccs.R config.R $(DATASTATE)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv
 	$(R) "analyses/getOccs.R"
 
 treat-occs: $(RESULTS_DIR)/summary_treatOccs.csv
@@ -70,7 +70,7 @@ treat-occs: $(RESULTS_DIR)/summary_treatOccs.csv
 $(RESULTS_DIR)/summary_treatOccs.csv: $(RESULTS_DIR)/summary_getOccs.csv analyses/treatOccs.R R/create_list_file.R
 	$(R) "analyses/treatOccs.R"
 
-clean:
+clean: analyses/cleanResults.R
 	$(R) "analyses/cleanResults.R"
 
 purge: clean
