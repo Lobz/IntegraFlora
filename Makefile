@@ -35,6 +35,8 @@ Locations/extraTables/municipalityGazetteer.csv:
 
 Locations/extraTables/uniqueMunicipalities.csv: Locations/extraTables/municipalityGazetteer.csv
 
+Locations/extraTables/locGazetteer.csv:
+
 $(RESULTS_DIR)/UCsummary.csv: config.R data-input/Locations/info/* #analyses/createUCsummary.R R/search.R
 	$(R) "analyses/createUCsummary.R"
 
