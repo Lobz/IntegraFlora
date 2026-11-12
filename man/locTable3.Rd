@@ -10,16 +10,9 @@ locTable3(df, filter = "")
 \item{df}{A data.frame of occurrence records.}
 
 \item{filter}{Optional regex used to exclude noisy locality strings.}
-
-\item{x}{A vector of locality labels.}
 }
 \value{
 A data.frame with gazetteer matching and locality summary information.
-Combine repeated locality text values
-
-Collapses repeated locality observations into a compact summary string.
-
-A single string with the most frequent values summarized.
 }
 \description{
 Normalizes locality strings, queries the gazetteer, and summarizes potential

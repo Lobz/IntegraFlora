@@ -166,19 +166,6 @@ locTable3 <- function(df, filter=""){
     locs[is.na(locs)] <- ""
     DT <- rbind(locs.fixed, locs)
 
-    #' Combine repeated locality text values
-    #'
-    #' Collapses repeated locality observations into a compact summary string.
-    #' @param x A vector of locality labels.
-    #' @return A single string with the most frequent values summarized.
-    comb.text <- function(x) {
-        x <- gsub("[,.]","",x)
-        if(length(unique(x))==1) return(x[1])
-        t <- sort(table(x), decreasing = T)
-        ta <- paste(names(t),"(",t,")")
-        paste(head(ta[ta>0]), collapse=" | ")
-    }
-
     #source (and loc and loc.correct)
     LT <- aggregate(DT$source, list(loc = DT$loc.orig, loc.correct = DT$loc.correct), function(x) paste(sort(unique(tolower(x))),collapse="_"))
     names(LT)[3] <- "source"
@@ -216,12 +203,7 @@ locTable3 <- function(df, filter=""){
     LT_final
 }
 
-#' Clean a locality using the first alternative gazetteer string
-#'
-#' Tries a simplified version of the first candidate location string when the
-#' main gazetteer match is too coarse.
-#' @param occs A data.frame of locality candidates.
-#' @return A data.frame updated with the first-pass locality correction.
+# Simplified first-pass locality repair used inside locTable3.
 FUN =function(occs) {
         occs <- remove_fields(occs, c("loc", "loc.correct", "resolution.gazetteer", "latitude.gazetter", "longitude.gazetteer"))
         occs$loc.orig <- occs$loc.string1
@@ -230,12 +212,7 @@ FUN =function(occs) {
         occs
     }
 
-#' Clean a locality using the second alternative gazetteer string
-#'
-#' Tries a simplified version of the second candidate location string after the
-#' first alternative still fails to yield a locality match.
-#' @param occs A data.frame of locality candidates.
-#' @return A data.frame updated with the second-pass locality correction.
+# Simplified second-pass locality repair used inside locTable3.
 FUN =function(occs) {
         occs <- remove_fields(occs, c("loc", "loc.correct", "resolution.gazetteer", "latitude.gazetter", "longitude.gazetteer"))
         occs$loc.orig <- occs$loc.string2
@@ -249,7 +226,6 @@ FUN =function(occs) {
 #' Collapses repeated locality observations into a compact summary string.
 #' @param x A vector of locality labels.
 #' @return A single string with the most frequent values summarized.
-#' @export
 comb.text <- function(x) {
         x <- gsub("[,.]","",x)
         if(length(unique(x))==1) return(x[1])

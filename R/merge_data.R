@@ -52,26 +52,6 @@ formatInfo <- function(i) {
     })
 }
 
-#' Ensure the project UC helpers are loaded
-#'
-#' Internal helper to make the shape and UC standardization functions usable when
-#' the file is sourced outside the package build context.
-#'
-#' @return Invisibly returns TRUE when the required helpers are available.
-#' @export
-.ensure_shape_helpers <- function() {
-    required <- c("standardize_uc_name", "shorten_uc_name", "slug", "uc_abbrevs")
-    missing <- required[!vapply(required, exists, logical(1), mode = "function")]
-    if (length(missing) > 0L) {
-        if (requireNamespace("devtools", quietly = TRUE)) {
-            devtools::load_all(".", quiet = TRUE)
-        } else {
-            stop("Package helper functions are not available. Load the project with devtools::load_all() first.")
-        }
-    }
-    invisible(TRUE)
-}
-
 #' Standardize an sf object using the shape metadata map
 #'
 #' Reads the metadata row in the shape descriptions CSV and standardizes the
@@ -86,7 +66,6 @@ formatInfo <- function(i) {
 #'   `slug` fields.
 #' @export
 formatShapeInfo <- function(x, i, info_files = NULL, remove_extra_cols = TRUE) {
-    .ensure_shape_helpers()
     if (is.null(info_files)) {
         info_files <- read.csv("data-input/Locations/shapes/file_descriptions.csv",
             stringsAsFactors = FALSE, na.strings = c("", "NA"))
