@@ -32,13 +32,13 @@ maps: $(RESULTS_DIR)/maps.rds
 
 treat-data: $(DATASTATE)/corpus.rda
 
-Locations/extraTables/municipalityGazetteer.csv:
+Locations/extraTables/municipalityGazetteer.csv: analyses/createMunicipalityGazetteer.R
 	$(R) "analyses/createMunicipalityGazetteer.R"
 
 Locations/extraTables/uniqueMunicipalities.csv: Locations/extraTables/municipalityGazetteer.csv
 
 # Dummy targets
-Locations/extraTables/locGazetteer.csv:
+Locations/extraTables/locGazetteer.csv: analyses/createMunicipalityGazetteer.R
 
 $(RESULTS_DIR)/UCsummary.csv: config.R data-input/Locations/info/* #analyses/createUCsummary.R R/search.R
 	$(R) "analyses/createUCsummary.R"
