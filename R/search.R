@@ -14,6 +14,12 @@
 #'   \code{TRUE} indicates a match in either field.
 #' @export
 searchLoc <- function(pattern, corpus, fieldA = "locality", fieldB = "municipality") {
+    if(!fieldA %in% names(corpus)) {
+        stop(paste("Field", fieldA, "not found in corpus."))
+    }
+    if(fieldB != "" && !fieldB %in% names(corpus)) {
+        stop(paste("Field", fieldB, "not found in corpus."))
+    }
     x <- grepl(pattern, x = rmLatin(corpus[,fieldA]), ignore.case = TRUE, perl = TRUE)
     if(fieldB != "") {
         y <- grepl(pattern, x = rmLatin(corpus[,fieldB]), ignore.case = TRUE, perl = TRUE)
@@ -37,7 +43,7 @@ searchLoc <- function(pattern, corpus, fieldA = "locality", fieldB = "municipali
 #' @return A data frame with consolidated names, a normalized slug, and a
 #'   generated \code{uc_strings} expression for regex matching.
 #' @export
-consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c(), any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA), combineSearchStrings = function(x) paste0("(", paste(generate_uc_string(x), collapse = "|"), ")")) {
+consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"), extraNames = c(), any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA), combine.regex.fun = combineSearchStrings, confidenceLevel = c("Ouro")) {
 
     if (!is.data.frame(checkedLocations)) {
         stop("checkedLocations must be a data.frame.")
@@ -70,6 +76,8 @@ consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input
     if (!"Confiança" %in% names(checkedLocations)) {
         checkedLocations$Confiança <- "Ouro"
     }
+
+    checkedLocations <- subset(checkedLocations, Confiança %in% confidenceLevel)
 
     if (ncol(checkedLocations) > 7) {
         warning("checkedLocations has more than 7 columns. Only the first 7 will be used: Nome_UC, Estado, Municipio, Nome_Alternativo, Relação, Confiança, slug.")
@@ -105,7 +113,8 @@ consolidateNamesTable <- function(checkedLocations = utils::read.csv("data-input
     LT$uc_strings <- paste0("(", generate_uc_string(LT$Nome_Alternativo), ")")
 
     # Summarize alternative names
-    ST <- stats::aggregate(LT$Nome_Alternativo, list(slug = LT$slug, Municipio = LT$Municipio, relationship = LT$Relação, confidenceLocality = LT$Confiança), combineSearchStrings)
+    ST <- stats::aggregate(LT$Nome_Alternativo, list(slug = LT$slug, Municipio = LT$Municipio, relationship = LT$Relação, confidenceLocality = LT$Confiança), combine.regex.fun)
+    ST <- ST[order(ST$slug), ]
 }
 
 #' Combine several alternative search strings into one regex
@@ -164,7 +173,7 @@ combineSearchStrings <- function(x, optimize = FALSE) {
 #' @return A named list of logical vectors, each aligned with the rows in
 #'   \code{corpus} and indicating whether a given slug matched any occurrence.
 #' @export
-nameSearch <- function(ucs, corpus, LT, degrees = "Ouro", any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA)) {
+nameSearch <- function(ucs, corpus, LT, degrees = "Ouro", any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA), ...) {
 
     # Subset to degrees
     LT <- subset(LT, confidenceLocality %in% degrees)
@@ -172,19 +181,19 @@ nameSearch <- function(ucs, corpus, LT, degrees = "Ouro", any.municipality = c("
     # Use regex to look for more occs
     occs_string_mun <- pairwiseMap(LT$x, LT$Municipio, function(str, mun) {
         if (mun %in% any.municipality) {
-            res <- searchLoc(str, corpus)
+            res <- searchLoc(str, corpus, ...)
         } else {
             in_mun <- which(corpus$municipality.correct == mun)
-            res <- rep(FALSE, nrow(corpus))
-            res[in_mun] <- searchLoc(str, corpus[in_mun, ])
+                res <- rep(FALSE, nrow(corpus))
+            res[in_mun] <- searchLoc(str, corpus[in_mun, ], ...)
         }
         res
     }, simplify = FALSE)
 
     # Combine positive matches from different municipalities
-    occs_string <- sapply(unique(LT$slug), function(n) {
-        Reduce("|", occs_string_mun[LT$slug == n])
-    }, simplify = FALSE, USE.NAMES = TRUE)
+        occs_string <- sapply(unique(LT$slug), function(n) {
+            Reduce("|", occs_string_mun[LT$slug == n])
+        }, simplify = FALSE, USE.NAMES = TRUE)
 
     occs_string
 }
