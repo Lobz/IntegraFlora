@@ -120,59 +120,33 @@ inter_munis <- inter_munis_by_state[["São Paulo"]]
 # Filter areas that are too small
 inter_munis$area_calc_mun <- st_area(inter_munis)
 inter_munis$area_prop_mun <- as.numeric(inter_munis$area_calc_mun/inter_munis$area_calc)
-summary(inter_munis$area_prop_mun)
-boxplot(inter_munis$area_prop_mun~ inter_munis$code_muni)
-save(inter_munis, file=file.path(tmp_dir, 'inter_munis.rda'))
-load(file.path(tmp_dir, 'inter_munis.rda'))
-
 inter_munis <- subset(inter_munis, area_prop_mun > 0.005)
-dim(inter_munis)
-
-tab(inter_munis$nome_uc)
 
 centroids <- st_coordinates(st_centroid(inter_munis))
 inter_munis$latitude <- as.character(centroids[,2])
 inter_munis$longitude <- as.character(centroids[,1])
-head(inter_munis)
-
-# inter_munis <- dplyr::bind_rows(inter_munis_by_state)
-# dim(inter_munis)
 
 # Apply plantR
-head(inter_munis)
-
-
 dt <- data.frame(country="Brazil", stateProvince=inter_munis$name_state,
     municipality=inter_munis$name_muni, locality=inter_munis$nome_uc,
     latitude=inter_munis$latitude, longitude=inter_munis$longitude)
 
 dt.fix <- fixLoc(dt)
-head(dt.fix)
 dt.str <- strLoc(dt.fix)
-head(dt.str)
 loc.ideal.long <- prepLoc(dt.str$loc.string1)
 dt.full <- formatLoc(dt)
-table(dt.full$resolution.gazetteer)
-head(dt.full)
 
 write.csv(dt.full, "data-input/Locations/extraTables/UC_gazetteer.csv", row.names=F)
 dt.full <- read.csv("data-input/Locations/extraTables/UC_gazetteer.csv", colClasses="character")
-head(dt.full)
 
 dt <- dt.full
 dt <- dt[,1:6]
 dt$locality <- shorten_uc_name(dt$locality)
 
 dt.fix <- fixLoc(dt)
-head(dt.fix)
 dt.str <- strLoc(dt.fix)
-head(dt.str)
 loc.ideal.short <- prepLoc(dt.str$loc.string1)
 dt.full2 <- formatLoc(dt)
-table(dt.full2$resolution.gazetteer)
-head(dt.full2)
-
-table(dt.full$resolution.gazetteer,dt.full2$resolution.gazetteer)
 
 correct.long <- dt.full$resolution.gazetteer=="locality"
 correct.short <- dt.full2$resolution.gazetteer=="locality"
@@ -194,7 +168,6 @@ diff.loc <- correct.long & correct.short & !same.result
 dt$loc.extra <-""
 dt$loc.extra[diff.loc] <- dt$loc.correct.long[diff.loc]
 dt$uc_name <- standardize_uc_name(dt$locality)
-head(dt)
 
 dt.base <- dt[,1:4]
 dt.new <- rbind(dt.base, dt.base)
@@ -206,7 +179,6 @@ dt.new$resolution.gazetteer <- "locality"
 dt.new$source <- "cnuc_ibge"
 
 dt.ready <- dt.new[order(dt.new$country, dt.new$stateProvince, dt.new$municipality, dt.new$locality), ]
-head(dt.ready)
 write.csv(dt.ready, "data-input/Locations/extraTables/ucs_locs_cnuc_shapes.csv")
 
 write.csv(dt[correct.long | correct.short,c("uc_name", "stateProvince", "municipality", "loc.correct", "loc.extra")], "data-input/Locations/extraTables/uc_locstrings.csv")
@@ -221,7 +193,6 @@ res_orig <- sub("bairro|cachoeira|distrito|localidade|mina|serra|sublocalidade|v
 
 split_locs <- as.data.frame(stringr::str_split_fixed(gazetteer$loc, "_", n=4))
 colnames(split_locs)=c("country", "stateProvince", "municipality", "locality")
-head(split_locs)
 
 ret <- fixLoc(split_locs)
 ret <- strLoc(ret)
@@ -229,7 +200,6 @@ ret$loc.string <- prepLoc(ret$loc.string)
 ret$loc.string1 <- prepLoc(ret$loc.string1)
 ret$loc.string2 <- prepLoc(ret$loc.string2)
 ret <- getLoc(ret)
-table(res_orig, ret$resolution.gazetteer)
 
 ret$loc.gazet <- gazetteer$loc
 ret$loc.correct.gazet <- gazetteer$loc.correct

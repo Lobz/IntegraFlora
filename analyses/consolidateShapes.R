@@ -23,8 +23,6 @@ shapes <- shapes[valid_shapes, ]
 print(paste("Subsetting to state:", STATEPROVINCE))
 shapes <- splitIntoStates(shapes, subsetToState = STATEPROVINCE)
 
-tab(shapes$stateProvince)
-
 # Figure out which shapes correspond to which UCs in the summary table
 print("Formatting location fields...")
 info_shapes <- shapes
@@ -42,7 +40,6 @@ checkedLocations$slug <- toupper(slug(standardize_uc_name(checkedLocations$Nome_
 altNames <- consolidateNamesTable(checkedLocations = checkedLocations, extraNames = unique((ucs$name)))
 
 matching_names <- nameSearch(ucs = ucs$names, corpus = info_shapes, LT = altNames)
-sapply(matching_names, sum)
 shapes <- shapes[,c("slug", "area_calc", "source", "geometry")]
 n <- shapes[matching_names[[1]],]
 
