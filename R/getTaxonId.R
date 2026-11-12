@@ -226,6 +226,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
 #' name structure when direct rank metadata is absent.
 #' @param total A data.frame of taxon records.
 #' @return A data.frame with taxon ranks completed.
+#' @export
 getTaxonRank <- function(total) {
     # fix missing taxon rank
     total$taxon.rank <- as.taxon.rank(total$taxon.rank)

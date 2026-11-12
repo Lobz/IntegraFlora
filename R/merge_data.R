@@ -58,7 +58,7 @@ formatInfo <- function(i) {
 #' the file is sourced outside the package build context.
 #'
 #' @return Invisibly returns TRUE when the required helpers are available.
-#' @keywords internal
+#' @export
 .ensure_shape_helpers <- function() {
     required <- c("standardize_uc_name", "shorten_uc_name", "slug", "uc_abbrevs")
     missing <- required[!vapply(required, exists, logical(1), mode = "function")]
@@ -312,6 +312,16 @@ mergeInfo <- function(data_list, filenames = names(data_list)) {
     return(all_ucs)
 }
 
+#' Subset spatial records by state
+#'
+#' Intersects the supplied shape object with the geobr state polygons and returns
+#' only the portions falling inside the requested state or all states when no
+#' filter is supplied.
+#'
+#' @param shape An sf object of conservation-unit polygons.
+#' @param subsetToState Optional state name to filter the result to.
+#' @return An sf object with state membership and area proportions added.
+#' @export
 splitIntoStates <- function(shape, subsetToState = "") {
 
     # We will NOT be trusting the cnuc text data for what municipalities are included in each UC

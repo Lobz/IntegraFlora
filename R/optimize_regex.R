@@ -37,6 +37,14 @@ combineSearchStrings <- function(x, optimize = FALSE) {
     }
 }
 
+#' Combine alternative regex terms into a compact pattern
+#'
+#' Builds a single regular-expression pattern from a set of candidate strings while
+#' normalizing duplicates and escaping special regex characters.
+#'
+#' @param x A character vector of alternative strings.
+#' @return A single regex string that matches any of the values in `x`.
+#' @export
 combine_uc_regex <- function(x) {
 
   if (!is.character(x)) {

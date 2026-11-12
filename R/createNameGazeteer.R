@@ -4,6 +4,7 @@
 #' context for records belonging to one protected area dataset.
 #' @param x A data.frame containing occurrence records for one UC.
 #' @return A data.frame with locality frequencies and metadata.
+#' @export
 locTable <- function(x) {
     if(nrow(x)==0) {
         return(NULL)
@@ -65,6 +66,7 @@ locTable <- function(x) {
 #' into a compact table for manual review.
 #' @param x A data.frame of records to summarize.
 #' @return A data.frame with localities and their frequencies by municipality/state.
+#' @export
 locTable2 <- function(x) {
     if(nrow(x)==0) {
         return(NULL)
@@ -106,6 +108,7 @@ locTable2 <- function(x) {
 #' @param df A data.frame of occurrence records.
 #' @param filter Optional regex used to exclude noisy locality strings.
 #' @return A data.frame with gazetteer matching and locality summary information.
+#' @export
 locTable3 <- function(df, filter=""){
 
     # df <- validateDup(df)
@@ -246,6 +249,7 @@ FUN =function(occs) {
 #' Collapses repeated locality observations into a compact summary string.
 #' @param x A vector of locality labels.
 #' @return A single string with the most frequent values summarized.
+#' @export
 comb.text <- function(x) {
         x <- gsub("[,.]","",x)
         if(length(unique(x))==1) return(x[1])

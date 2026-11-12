@@ -9,8 +9,8 @@ consolidateNamesTable(
     utils::read.csv("data-input/Locations/extraTables/checkedLocations.csv"),
   extraNames = c(),
   any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA),
-  combineSearchStrings = function(x) paste0("(", paste(generate_uc_string(x), collapse =
-    "|"), ")")
+  combine.regex.fun = combineSearchStrings,
+  confidenceLevel = c("Ouro")
 )
 }
 \arguments{

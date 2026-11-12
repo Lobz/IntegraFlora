@@ -4,7 +4,7 @@
 \alias{cleanLocFields}
 \title{Summarize and clean a UC table}
 \usage{
-cleanLocFields(dt, removeDuplicates = FALSE)
+cleanLocFields(dt, subsetTo = NULL, removeDuplicates = FALSE)
 }
 \arguments{
 \item{dt}{A data.frame containing conservation-unit metadata, including at

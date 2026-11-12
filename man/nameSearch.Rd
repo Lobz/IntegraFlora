@@ -9,7 +9,8 @@ nameSearch(
   corpus,
   LT,
   degrees = "Ouro",
-  any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA)
+  any.municipality = c("QUALQUER", "Qualquer", "ANY", "Any", "", NA),
+  ...
 )
 }
 \arguments{

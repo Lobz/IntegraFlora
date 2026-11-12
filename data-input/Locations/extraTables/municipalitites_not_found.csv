@@ -1,0 +1,3 @@
+"country","stateProvince","municipality","country.new","stateProvince.new","municipality.new","resol.orig","loc","loc.correct","latitude.gazetteer","longitude.gazetteer","resolution.gazetteer"
+"Brazil","Roraima","São Luiz do Anauá","brazil","roraima","sao luiz do anaua","municipality","brazil_roraima_sao luiz anaua","brazil_roraima",2.084692212,-61.39801946,"state"
+"Brazil","Mato Grosso","Boa Esperança do Norte","brazil","mato grosso","boa esperanca do norte","municipality","brazil_mato grosso_boa esperanca norte","brazil_mato grosso_sorriso_boa esperanca",-13.508806,-55.147183,"locality"

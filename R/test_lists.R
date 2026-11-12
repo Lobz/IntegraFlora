@@ -4,6 +4,7 @@
 #' @param l1 First checklist data.frame.
 #' @param l2 Second checklist data.frame; defaults to the UC catalog table.
 #' @return Invisibly, the printed comparison statistics.
+#' @export
 compareLists <- function(l1, l2 = UC_catalogo) {
     sp1 <- unique(l1$species.new)
     sp2 <- unique(l2$species.new)
