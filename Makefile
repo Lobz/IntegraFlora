@@ -26,6 +26,15 @@ install: install-deps DESCRIPTION
 
 create-uc-summary: $(RESULTS_DIR)/UCsummary.csv
 
+get-occurrences: $(RESULTS_DIR)/summary_getOccs.csv
+
+treat-data: $(DATASTATE)/corpus.rda
+
+Locations/extraTables/municipalityGazetteer.csv:
+	$(R) "analyses/createMunicipalityGazetteer.R"
+
+Locations/extraTables/uniqueMunicipalities.csv: Locations/extraTables/municipalityGazetteer.csv
+
 $(RESULTS_DIR)/UCsummary.csv: config.R data-input/Locations/info/* #analyses/createUCsummary.R R/search.R
 	$(R) "analyses/createUCsummary.R"
 
