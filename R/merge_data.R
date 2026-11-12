@@ -336,7 +336,7 @@ splitIntoStates <- function(shape, subsetToState = "") {
     inter_state <- sf::st_intersection(state, shape)
 
     # Filter areas that are too small
-    inter_state$area_calc2 <- st_area(inter_state)
+    inter_state$area_calc2 <- sf::st_area(inter_state)
     inter_state$area_prop <- as.numeric(inter_state$area_calc2/inter_state$area_calc)
     inter_state <- subset(inter_state, area_prop > 0.05)
 

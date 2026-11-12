@@ -28,6 +28,8 @@ create-uc-summary: $(RESULTS_DIR)/UCsummary.csv
 
 get-occurrences: $(RESULTS_DIR)/summary_getOccs.csv
 
+maps: $(RESULTS_DIR)/maps.rds
+
 treat-data: $(DATASTATE)/corpus.rda
 
 Locations/extraTables/municipalityGazetteer.csv:
@@ -35,6 +37,7 @@ Locations/extraTables/municipalityGazetteer.csv:
 
 Locations/extraTables/uniqueMunicipalities.csv: Locations/extraTables/municipalityGazetteer.csv
 
+# Dummy targets
 Locations/extraTables/locGazetteer.csv:
 
 $(RESULTS_DIR)/UCsummary.csv: config.R data-input/Locations/info/* #analyses/createUCsummary.R R/search.R
@@ -58,7 +61,7 @@ $(DATATMP)/other.rda: analyses/formatData/other.R data-input/Occurrences/OtherSo
 $(DATATMP)/all_data.rda: analyses/joinData.R $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/reflora.rda $(DATATMP)/splink.rda $(DATATMP)/other.rda
 	$(R) "analyses/joinData.R"
 
-$(DATATMP)/treated_data_all.rda: analyses/treatData_part1.R $(DATATMP)/all_data.rda Locations/extraTables/uniqueMunicipalities.csv Locations/extraTables/municipalityGazetteer.csv Locations/extraTables/locGazetteer.csv analyses/fixLocation.R
+$(DATATMP)/treated_data_all.rda: analyses/treatData_part1.R $(DATATMP)/all_data.rda Locations/extraTables/uniqueMunicipalities.csv Locations/extraTables/municipalityGazetteer.csv Locations/extraTables/locGazetteer.csv R/fixLocation.R
 	$(R) "analyses/treatData_part1.R"
 
 $(DATASTATE)/corpus-full.rda: analyses/treatData.R config.R $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
@@ -73,7 +76,10 @@ treated-data/noStateInfo.rds: analyses/treatData.R config.R $(DATATMP)/treated_d
 $(DATASTATE)/corpus.rda: analyses/deduplicate.R $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds #analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"
 
-$(RESULTS_DIR)/summary_getOccs.csv: analyses/getOccs.R config.R $(DATASTATE)/corpus.rda data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv
+$(RESULTS_DIR)/maps.rds: analyses/consolidateShapes.R config.R $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/checkedLocations.csv R/fixLocation.R
+	$(R) "analyses/consolidateShapes.R"
+
+$(RESULTS_DIR)/summary_getOccs.csv: analyses/getOccs.R config.R $(DATASTATE)/corpus.rda $(RESULTS_DIR)/maps.rds data-input/Locations/extraTables/checkedLocations.csv $(RESULTS_DIR)/UCsummary.csv data-input/Locations/extraTables/uc_locstrings.csv
 	$(R) "analyses/getOccs.R"
 
 treat-occs: $(RESULTS_DIR)/summary_treatOccs.csv
