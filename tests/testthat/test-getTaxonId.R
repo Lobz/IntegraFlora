@@ -1,8 +1,8 @@
 library(testthat)
 
 project_root <- normalizePath(file.path(testthat::test_path(), "..", ".."))
-source(file.path(project_root, "R", "getTaxonId.R"))
-source(file.path(project_root, "R", "normalizeTaxonRank.R"))
+# source(file.path(project_root, "R", "getTaxonId.R"))
+# source(file.path(project_root, "R", "normalizeTaxonRank.R"))
 
 test_that("completeScientificName fills missing scientific names from available fields", {
   dt <- data.frame(

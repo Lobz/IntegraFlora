@@ -1,7 +1,7 @@
 library(testthat)
 
 project_root <- normalizePath(file.path(testthat::test_path(), "..", ".."))
-source(file.path(project_root, "R", "read_utils.R"))
+# source(file.path(project_root, "R", "read_utils.R"))
 
 test_that("turn_to_array_string produces a valid R vector literal", {
   expect_equal(turn_to_array_string(c("A", "B")), "c( 'A', 'B' )")

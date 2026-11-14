@@ -1,7 +1,7 @@
 library(testthat)
 
 project_root <- normalizePath(file.path(testthat::test_path(), "..", ".."))
-source(file.path(project_root, "R", "corrections.R"))
+# source(file.path(project_root, "R", "corrections.R"))
 
 # Basic correction workflow
 

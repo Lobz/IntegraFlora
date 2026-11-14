@@ -1,7 +1,7 @@
 library(testthat)
 
 project_root <- normalizePath(file.path(testthat::test_path(), "..", ".."))
-source(file.path(project_root, "R", "normalizeTaxonRank.R"))
+# source(file.path(project_root, "R", "normalizeTaxonRank.R"))
 
 test_that("normalizeTaxonRank translates common rank abbreviations", {
   out <- normalizeTaxonRank(c("sp.", "var.", "gen.", "subsp.", "Infr."))
