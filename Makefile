@@ -32,13 +32,13 @@ maps: $(RESULTS_DIR)/maps.rds
 
 treat-data: $(DATASTATE)/corpus.rda
 
-Locations/extraTables/municipalityGazetteer.csv: analyses/createMunicipalityGazetteer.R
+data-input/Locations/extraTables/municipalityGazetteer.csv: analyses/createMunicipalityGazetteer.R
 	$(R) "analyses/createMunicipalityGazetteer.R"
 
-Locations/extraTables/uniqueMunicipalities.csv: Locations/extraTables/municipalityGazetteer.csv
+data-input/Locations/extraTables/uniqueMunicipalities.csv: Locations/extraTables/municipalityGazetteer.csv
 
 # Dummy targets
-Locations/extraTables/locGazetteer.csv: analyses/createMunicipalityGazetteer.R
+data-input/Locations/extraTables/locGazetteer.csv: analyses/createMunicipalityGazetteer.R
 
 $(RESULTS_DIR)/UCsummary.csv: config.R data-input/Locations/info/* #analyses/createUCsummary.R R/search.R
 	$(R) "analyses/createUCsummary.R"
@@ -61,7 +61,7 @@ $(DATATMP)/other.rda: analyses/formatData/other.R data-input/Occurrences/OtherSo
 $(DATATMP)/all_data.rda: analyses/joinData.R $(DATATMP)/gbif.rda $(DATATMP)/jabot.rda $(DATATMP)/reflora.rda $(DATATMP)/splink.rda $(DATATMP)/other.rda
 	$(R) "analyses/joinData.R"
 
-$(DATATMP)/treated_data_all.rda: analyses/treatData_part1.R $(DATATMP)/all_data.rda Locations/extraTables/uniqueMunicipalities.csv Locations/extraTables/municipalityGazetteer.csv Locations/extraTables/locGazetteer.csv R/fixLocation.R
+$(DATATMP)/treated_data_all.rda: analyses/treatData_part1.R $(DATATMP)/all_data.rda data-input/Locations/extraTables/uniqueMunicipalities.csv data-input/Locations/extraTables/municipalityGazetteer.csv data-input/Locations/extraTables/locGazetteer.csv R/fixLocation.R
 	$(R) "analyses/treatData_part1.R"
 
 $(DATASTATE)/corpus-full.rda: analyses/treatData.R config.R $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
