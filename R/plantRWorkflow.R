@@ -7,9 +7,8 @@ plantRWorkflow_part1 <- function(x) {
     # Standardize missing information
     x[x==""] <- NA
 
-    # # Subset country
-    # print(dim(x))
-    # x <- subset(x, is.na(country) | grepl("br", tolower(country), fixed=T))
+    # Apply corrections
+    x <- apply_corrections(x)
 
     # Lets format this
     print("Formatting occs")
