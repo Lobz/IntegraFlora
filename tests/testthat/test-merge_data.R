@@ -55,7 +55,7 @@ test_that("readShapeInfo reads and combines all metadata-listed shapes", {
   expect_equal(class(all_shapes), "list")
   expect_all_true(sapply(all_shapes, function(x) inherits(x, "sf")))
 
-  merged_shapes <- merge_shapes(all_shapes)
+  merged_shapes <- mergeShapes(all_shapes)
 
   expect_s3_class(merged_shapes, "sf")
   expect_gt(nrow(merged_shapes), 0L)
@@ -70,7 +70,7 @@ test_that("readShapeInfo reads and combines all metadata-listed shapes", {
   expect_all_true(merged_shapes$name == unlist(sapply(all_shapes, function(x) x$name)))
 })
 
-test_that("merge_shapes preserves the default metadata columns and accepts keep_cols='all'", {
+test_that("mergeShapes preserves the default metadata columns and accepts keep_cols='all'", {
   s1 <- sf::st_sf(
     name = "A",
     id = 1,
@@ -82,7 +82,7 @@ test_that("merge_shapes preserves the default metadata columns and accepts keep_
     geometry = sf::st_sfc(sf::st_point(c(1, 1)), crs = 4326)
   )
 
-  merged <- merge_shapes(list(s1, s2))
+  merged <- mergeShapes(list(s1, s2))
   expect_s3_class(merged, "sf")
   expect_equal(nrow(merged), 2L)
   expect_true(all(c("name", "geometry") %in% names(merged)))
@@ -90,7 +90,7 @@ test_that("merge_shapes preserves the default metadata columns and accepts keep_
   expect_false("status" %in% names(merged))
   expect_equal(merged$name, c("A", "B"))
 
-  merged_all <- merge_shapes(list(s1, s2), keep_cols = "all")
+  merged_all <- mergeShapes(list(s1, s2), keep_cols = "all")
   expect_s3_class(merged_all, "sf")
   expect_equal(nrow(merged_all), 2L)
   expect_true(all(c("name", "geometry", "id", "status") %in% names(merged_all)))

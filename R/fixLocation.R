@@ -1,30 +1,57 @@
 
+#' Load the extra location tables used by the Brazil-specific fixers.
+#'
+#' @param extraTables Path to the directory holding municipality and gazetteer CSVs.
+#' @return A list with `gazet` and `uniqueMunicipalities` entries.
+#' @export
+loadExtraLocationTables <- function(extraTables = "data-input/Locations/extraTables/") {
+    print("Loading municipality gazetteer...")
+    munis <- read.csv(file.path(extraTables, "municipalityGazetteer.csv"))
+    gazet <- rbind(plantR:::gazetteer, munis)
+
+    print("Loading extra gazetteer...")
+    extra_gazet <- read.csv(file.path(extraTables, "locGazetteer.csv"))
+    extra_gazet <- subset(extra_gazet,
+        (!loc %in% gazet$loc) & (loc.correct %in% gazet$loc.correct),
+        select = c("loc", "loc.correct"))
+    extra_gazet_filled <- merge(
+        extra_gazet,
+        gazet[!duplicated(gazet$loc.correct), c(1, 3:6)],
+        by = "loc.correct",
+        all = FALSE
+    )[, names(gazet)]
+    gazet <- rbind(gazet, extra_gazet_filled)
+
+    list(
+        gazet = gazet,
+        uniqueMunicipalities = read.csv(file.path(extraTables, "uniqueMunicipalities.csv"))
+    )
+}
+
 #' Fix Location
 #'
 #' A more elaborate version of plantR::formatLoc, focused on fixing locations within Brazil, especially in São Paulo.
 #'
 #' @param dt A data.frame treated with plantR::formatDwc() and plantR::formatOcc()
 #' @param selectedCountry The name of a country, usually "Brazil".
+#' @param gazet A gazetteer data.frame used for location resolution. Defaults to the combined plantR gazetteer plus extra municipality entries.
+#' @param uniqueMunicipalities A data.frame with municipality normalization mappings used later in the workflow.
 #'
 #' @importFrom utils read.csv
 #' @importFrom plantR formatLoc
 #' @export
-fixLocation <- function(dt, selectedCountry = "Brazil") {
+fixLocation <- function(dt, selectedCountry = "Brazil",
+                       extraTables = "data-input/Locations/extraTables/",
+                       gazet = NULL,
+                       uniqueMunicipalities = NULL) {
 
     print(paste("Found", nrow(dt), "records."))
 
-    # get municipalities with unique name
-    print("Loading municipality gazetteer...")
-    munis <- read.csv("data-input/Locations/extraTables/municipalityGazetteer.csv")
-    gazet = rbind(plantR:::gazetteer, munis)
-
-    # load complementary gazetteer
-    print("Loading extra gazetteer...")
-    extra_gazet <- read.csv("data-input/Locations/extraTables/locGazetteer.csv")
-    extra_gazet <- subset(extra_gazet, (!loc %in% gazet$loc) & (loc.correct %in% gazet$loc.correct), select = c("loc", "loc.correct"))
-    extra_gazet_filled <- merge(extra_gazet, gazet[!duplicated(gazet$loc.correct),c(1,3:6)], by="loc.correct", all=F)[,names(gazet)]
-
-    gazet <- rbind(gazet, extra_gazet_filled)
+    if (is.null(gazet) || is.null(uniqueMunicipalities)) {
+        loaded <- loadExtraLocationTables(extraTables)
+        if (is.null(gazet)) gazet <- loaded$gazet
+        if (is.null(uniqueMunicipalities)) uniqueMunicipalities <- loaded$uniqueMunicipalities
+    }
 
     print("Formatting loc...")
     if(!"locality" %in% names(dt)) dt$locality <- NA
@@ -138,10 +165,9 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
         x <- finLoc(x, gazet = gazet)
     })
 
-    munis <- read.csv("data-input/Locations/extraTables/uniqueMunicipalities.csv")
     dt <- tryAgain(dt, function(x) x$resolution.gazetteer == "country" & !is.na(x$municipality.new), function(x) {
         # find state name in municipality name
-        x$stateProvince.new <- munis$stateProvince.new[match(x$municipality.new, munis$municipality.new)]
+        x$stateProvince.new <- uniqueMunicipalities$stateProvince.new[match(x$municipality.new, uniqueMunicipalities$municipality.new)]
 
         x <- finLoc(x, gazet = gazet)
     })
@@ -149,7 +175,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
     dt <- tryAgain(dt, function(x) x$resolution.gazetteer == "country" & is.na(x$municipality), function(x) {
         # find state name in state name
         muni <- tolower(rmLatin(x$stateProvince))
-        x$stateProvince.new <- munis$stateProvince.new[match(muni, munis$municipality.new)]
+        x$stateProvince.new <- uniqueMunicipalities$stateProvince.new[match(muni, uniqueMunicipalities$municipality.new)]
         x$municipality.new <- muni
 
         x <- finLoc(x, gazet = gazet)
@@ -164,7 +190,7 @@ fixLocation <- function(dt, selectedCountry = "Brazil") {
         x$municipality.new <- gsub(" -|- "," ",x$municipality.new)
         x$municipality.new<- remove_punct(x$municipality.new)
         x$municipality.new<- remove_spaces(x$municipality.new)
-        x$stateProvince.new <- munis$name_state_norm[match(x$municipality.new, tolower(rmLatin(munis$name_muni)))]
+        x$stateProvince.new <- uniqueMunicipalities$name_state_norm[match(x$municipality.new, tolower(rmLatin(uniqueMunicipalities$name_muni)))]
 
         x <- finLoc(x, gazet = gazet)
     })

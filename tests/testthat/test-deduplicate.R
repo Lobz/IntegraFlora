@@ -1,10 +1,13 @@
 library(testthat)
 
+project_root <- normalizePath(file.path(testthat::test_path(), "..", ".."))
+
 test_that("my_valDup runs on a minimal occurrence record", {
   dt <- data.frame(
     institutionCode = c("TEST", "TEST", "TEST"),
     collectionCode = c("TESTCOL", "TESTCOL", "TESTCOL"),
     catalogNumber = c("123", "124", "125"),
+    barcode = c("BAR001", "BAR002", "BAR003"),
     recordNumber = c("1", "2", "3"),
     recordedBy = c("Silva", "Souza", "Oliveira"),
     year = c(2020, 2020, 2021),
@@ -51,7 +54,7 @@ test_that("my_valDup runs on a minimal occurrence record", {
   )
 
   dat <- formatOccurrence(dt)
-  dat <- plantRWorkflow_part1(dat)
+  dat <- plantRWorkflow_part1(dat, project_root = project_root)
   dat <- plantRWorkflow_part2(dat, stateProvince = "São Paulo")
   expect_s3_class(dat, "data.frame")
   expect_gte(nrow(dat), 2L)

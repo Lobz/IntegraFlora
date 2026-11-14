@@ -3,25 +3,27 @@
 #' @description This function is part of the plantR workflow, and is used to format and validate occurrence and location data.
 #' @param x A data.frame containing occurrence data.
 #' @export
-plantRWorkflow_part1 <- function(x) {
+plantRWorkflow_part1 <- function(x, project_root = ".") {
     # Standardize missing information
     x[x==""] <- NA
 
     # Apply corrections
-    x <- apply_corrections(x)
+    print("Applying corrections...")
+    x <- apply_corrections(x, corrections_dir =
+                file.path(project_root, "data-input/Occurrences/Corrections"))
 
     # Lets format this
-    print("Formatting occs")
+    print("Formatting occs...")
     x <- plantR::formatOcc(x, noNumb = NA, noYear = NA, noName = NA)
 
-    print("Formatting locs")
+    print("Formatting locs...")
     if(!exists("COUNTRY")) COUNTRY <- "Brazil"
     if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
     STATE <- Sys.getenv("STATE")
     if(STATE == "") STATE <- STATEPROVINCE
     STATEPROVINCE <- STATE
 
-    x <- fixLocation(x)
+    x <- fixLocation(x, extraTables = file.path(project_root, "data-input/Locations/extraTables"))
 
     # Treat gps data
     print("Formatting coords...")
