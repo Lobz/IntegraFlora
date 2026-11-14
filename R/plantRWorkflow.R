@@ -71,7 +71,7 @@ plantRWorkflow_part2 <- function(x, stateProvince = STATEPROVINCE) {
 
     # Get taxon IDs
     print("Formatting taxonomy...")
-    x <- fullGetId(x, generalist = T)
+    x <- fullGetId(x)
 
     # validate
     print("Validating location info...")
@@ -79,11 +79,17 @@ plantRWorkflow_part2 <- function(x, stateProvince = STATEPROVINCE) {
 
     print("Validating identification info...")
     # validate taxonomist
-    x <- plantR::validateTax(x, generalist = T)
+    x <- plantR::validateTax(x, generalist = TRUE)
     x$tax.check <- factor(x$tax.check, levels = c("unknown", "low", "medium", "high"), ordered = T)
 
     print("Validating geolocation info...")
-    map <- plantR::latamMap$brazil
+    if (!exists("latamMap")) {
+        assign("latamMap", plantR::latamMap, envir = .GlobalEnv)
+    }
+    if (!exists("worldMap")) {
+        assign("worldMap", plantR::worldMap, envir = .GlobalEnv)
+    }
+    map <- get("latamMap", envir = .GlobalEnv)$brazil
     map <- subset(map, NAME_1 == tolower(plantR::rmLatin(stateProvince)))
     x <- plantR::validateCoord(x, high.map = map) # WORKING
     x <- tryAgain(x, function(x) is.na(x$decimalLatitude.new), plantR::formatCoord)
@@ -92,4 +98,67 @@ plantRWorkflow_part2 <- function(x, stateProvince = STATEPROVINCE) {
     table(x$geo.check, x$origin.coord)
 
     x
+}
+
+#' Validate duplicate records
+#'
+#' Applies the plantR duplicate-detection routine with project-specific field
+#' mappings and duplicate-comparison rules.
+#' @param x A data.frame of occurrence records.
+#' @return A data.frame with duplicate flags and validation output.
+#' @export
+my_valDup <- function(x) {
+  plantR::validateDup(
+    x,
+    noNumb = NA,
+    noYear = NA,
+    noName = NA,
+    prop = 0.2,
+    comb.fields = list(
+      c("family", "col.last.name", "col.number", "col.loc"),
+      c("family", "col.last.name", "col.number", "col.year"),
+      c("species", "col.last.name", "col.number", "col.year"),
+      c("species", "col.last.name", "col.number", "col.loc"),
+      c("col.year", "col.last.name", "col.number", "col.loc")
+    ),
+    tax.names = c(
+      family = "family.new",
+      species = "scientificName.new",
+      tax.auth = "scientificNameAuthorship.new",
+      det.name = "identifiedBy.new",
+      det.year = "yearIdentified.new",
+      tax.check = "tax.check",
+      tax.rank = "taxon.rank",
+      status = "scientificNameStatus",
+      id = "id",
+      name.full = "scientificNameFull",
+      gen = "genus.new",
+      sp = "species.new"
+    ),
+    geo.names = c(
+      lat = "decimalLatitude.new",
+      lon = "decimalLongitude.new",
+      org.coord = "origin.coord",
+      prec.coord = "precision.coord",
+      geo.check = "geo.check",
+      datum = "geodeticDatum"
+    ),
+    loc.names = c(
+      loc.str = "loc.correct",
+      res.gazet = "resolution.gazetteer",
+      res.orig = "resol.orig",
+      loc.check = "loc.check",
+      country = "country",
+      stateProvince = "stateProvince",
+      municipality = "municipality",
+      locality = "locality",
+      "country.new" = "country.new",
+      "stateProvince.new" = "stateProvince.new",
+      "municipality.new" = "municipality.new",
+      "locality.new" = "locality.new",
+      "longitude.gazetteer" = "longitude.gazetteer",
+      "latitude.gazetteer" = "latitude.gazetteer"
+    ),
+    ignore.miss = TRUE
+  )
 }

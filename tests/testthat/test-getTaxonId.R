@@ -1,8 +1,6 @@
 library(testthat)
 
 project_root <- normalizePath(file.path(testthat::test_path(), "..", ".."))
-# source(file.path(project_root, "R", "getTaxonId.R"))
-# source(file.path(project_root, "R", "normalizeTaxonRank.R"))
 
 test_that("completeScientificName fills missing scientific names from available fields", {
   dt <- data.frame(
@@ -44,4 +42,42 @@ test_that("getTaxonRank infers rank from name and existing rank metadata", {
   out <- getTaxonRank(dt)
 
   expect_equal(as.character(out$taxon.rank), c("species", "genus", "species", "genus"))
+})
+
+test_that("getTaxonId matches a minimal custom taxonomic backbone", {
+  db <- data.frame(
+    id = c("bfo-1", "bfo-2"),
+    family = c("Fabaceae", "Poaceae"),
+    tax.name = c("Acacia mangium", "Poa annua"),
+    tax.authorship = c("Willd.", "L."),
+    taxon.rank = c("species", "species"),
+    stringsAsFactors = FALSE
+  )
+
+  dt <- data.frame(
+    scientificName = c("Acacia mangium", "Poa annua"),
+    scientificNameAuthorship = c("Willd.", "L."),
+    stringsAsFactors = FALSE
+  )
+
+  out <- getTaxonId(dt, db = db, split.letters = TRUE)
+
+  expect_true(all(c("tax.notes", "id") %in% names(out)))
+  expect_equal(out$id, c("bfo-1", "bfo-2"))
+  expect_equal(out$tax.notes, c("", ""))
+})
+
+test_that("fullGetId fills taxonomic IDs for a small dataset", {
+  dt <- data.frame(
+    scientificName = c("Acacia mangium", "Poa annua"),
+    scientificNameAuthorship = c("Willd.", "L."),
+    stringsAsFactors = FALSE
+  )
+
+  out <- fullGetId(dt)
+
+  expect_s3_class(out, "data.frame")
+  expect_true(all(c("id", "taxon.rank", "tax.notes") %in% names(out)))
+  expect_equal(nrow(out), 2L)
+  expect_true(all(!is.na(out$id)))
 })
