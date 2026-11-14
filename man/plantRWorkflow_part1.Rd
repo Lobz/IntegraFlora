@@ -4,7 +4,7 @@
 \alias{plantRWorkflow_part1}
 \title{plantRWorkflow_part1}
 \usage{
-plantRWorkflow_part1(x)
+plantRWorkflow_part1(x, project_root = ".")
 }
 \arguments{
 \item{x}{A data.frame containing occurrence data.}

@@ -4,12 +4,22 @@
 \alias{fixLocation}
 \title{Fix Location}
 \usage{
-fixLocation(dt, selectedCountry = "Brazil")
+fixLocation(
+  dt,
+  selectedCountry = "Brazil",
+  extraTables = "data-input/Locations/extraTables/",
+  gazet = NULL,
+  uniqueMunicipalities = NULL
+)
 }
 \arguments{
 \item{dt}{A data.frame treated with plantR::formatDwc() and plantR::formatOcc()}
 
 \item{selectedCountry}{The name of a country, usually "Brazil".}
+
+\item{gazet}{A gazetteer data.frame used for location resolution. Defaults to the combined plantR gazetteer plus extra municipality entries.}
+
+\item{uniqueMunicipalities}{A data.frame with municipality normalization mappings used later in the workflow.}
 }
 \description{
 A more elaborate version of plantR::formatLoc, focused on fixing locations within Brazil, especially in São Paulo.

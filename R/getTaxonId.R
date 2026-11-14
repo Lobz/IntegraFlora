@@ -101,32 +101,35 @@ removeRepeatedAuthorship <- function(x) {
     x
 }
 
+safe_format_tax <- function(x, ...) {
+    suppressWarnings(plantR::formatTax(x, ...))
+}
+
 #' getTaxonId
 #'
 #' Try to get taxon ID using many different strategies
 #'
 #' @param total A data.frame containing identification information with columns "scientificName", "scientificNameAuthorship", "genus"
 #' @param complete Run all possible strategies? If false, will run a default formatTax. Defaults to TRUE
-#' @importFrom plantR formatTax
 #' @export
 getTaxonId <- function(total, complete = TRUE, ...) {
 
     # Match scientificName to oficial F&FBR backbone
     if("tax.notes" %in% names(total)) {
-        total <- tryAgain(total, not_found, formatTax, label = "Default formatTax", ...)
+        total <- tryAgain(total, not_found, safe_format_tax, label = "Default formatTax", ...)
     } else {
-        total <- formatTax(total, ...)
+        total <- safe_format_tax(total, ...)
     }
 
     # we're gonna try again without author (see issue #170 in plantR)
-    total <- tryAgain(total, function(x) x$tax.notes == "not found", formatTax, use.authors = F, ...)
+    total <- tryAgain(total, function(x) x$tax.notes == "not found", safe_format_tax, use.authors = F, ...)
 
     if (complete) {
     # Try again with verbatim
     if("verbatimScientificName" %in% names(total)) {
-        total <- tryAgain(total, function(x) not_found(x) & x$scientificName != x$verbatimScientificName, formatTax, tax.name = "verbatimScientificName", label = "Verbatim", ...)
+        total <- tryAgain(total, function(x) not_found(x) & x$scientificName != x$verbatimScientificName, safe_format_tax, tax.name = "verbatimScientificName", label = "Verbatim", ...)
         # And again without author
-        total <- tryAgain(total,  function(x) x$tax.notes == "not found", formatTax, tax.name = "verbatimScientificName", use.author = F, ...)
+        total <- tryAgain(total,  function(x) x$tax.notes == "not found", safe_format_tax, tax.name = "verbatimScientificName", use.author = F, ...)
     }
 
     # Isolate authorship
@@ -134,7 +137,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
 
     # What's still unmatched? Genus rank
     if("genus" %in% names(total) & "taxonRank" %in% names(total)) {
-        total <- tryAgain(total, condition = function(x) not_found(x) & x$taxonRank=="genus", FUN = formatTax, tax.name = "genus", label = "Genus", ...)
+        total <- tryAgain(total, condition = function(x) not_found(x) & x$taxonRank=="genus", FUN = safe_format_tax, tax.name = "genus", label = "Genus", ...)
     }
 
     # What's still unmatched? Vars and subspecies
@@ -143,7 +146,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
         FUN = function(x, ...) {
             saved <- x$scientificName
             x$scientificName <- sub("(\\w+ \\w+ )", "\\1 var. ", x$scientificName)
-            x <- formatTax(x, ...)
+            x <- safe_format_tax(x, ...)
             x$scientificName <- saved
             x
         },
@@ -154,7 +157,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
         FUN = function(x, ...) {
             saved <- x$scientificName
             x$scientificName <- sub("(\\w+ \\w+ )", "\\1 subsp. ", x$scientificName)
-            x <- formatTax(x, ...)
+            x <- safe_format_tax(x, ...)
             x$scientificName <- saved
             x
         },
@@ -165,7 +168,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
         FUN = function(x, ...) {
             saved <- x$scientificName
             x$scientificName <- sub("(\\w+ \\w+ )", "\\1 f. ", x$scientificName)
-            x <- formatTax(x, ...)
+            x <- safe_format_tax(x, ...)
             x$scientificName <- saved
             x
         },
@@ -177,7 +180,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
         FUN = function(x, ...) {
             saved <- x$scientificName
             x$scientificName <- sub("(\\w+ \\w+ )", "\\1 form ", x$scientificName)
-            x <- formatTax(x, ...)
+            x <- safe_format_tax(x, ...)
             x$scientificName <- saved
             x
         },
@@ -193,7 +196,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
         FUN = function(x, ...) {
             saved <- x$scientificName
             x$scientificName <- sub("(^\\w+ \\w+).*", "\\1", x$scientificName)
-            x <- formatTax(x, ...)
+            x <- safe_format_tax(x, ...)
             x$scientificName <- saved
             x
         },
@@ -209,7 +212,7 @@ getTaxonId <- function(total, complete = TRUE, ...) {
             saved2 <- x$scientificNameAuthorship
             x$scientificName <- x$scientificName.new
             x$scientificNameAuthorship <- x$scientificNameAuthorship.new
-            x <- formatTax(x)
+            x <- safe_format_tax(x)
             x$scientificName <- saved
             x$scientificNameAuthorship <- saved2
             x
@@ -298,7 +301,7 @@ fullGetId <- function(x) {
     # We'll try getting extra taxons with wfo
     # loading the WFO and WCVP backbones
     if(!exists("wfoNames")) {
-        print("Loadind world flora databases...")
+        print("Loading world flora databases...")
         data(list = c("wfoNames", "wcvpNames"), package = "plantRdata")
     }
     # using the World Flora Online

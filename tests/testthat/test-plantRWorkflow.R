@@ -30,6 +30,7 @@ make_workflow_data <- function() {
     col.loc = c("X", "Y", "Z"),
     col.year = c(2020, 2020, 2021),
     species = c("Acacia sp.", "Acacia sp.", "Acacia mangium"),
+    typestatus = NA,
     stringsAsFactors = FALSE
   )
 }
