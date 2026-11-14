@@ -35,7 +35,7 @@ treat-data: $(DATASTATE)/corpus.rda
 data-input/Locations/extraTables/municipalityGazetteer.csv: analyses/createMunicipalityGazetteer.R
 	$(R) "analyses/createMunicipalityGazetteer.R"
 
-data-input/Locations/extraTables/uniqueMunicipalities.csv: Locations/extraTables/municipalityGazetteer.csv
+data-input/Locations/extraTables/uniqueMunicipalities.csv: data-input/Locations/extraTables/municipalityGazetteer.csv
 
 # Dummy targets
 data-input/Locations/extraTables/locGazetteer.csv: analyses/createMunicipalityGazetteer.R
