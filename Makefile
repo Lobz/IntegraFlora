@@ -15,7 +15,10 @@ export RESULTS_DIR=results
 GBIF_URL ?= https://api.gbif.org/v1/occurrence/download/request/0000452-260623161305970.zip
 GBIF_FILE ?= "data-input/Occurrences/GBIF/GBIF_Brazil.zip"
 
-all: treat-occs
+all: test treat-occs
+
+test:
+	$(R) -e "devtools::test()"
 
 install-deps: install_deps_linux.sh
 	$(SHELL) install_deps_linux.sh
