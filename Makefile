@@ -71,10 +71,8 @@ $(DATASTATE)/corpus-full.rda: analyses/treatData.R config.R $(DATATMP)/treated_d
 	$(R) "analyses/treatData.R"
 
 treated-data/noStateInfo.rds: analyses/treatData.R config.R $(DATATMP)/treated_data_all.rda R/plantRWorkflow.R R/getTaxonId.R
-	bash changeConf.sh "none"
-	$(R) "analyses/treatData.R"
+	$(R) "analyses/treatData.R" noState
 	$(R) -e "load('corpus-full.rda'); saveRDS(corpus, 'treated-data/noStateInfo.rds')"
-	bash changeConf.sh $(STATE)
 
 $(DATASTATE)/corpus.rda: analyses/deduplicate.R $(DATASTATE)/corpus-full.rda treated-data/noStateInfo.rds #analyses/deduplicate.R
 	$(R) "analyses/deduplicate.R"

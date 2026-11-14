@@ -4,6 +4,13 @@ source("config.R")
 
 if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
 STATE <- Sys.getenv("STATE")
+args <- commandArgs()
+last_default <- which(args=="--args")
+if(length(args) > last_default){
+    args <- args[(last_default+1):length(args)]
+    STATE <- paste(args, collapse = " ")
+}
+
 if(STATE == "") STATE <- STATEPROVINCE
 STATEPROVINCE <- STATE
 
@@ -16,12 +23,19 @@ if(tmp_dir == "") tmp_dir <- "data-tmp"
 tmp_dir_state <- Sys.getenv("DATASTATE")
 if(tmp_dir_state == "") tmp_dir_state <- "data-tmp"
 
+print("Environments variables: ")
+print(paste0("STATEPROVINCE=", STATEPROVINCE))
+print(paste0("STATE=", STATE))
+print(paste0("results_dir=", results_dir))
+print(paste0("tmp_dir=", tmp_dir))
+print(paste0("tmp_dir_state=", tmp_dir_state))
+
 print("Loading all data...")
 load(file.path(tmp_dir, "treated_data_all.rda"))
 
 print("Subsetting...")
 if(SUBSETTOPROVINCE) {
-    treated_data <- lapply(treated_data, subsetToProvince)
+    treated_data <- lapply(treated_data, subsetToProvince, stateProvince = STATEPROVINCE)
     tmp_dir <- tmp_dir_state
 }
 

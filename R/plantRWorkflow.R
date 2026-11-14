@@ -36,25 +36,18 @@ plantRWorkflow_part1 <- function(x, project_root = ".") {
 #' This function subsets a data.frame to a specific country and state/province, and removes records that have no location information.
 #' @param x A data.frame containing occurrence data.
 #' @export
-subsetToProvince <- function(x) {
+subsetToProvince <- function(x, stateProvince = STATEPROVINCE) {
     print("Subsetting to state...")
 
-    if(!exists("STATEPROVINCE")) STATEPROVINCE <- "São Paulo"
-    STATE <- Sys.getenv("STATE")
-    if(STATE == "") STATE <- STATEPROVINCE
-    STATEPROVINCE <- STATE
-
-    tab(x$country.correct)
-    tab(x$country.new[is.na(x$country.correct)])
     x <- subset(x, country.correct %in% COUNTRY)
 
     # noCountry <- subset(dt, is.na(country.correct))
     tab(x$stateProvince.correct)
     tab(x$municipality.new[is.na(x$stateProvince.correct)])
-    if(STATEPROVINCE %in% c("none","",NA)) {
+    if(stateProvince %in% c("none","",NA,"noState")) {
         x <- subset(x, is.na(stateProvince.correct))
     } else {
-        x <- subset(x, stateProvince.correct %in% STATEPROVINCE)
+        x <- subset(x, stateProvince.correct %in% stateProvince)
     }
 
     # Select only records that have SOME location info
